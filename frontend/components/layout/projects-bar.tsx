@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,11 +13,37 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useEnvironmentStore } from "../context";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
+import { Separator } from "../ui/separator";
+import { IconChevronLeft, IconPlus } from "@tabler/icons-react";
 
 export function ProjectsBar() {
   const { openProjectsBar, setOpenProjectsBar } = useEnvironmentStore(
     (state) => state
   );
+
+  const pathName = usePathname();
+
+  const projects = [
+    {
+      id: 1,
+      projectId: "dckadtgfjert",
+      name: "Chainlink Protocol x Chiliz Chain",
+    },
+    {
+      id: 2,
+      projectId: "ackaddffaflo",
+      name: "Base and Arbitrum using Hyperlane",
+    },
+    {
+      id: 3,
+      projectId: "xxxxckadtgdrt",
+      name: "SKALE Network x Chainlink Protocol",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-2">
       <Sheet
@@ -26,32 +52,47 @@ export function ProjectsBar() {
           setOpenProjectsBar(val);
         }}
       >
-        <SheetContent side={"left"}>
-          <SheetHeader>
-            <SheetTitle>Edit profile</SheetTitle>
-            <SheetDescription>
-              Make changes to your profile here. Click save when you're done.
-            </SheetDescription>
+        <SheetContent side={"left"} className="p-0">
+          <SheetHeader className="p-6">
+            <div className="flex justify-between">
+              <SheetTitle>All Projects</SheetTitle>
+              <IconChevronLeft
+                className="text-white cursor-pointer"
+                onClick={() => {
+                  setOpenProjectsBar(false);
+                }}
+              />
+            </div>
           </SheetHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input id="name" value="Pedro Duarte" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Username
-              </Label>
-              <Input id="username" value="@peduarte" className="col-span-3" />
-            </div>
+          <Separator className="mb-4" />
+          {projects.map((project, idx) => (
+            <Link
+              key={idx}
+              href="#"
+              className={cn(
+                buttonVariants({ variant: "secondary" }),
+                pathName == "/project/" + project.projectId
+                  ? "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white hover:bg-muted"
+                  : "bg-transparent text-white hover:bg",
+                "justify-start w-full p-6 text-lg rounded-none"
+              )}
+            >
+              {project.name}
+            </Link>
+          ))}
+          <Separator className="my-4" />
+          <div className="flex justify-center ">
+            <Link
+              href="#"
+              className={cn(
+                buttonVariants({ variant: "ghost" }),
+                "flex space-x-2 px-8 py-6"
+              )}
+            >
+              <IconPlus className=" text-white" />
+              <p className="text-lg font-semibold">Create new project</p>
+            </Link>
           </div>
-          <SheetFooter>
-            <SheetClose asChild>
-              <Button type="submit">Save changes</Button>
-            </SheetClose>
-          </SheetFooter>
         </SheetContent>
       </Sheet>
     </div>
