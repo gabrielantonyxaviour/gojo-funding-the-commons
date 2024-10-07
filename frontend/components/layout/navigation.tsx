@@ -38,6 +38,13 @@ export function Navigation() {
       ),
       href: "/dashboard",
     },
+    {
+      title: "Switch Theme",
+      icon: (
+        <IconChartHistogram className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "/theme",
+    },
   ];
   return (
     <FloatingHorizontalDock mobileClassName="translate-x-20" items={links} />

@@ -6,7 +6,11 @@
 
 import { useEnvironmentStore } from "@/components/context";
 import { cn } from "@/lib/utils";
-import { IconLayoutNavbarCollapse } from "@tabler/icons-react";
+import {
+  IconLayoutNavbarCollapse,
+  IconMoon,
+  IconSun,
+} from "@tabler/icons-react";
 import {
   AnimatePresence,
   MotionValue,
@@ -15,6 +19,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -130,6 +135,7 @@ function IconContainer({
   const { openProjectsBar, setOpenProjectsBar } = useEnvironmentStore(
     (state) => state
   );
+  const { theme, setTheme } = useTheme();
   let distance = useTransform(mouseX, (val) => {
     let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
 
@@ -172,13 +178,17 @@ function IconContainer({
 
   return (
     <Link
-      href={href == "/projects" ? "#" : href}
+      href={href == "/projects" || href == "/theme" ? "#" : href}
       onClick={() => {
         if (href == "/projects") {
           console.log(openProjectsBar);
           console.log("clicked");
           console.log("href", href);
           setOpenProjectsBar(true);
+        } else if (href == "/theme") {
+          if (theme == "light") {
+            setTheme("dark");
+          } else setTheme("light");
         }
       }}
     >
@@ -205,7 +215,15 @@ function IconContainer({
           style={{ width: widthIcon, height: heightIcon }}
           className="flex items-center justify-center"
         >
-          {icon}
+          {href == "/theme" ? (
+            theme == "light" ? (
+              <IconSun className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+            ) : (
+              <IconMoon className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+            )
+          ) : (
+            icon
+          )}
         </motion.div>
       </motion.div>
     </Link>

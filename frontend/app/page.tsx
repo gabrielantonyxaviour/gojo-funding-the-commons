@@ -1,11 +1,7 @@
 "use client";
 
-import ToggleTheme from "@/components/ui/custom/toggle-theme";
+import Home from "@/components/home";
 
-export default function Home() {
-  return (
-    <div>
-      <ToggleTheme />
-    </div>
-  );
+export default function HomePage() {
+  return <Home />;
 }
