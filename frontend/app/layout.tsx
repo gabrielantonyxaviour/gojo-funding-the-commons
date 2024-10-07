@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { WalletProvider } from "@/components/providers/wallet-provider";
 import { EnvironmentStoreProvider } from "@/components/context";
+import { Navigation } from "@/components/ui/custom/navigation";
 
 export const metadata: Metadata = {
   title: "Gojo",
@@ -25,12 +26,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <WalletProvider>
-            <EnvironmentStoreProvider>
-              <Toaster />
+          {/* <WalletProvider> */}
+          <EnvironmentStoreProvider>
+            <Toaster />
+            <div className="h-screen w-screen">
               {children}
-            </EnvironmentStoreProvider>
-          </WalletProvider>
+              <div className="fixed bottom-0 left-0 right-0 z-50">
+                <div className="flex justify-center">
+                  <Navigation />
+                </div>
+              </div>
+            </div>
+          </EnvironmentStoreProvider>
+          {/* </WalletProvider> */}
         </ThemeProvider>
       </body>
     </html>
