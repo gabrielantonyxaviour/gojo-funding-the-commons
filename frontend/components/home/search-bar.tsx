@@ -2,11 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  IconArrowUp,
-  IconArrowUpRight,
-  IconChevronUp,
-} from "@tabler/icons-react";
+import { IconArrowUp, IconArrowUpRight } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "../ui/badge";
 import { useState } from "react";
@@ -35,10 +31,10 @@ export function SearchBar() {
           </div>
         </CardContent>
       </Card>
-      <div className="flex flex-wrap justify-center gap-2 py-4">
+      <div className="flex flex-wrap justify-center space-x-4 gap-y-2 py-4">
         {suggestedPrompts.map((p) => (
           <Badge
-            className="text-sm cursor-pointer"
+            className="text-sm cursor-pointer hover:scale-105 transition  ease-out duration-150"
             onClick={() => {
               setPrompt(p);
             }}
