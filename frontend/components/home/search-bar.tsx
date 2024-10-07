@@ -32,8 +32,9 @@ export function SearchBar() {
         </CardContent>
       </Card>
       <div className="flex flex-wrap justify-center space-x-4 gap-y-2 py-4">
-        {suggestedPrompts.map((p) => (
+        {suggestedPrompts.map((p, id) => (
           <Badge
+            key={id}
             className="text-sm cursor-pointer hover:scale-105 transition  ease-out duration-150"
             onClick={() => {
               setPrompt(p);
