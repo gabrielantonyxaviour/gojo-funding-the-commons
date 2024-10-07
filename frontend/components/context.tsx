@@ -1,14 +1,7 @@
 "use client";
 
 import { createEnvironmentStore, type EnvironmentStore } from "@/lib/store";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  type ReactNode,
-  createContext,
-  useRef,
-  useContext,
-  useEffect,
-} from "react";
+import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
 export type EnvironmentStoreApi = ReturnType<typeof createEnvironmentStore>;
@@ -39,11 +32,11 @@ export const EnvironmentStoreProvider = ({
 export const useEnvironmentStore = <T,>(
   selector: (store: EnvironmentStore) => T
 ): T => {
-  const counterStoreContext = useContext(EnvironmentStoreContext);
-  if (!counterStoreContext) {
+  const environmentStoreContext = useContext(EnvironmentStoreContext);
+  if (!environmentStoreContext) {
     throw new Error(
       "useEnvironmentStore must be used within a EnvironmentStoreProvider"
     );
   }
-  return useStore(counterStoreContext, selector);
+  return useStore(environmentStoreContext, selector);
 };
