@@ -11,7 +11,7 @@
 ### UI Components
 
 1. What can I help you ship? https://ui.aceternity.com/components/container-cover
-2. Floating Dock at the bottom - https://ui.aceternity.com/components/floating-dock
+2. ~~DONE - Floating Dock at the bottom - https://ui.aceternity.com/components/floating-dock~~
 3. https://ui.aceternity.com/components/moving-border - For loading
 4. https://ui.aceternity.com/components/multi-step-loader - For transactions?
 5. For Chat box - https://ui.aceternity.com/components/placeholders-and-vanish-input
