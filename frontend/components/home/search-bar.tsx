@@ -15,7 +15,7 @@ export function SearchBar() {
   ];
   const [prompt, setPrompt] = useState("");
   return (
-    <div className="w-[1000px]">
+    <div className="xl:w-[1000px] lg:w-[800px] w-[600px]">
       <Card>
         <CardContent className="p-0">
           <Input
@@ -35,7 +35,7 @@ export function SearchBar() {
         {suggestedPrompts.map((p, id) => (
           <Badge
             key={id}
-            className="text-sm cursor-pointer hover:scale-105 transition  ease-out duration-150"
+            className="xl:text-sm text-xs cursor-pointer hover:scale-105 transition  ease-out duration-150"
             onClick={() => {
               setPrompt(p);
             }}

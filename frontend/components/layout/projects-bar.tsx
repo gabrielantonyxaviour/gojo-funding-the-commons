@@ -68,10 +68,13 @@ export function ProjectsBar() {
           {projects.map((project, idx) => (
             <Link
               key={idx}
-              href="#"
+              href={"/projects/" + project.projectId}
+              onClick={() => {
+                setOpenProjectsBar(false);
+              }}
               className={cn(
                 buttonVariants({ variant: "secondary" }),
-                pathName == "/project/" + project.projectId
+                pathName == "/projects/" + project.projectId
                   ? "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white hover:bg-muted"
                   : "bg-transparent text-white hover:bg",
                 "justify-start w-full p-6 text-lg rounded-none"
@@ -83,11 +86,14 @@ export function ProjectsBar() {
           <Separator className="my-4" />
           <div className="flex justify-center ">
             <Link
-              href="#"
+              href="/"
               className={cn(
                 buttonVariants({ variant: "ghost" }),
                 "flex space-x-2 px-8 py-6"
               )}
+              onClick={() => {
+                setOpenProjectsBar(false);
+              }}
             >
               <IconPlus className=" text-white" />
               <p className="text-lg font-semibold">Create new project</p>
