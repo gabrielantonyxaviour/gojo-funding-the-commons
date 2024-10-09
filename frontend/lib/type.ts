@@ -25,4 +25,6 @@ export interface FlowProps {
   onEdgesChange: OnEdgesChange<Edge>;
   setNodes: Dispatch<SetStateAction<Node[]>>;
   setEdges: Dispatch<SetStateAction<Edge[]>>;
+  setNodeIds: Dispatch<SetStateAction<number>>;
+  setEdgeIds: Dispatch<SetStateAction<number>>;
 }

@@ -38,10 +38,11 @@ export default function Flow({
   onEdgesChange,
   setNodes,
   setEdges,
+  setNodeIds,
+  setEdgeIds,
 }: FlowProps) {
   const { theme } = useTheme();
   const { screenToFlowPosition } = useReactFlow();
-  const [nodeIds, setNodeIds] = useState(3);
   const onConnect = useCallback(
     (params: any) =>
       setEdges((eds) => addEdge({ ...params, type: "custom" }, eds)),

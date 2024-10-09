@@ -7,6 +7,7 @@ import {
   IconHome,
   IconPlus,
   IconRobot,
+  IconSettings,
   IconTestPipe,
   IconWand,
 } from "@tabler/icons-react";
@@ -32,7 +33,7 @@ export function ToolBar({ onAddNode }: { onAddNode: () => void }) {
     {
       title: "App Testing",
       icon: (
-        <IconTestPipe className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconSettings className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
       onClick: () => console.log("Add Node"),
     },

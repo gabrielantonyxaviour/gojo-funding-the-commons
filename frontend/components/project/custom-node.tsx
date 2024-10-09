@@ -1,17 +1,51 @@
-import React, { memo } from "react";
-import { Handle, Position } from "@xyflow/react";
+import React, { memo, useState } from "react";
+import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
-
-function CustomNode({ data }: { data: any }) {
+import { Button } from "../ui/button";
+import {
+  AnimatePresence,
+  MotionValue,
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import { IconTrash, IconWand } from "@tabler/icons-react";
+function CustomNode({ id, data }: any) {
+  const { getNodes, setNodes } = useReactFlow();
+  const [hovered, setHovered] = useState(false);
   return (
-    <Card className="border-[2px] border-secondary">
+    <Card
+      className="border-[2px] border-secondary"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <CardContent className="w-[200px] h-[200px] relative">
-        <p>Hello</p>
-        <Handle
-          type="target"
-          position={Position.Top}
-          // className="w-full h-full absolute top-0 left-0 transform-none rounded-none opacity-0"
-        />
+        {hovered && (
+          <motion.div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            initial={{ opacity: 0, y: 10, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 2, x: "-50%" }}
+            className="px-1  whitespace-pre rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute top-14 -translate-y-1/2 -right-8 w-fit 2xl:text-md text-xs flex flex-col"
+          >
+            <Button variant={"ghost"} className="p-1 m-0 hover:text-blue-500">
+              <IconWand className="w-4 h-4 m-0 p-0" />
+            </Button>
+
+            <Button
+              variant={"ghost"}
+              className="p-1 m-0 hover:text-red-500"
+              onClick={() => {
+                setNodes((nds) => nds.filter((node) => node.id !== id));
+              }}
+            >
+              <IconTrash className="w-4 h-4 m-0 p-0" />
+            </Button>
+          </motion.div>
+        )}
+        <Handle type="target" position={Position.Top} />
       </CardContent>
 
       <Handle type="source" position={Position.Bottom} />

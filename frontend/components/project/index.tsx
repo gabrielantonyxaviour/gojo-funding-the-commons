@@ -2,7 +2,7 @@
 import Flow from "@/components/project/flow";
 import { ToolBar } from "@/components/project/tool-bar";
 import { useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 const initNodes = [
   {
     id: "1",
@@ -59,16 +59,22 @@ export default function Project() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
 
+  const [nodeIds, setNodeIds] = useState(0);
+  const [edgeIds, setEdgeIds] = useState(0);
+
   const onAddNode = useCallback(() => {
-    setNodes((nodes) => [
-      ...nodes,
-      {
-        id: (nodes.length + 1).toString(),
-        type: "custom",
-        data: { label: "new" },
-        position: { x: 0, y: 100 },
-      },
-    ]);
+    setNodeIds((prev) => {
+      setNodes((nodes) => [
+        ...nodes,
+        {
+          id: prev.toString(),
+          type: "custom",
+          data: { label: "new" },
+          position: { x: 0, y: 100 },
+        },
+      ]);
+      return prev + 1;
+    });
   }, []);
 
   return (
@@ -81,6 +87,8 @@ export default function Project() {
           setNodes={setNodes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          setNodeIds={setNodeIds}
+          setEdgeIds={setEdgeIds}
         />
       </div>
       <div className="fixed top-0 left-0 right-0 select-none ">
