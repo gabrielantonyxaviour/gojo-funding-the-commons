@@ -16,13 +16,14 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { Button } from "../button";
 
 export const FloatingVerticalDock = ({
   items,
   desktopClassName,
   mobileClassName,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { title: string; icon: React.ReactNode; onClick: () => void }[];
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
@@ -38,7 +39,7 @@ const FloatingDockMobile = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { title: string; icon: React.ReactNode; onClick: () => void }[];
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -67,13 +68,13 @@ const FloatingDockMobile = ({
                 }}
                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
               >
-                <Link
-                  href={item.href}
+                <div
                   key={item.title}
-                  className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center"
+                  onClick={item.onClick}
+                  className="cursor-pointer h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center"
                 >
                   <div className="h-4 w-4">{item.icon}</div>
-                </Link>
+                </div>
               </motion.div>
             ))}
           </motion.div>
@@ -93,7 +94,7 @@ const FloatingDockDesktop = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { title: string; icon: React.ReactNode; onClick: () => void }[];
   className?: string;
 }) => {
   let mouseY = useMotionValue(Infinity);
@@ -117,12 +118,12 @@ function IconContainer({
   mouseY,
   title,
   icon,
-  href,
+  onClick,
 }: {
   mouseY: MotionValue;
   title: string;
   icon: React.ReactNode;
-  href: string;
+  onClick: () => void;
 }) {
   let ref = useRef<HTMLDivElement>(null);
 
@@ -167,7 +168,7 @@ function IconContainer({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <Link href={href}>
+    <div onClick={onClick} className="cursor-pointer">
       <motion.div
         ref={ref}
         style={{ width, height }}
@@ -178,10 +179,10 @@ function IconContainer({
         <AnimatePresence>
           {hovered && (
             <motion.div
-              initial={{ opacity: 0, y: 10, x: "-50%" }}
-              animate={{ opacity: 1, y: 0, x: "-50%" }}
-              exit={{ opacity: 0, y: 2, x: "-50%" }}
-              className="px-2 py-0.5 whitespace-pre rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs"
+              initial={{ opacity: 0, x: 10, y: "-50%" }}
+              animate={{ opacity: 1, x: 0, y: "-50%" }}
+              exit={{ opacity: 0, x: 2, y: "-50%" }}
+              className="px-2 py-0.5 whitespace-pre rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute top-1/2 -translate-y-1/2 -left-16 w-fit 2xl:text-md text-xs"
             >
               {title}
             </motion.div>
@@ -194,6 +195,6 @@ function IconContainer({
           {icon}
         </motion.div>
       </motion.div>
-    </Link>
+    </div>
   );
 }

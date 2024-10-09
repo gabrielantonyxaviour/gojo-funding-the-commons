@@ -2,48 +2,53 @@ import React from "react";
 import {
   IconBusinessplan,
   IconChartHistogram,
+  IconDownload,
   IconHammer,
   IconHome,
+  IconPlus,
+  IconRobot,
+  IconTestPipe,
+  IconWand,
 } from "@tabler/icons-react";
 import { FloatingVerticalDock } from "../ui/acternity/floating-vertical-dock";
 
 export function ToolBar() {
   const links = [
     {
-      title: "Home",
+      title: "Add Node",
       icon: (
-        <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/",
+      onClick: () => console.log("Add Node"),
     },
 
     {
-      title: "Projects",
+      title: "AI Agents",
       icon: (
-        <IconHammer className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconRobot className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/projects",
+      onClick: () => console.log("Add Node"),
     },
     {
-      title: "Contribute",
+      title: "App Testing",
       icon: (
-        <IconBusinessplan className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconTestPipe className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/contribute",
+      onClick: () => console.log("Add Node"),
     },
     {
-      title: "Dashboard",
+      title: "Ask Gojo",
       icon: (
-        <IconChartHistogram className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconWand className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/dashboard",
+      onClick: () => console.log("Add Node"),
     },
     {
-      title: "Switch Theme",
+      title: "App Export",
       icon: (
-        <IconChartHistogram className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconDownload className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/theme",
+      onClick: () => console.log("Add Node"),
     },
   ];
   return (
