@@ -10,6 +10,11 @@ export interface Node {
   type: string;
   data: {
     label: string;
+    chain: {
+      name: string;
+      image: string;
+    };
+    address: string;
   };
   position: {
     x: number;

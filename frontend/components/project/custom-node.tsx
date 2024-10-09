@@ -16,6 +16,9 @@ import {
   IconTrash,
   IconWand,
 } from "@tabler/icons-react";
+import Image from "next/image";
+import { Separator } from "../ui/separator";
+import { shortenAddress } from "@/lib/utils";
 function CustomNode({ id, data }: any) {
   const { getNodes, setNodes } = useReactFlow();
   const [hovered, setHovered] = useState(false);
@@ -25,7 +28,7 @@ function CustomNode({ id, data }: any) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <CardContent className="w-[200px] h-[200px] relative">
+      <CardContent className="w-[200px] h-[200px] relative px-0">
         {hovered && (
           <motion.div
             onMouseEnter={() => setHovered(true)}
@@ -53,6 +56,28 @@ function CustomNode({ id, data }: any) {
             </Button>
           </motion.div>
         )}
+        <div className="flex flex-col items-center justify-center py-2 w-full">
+          <div className="flex items-center justify-between w-full px-3 pb-2">
+            <p className="text-sm font-semibold">{data.label}</p>
+            <Image src={data.chain.image} width={20} height={20} alt="chain" />
+          </div>
+          <Separator />
+          <p className="text-sm pb-2 pt-4">AI Agents</p>
+          <div className="flex justify-center space-x-2">
+            <Image src="/chains/neon.png" width={20} height={20} alt="robot" />
+            <Image
+              src="/chains/gnosis.png"
+              width={20}
+              height={20}
+              alt="robot"
+            />
+            <Image src="/chains/skale.png" width={20} height={20} alt="robot" />
+          </div>
+          <p className="text-sm pt-6 pb-1">Deployment</p>
+          <p className="text-muted-foreground">
+            {shortenAddress(data.address)}
+          </p>
+        </div>
         <Handle
           type="target"
           position={Position.Top}

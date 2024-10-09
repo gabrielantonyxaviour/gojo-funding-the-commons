@@ -52,11 +52,11 @@ export function ProjectsBar() {
       <SheetContent side={"left"} className="p-0">
         <SheetHeader className="p-6">
           <div className="flex justify-between">
-            <SheetTitle className="2xl:text-xl text-lg text-neutral-500 dark:text-neutral-300">
+            <SheetTitle className="2xl:text-xl text-lg text-black dark:text-neutral-300">
               All Projects
             </SheetTitle>
             <IconChevronLeft
-              className="text-white cursor-pointer"
+              className="text-black dark:text-white cursor-pointer"
               onClick={() => {
                 setOpenProjectsBar(false);
               }}
@@ -94,8 +94,8 @@ export function ProjectsBar() {
               setOpenProjectsBar(false);
             }}
           >
-            <IconPlus className="text-neutral-500 dark:text-neutral-300" />
-            <p className="2xl:text-lg text-md font-semibold text-neutral-500 dark:text-neutral-300">
+            <IconPlus className="text-black dark:text-neutral-300" />
+            <p className="2xl:text-lg text-md font-semibold text-black dark:text-neutral-300">
               Create new project
             </p>
           </Link>

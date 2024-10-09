@@ -13,16 +13,28 @@ import {
 } from "@tabler/icons-react";
 import { FloatingVerticalDock } from "../ui/acternity/floating-vertical-dock";
 
-export function ToolBar({ onAddNode }: { onAddNode: () => void }) {
+export function ToolBar({
+  setOpenCreateNodeModal,
+}: {
+  setOpenCreateNodeModal: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const links = [
     {
       title: "Add Node",
       icon: (
         <IconPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      onClick: onAddNode,
+      onClick: () => {
+        setOpenCreateNodeModal(true);
+      },
     },
-
+    {
+      title: "Ask Gojo",
+      icon: (
+        <IconWand className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      onClick: () => console.log("Add Node"),
+    },
     {
       title: "AI Agents",
       icon: (
@@ -37,13 +49,7 @@ export function ToolBar({ onAddNode }: { onAddNode: () => void }) {
       ),
       onClick: () => console.log("Add Node"),
     },
-    {
-      title: "Ask Gojo",
-      icon: (
-        <IconWand className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      onClick: () => console.log("Add Node"),
-    },
+
     {
       title: "App Export",
       icon: (

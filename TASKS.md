@@ -99,23 +99,22 @@ Side bar
 
 ## TODO
 
-1. Create node modal
+1. Create node modal - DONE
    - Label
    - Chain
    - Prompt
-2. Node data
+2. Node data - DONE
    - Label
    - Chain
    - AI Agents
    - Deployment
-   - Add tool tip to side bar icons
-3. Ask Gojo Sheet
+3. Ask Gojo Sheet -
    - Generic
    - Specific
-4. App testing
+4. App testing -
    - Generic
    - Specific
-5. Export Modal
+5. Export Modal -
    - Connect Github
    - Project Name
    - Show Used AI Agents

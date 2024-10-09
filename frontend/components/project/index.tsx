@@ -9,6 +9,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import { useCallback, useState } from "react";
+import CreateNodeModal from "./create-node-modal";
 const initNodes: Node[] = [];
 
 const initEdges = [
@@ -54,21 +55,29 @@ export default function Project() {
 
   const [nodeIds, setNodeIds] = useState(0);
   const [edgeIds, setEdgeIds] = useState(0);
+  const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
 
-  const onAddNode = useCallback(() => {
-    setNodeIds((prev) => {
-      setNodes((nodes) => [
-        ...nodes,
-        {
-          id: prev.toString(),
-          type: "custom",
-          data: { label: "new" },
-          position: { x: 0, y: 100 },
-        },
-      ]);
-      return prev + 1;
-    });
-  }, []);
+  const onAddNode = useCallback(
+    (data: { label: string; chain: { name: string; image: string } }) => {
+      setNodeIds((prev) => {
+        console.log("TRUgggered");
+        setNodes((nodes) => [
+          ...nodes,
+          {
+            id: prev.toString(),
+            type: "custom",
+            data: {
+              ...data,
+              address: "0x0000000000000000000000000000000000000000",
+            },
+            position: { x: 0, y: 100 },
+          },
+        ]);
+        return prev + 1;
+      });
+    },
+    []
+  );
 
   return (
     <div className="h-full flex flex-col">
@@ -91,7 +100,12 @@ export default function Project() {
           </p>
         </div>
       </div>
-      <ToolBar onAddNode={onAddNode} />
+      <ToolBar setOpenCreateNodeModal={setOpenCreateNodeModal} />
+      <CreateNodeModal
+        onAddNode={onAddNode}
+        open={openCreateNodeModal}
+        setOpen={setOpenCreateNodeModal}
+      />
     </div>
   );
 }
