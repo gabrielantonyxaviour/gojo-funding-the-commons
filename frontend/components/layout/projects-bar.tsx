@@ -1,8 +1,6 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetClose,
@@ -47,14 +45,16 @@ export function ProjectsBar() {
   return (
     <Sheet
       open={openProjectsBar}
-      onOpenChange={(val) => {
+      onOpenChange={(val: any) => {
         setOpenProjectsBar(val);
       }}
     >
       <SheetContent side={"left"} className="p-0">
         <SheetHeader className="p-6">
           <div className="flex justify-between">
-            <SheetTitle className="text-xl">All Projects</SheetTitle>
+            <SheetTitle className="2xl:text-xl text-lg">
+              All Projects
+            </SheetTitle>
             <IconChevronLeft
               className="text-white cursor-pointer"
               onClick={() => {
@@ -74,9 +74,9 @@ export function ProjectsBar() {
             className={cn(
               buttonVariants({ variant: "secondary" }),
               pathName == "/projects/" + project.projectId
-                ? "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white hover:bg-muted font-semibold"
-                : "bg-transparent text-white hover:bg",
-              "justify-start w-full p-6 text-lg rounded-none "
+                ? " dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white hover:bg-muted font-semibold"
+                : " bg-transparent text-white hover:bg",
+              "text-black justify-start w-full p-6 2xl:text-lg text-md rounded-none "
             )}
           >
             {project.name}
@@ -94,8 +94,10 @@ export function ProjectsBar() {
               setOpenProjectsBar(false);
             }}
           >
-            <IconPlus className=" text-white" />
-            <p className="text-lg font-semibold">Create new project</p>
+            <IconPlus className="text-black dark:text-white" />
+            <p className="2xl:text-lg text-md font-semibold text-black dark:text-white">
+              Create new project
+            </p>
           </Link>
         </div>
       </SheetContent>
