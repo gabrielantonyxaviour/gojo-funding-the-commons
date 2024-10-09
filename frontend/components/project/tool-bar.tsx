@@ -12,14 +12,14 @@ import {
 } from "@tabler/icons-react";
 import { FloatingVerticalDock } from "../ui/acternity/floating-vertical-dock";
 
-export function ToolBar() {
+export function ToolBar({ onAddNode }: { onAddNode: () => void }) {
   const links = [
     {
       title: "Add Node",
       icon: (
         <IconPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      onClick: () => console.log("Add Node"),
+      onClick: onAddNode,
     },
 
     {

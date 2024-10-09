@@ -1,12 +1,10 @@
-import { OnEdgesChange, OnNodesChange } from "@xyflow/react";
+import { type OnConnectEnd, OnEdgesChange, OnNodesChange } from "@xyflow/react";
 import { Dispatch, SetStateAction } from "react";
 export interface Node {
   id: string;
   type: string;
   data: {
-    name: string;
-    job: string;
-    emoji: string;
+    label: string;
   };
   position: {
     x: number;

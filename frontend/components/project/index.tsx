@@ -1,25 +1,25 @@
 "use client";
 import Flow from "@/components/project/flow";
 import { ToolBar } from "@/components/project/tool-bar";
-import { useEdgesState, useNodesState } from "@xyflow/react";
+import { useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
+import { useCallback } from "react";
 const initNodes = [
   {
     id: "1",
     type: "custom",
-    data: { name: "Jane Doe", job: "CEO", emoji: "😎" },
+    data: { label: "hello" },
     position: { x: 0, y: 50 },
   },
   {
     id: "2",
     type: "custom",
-    data: { name: "Tyler Weary", job: "Designer", emoji: "🤓" },
-
+    data: { label: "jeez" },
     position: { x: -200, y: 200 },
   },
   {
     id: "3",
     type: "custom",
-    data: { name: "Kristi Price", job: "Developer", emoji: "🤩" },
+    data: { label: "bye" },
     position: { x: 200, y: 200 },
   },
 ];
@@ -58,6 +58,19 @@ export default function Project() {
   ];
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
+
+  const onAddNode = useCallback(() => {
+    setNodes((nodes) => [
+      ...nodes,
+      {
+        id: (nodes.length + 1).toString(),
+        type: "custom",
+        data: { label: "new" },
+        position: { x: 0, y: 100 },
+      },
+    ]);
+  }, []);
+
   return (
     <div className="h-full flex flex-col">
       <div className="w-full flex-1">
@@ -77,7 +90,7 @@ export default function Project() {
           </p>
         </div>
       </div>
-      <ToolBar />
+      <ToolBar onAddNode={onAddNode} />
     </div>
   );
 }

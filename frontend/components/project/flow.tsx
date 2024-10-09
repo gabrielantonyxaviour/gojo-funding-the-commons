@@ -1,11 +1,12 @@
 "use client";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ReactFlow,
   addEdge,
   MiniMap,
   Controls,
   Background,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/base.css";
 
@@ -33,11 +34,55 @@ export default function Flow({
   setEdges,
 }: FlowProps) {
   const { theme } = useTheme();
-
+  const { screenToFlowPosition } = useReactFlow();
+  const [nodeIds, setNodeIds] = useState(3);
   const onConnect = useCallback(
     (params: any) =>
       setEdges((eds) => addEdge({ ...params, type: "custom" }, eds)),
     []
+  );
+
+  const onConnectEnd = useCallback(
+    (event: any, connectionState: any) => {
+      if (!connectionState.isValid) {
+        console.log(nodes);
+
+        // Update nodeIds with functional setState to ensure it uses the latest value
+        setNodeIds((prevNodeIds) => {
+          const id = (prevNodeIds + 1).toString();
+
+          const { clientX, clientY } =
+            "changedTouches" in event ? event.changedTouches[0] : event;
+
+          const newNode = {
+            id,
+            position: screenToFlowPosition({
+              x: clientX,
+              y: clientY,
+            }),
+            type: "custom",
+            data: {
+              label: "new",
+            },
+          };
+
+          // Add new node and edge using updated ID
+          setNodes((nds) => [...nds, newNode]);
+          setEdges((eds) => [
+            ...eds,
+            {
+              id,
+              type: "custom",
+              source: connectionState.fromNode.id,
+              target: id,
+            },
+          ]);
+
+          return prevNodeIds + 1; // Return the updated nodeId for future renders
+        });
+      }
+    },
+    [screenToFlowPosition] // Dependencies
   );
 
   return (
@@ -47,6 +92,7 @@ export default function Flow({
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
       fitView

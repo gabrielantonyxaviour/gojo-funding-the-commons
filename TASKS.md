@@ -34,6 +34,7 @@
 
 ### No code page
 
+Easy conect - https://reactflow.dev/examples/nodes/easy-connect
 Side bar
 
 1. Add node +
