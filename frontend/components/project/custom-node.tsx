@@ -81,14 +81,14 @@ function CustomNode({ id, data }: any) {
         <Handle
           type="target"
           position={Position.Top}
-          className="w-16 h-3 rounded-t-md -top-1.5"
+          className="w-16 h-3 rounded-t-md -top-1.5 bg-neutral-300 dark:bg-neutral-800"
         />
       </CardContent>
 
       <Handle
         type="source"
         position={Position.Bottom}
-        className="w-16 h-3 rounded-b-md -bottom-1.5"
+        className="w-16 h-3 rounded-b-md -bottom-1.5 bg-neutral-300 dark:bg-neutral-800"
       />
     </Card>
   );

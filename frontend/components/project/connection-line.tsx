@@ -17,7 +17,11 @@ function CustomConnectionLine({
 
   return (
     <g>
-      <path className="stroke-2 stroke-secondary" fill="none" d={edgePath} />
+      <path
+        className="stroke-2 dark:stroke-secondary stroke-neutral-300"
+        fill="none"
+        d={edgePath}
+      />
       <circle
         cx={toX}
         cy={toY}
