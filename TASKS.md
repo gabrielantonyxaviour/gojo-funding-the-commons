@@ -122,6 +122,20 @@ Side bar
    - Show Royalty amount splits
    - Pay and get code in Github
 
+// Tomorrow
+
+1. Setup NEAR
+2. XMTP Chat fully setup in client
+3. Story Protocol with LayerZero contracts
+4. Phala AI agents that make attestations
+
+// Friday
+
+1. Walrus?
+2. XMTP chat is an AI agent
+3. Lit Protocol
+4. TheGraph
+
 // Later
 
 1. Contribute
