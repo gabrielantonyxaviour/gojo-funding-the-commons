@@ -86,7 +86,7 @@ export default function Project() {
       </div>
       <div className="fixed top-0 left-0 right-0 select-none ">
         <div className="flex justify-center">
-          <p className="text-center 2xl:text-lg text-sm font-semibold py-2 px-4  bg-secondary  bg-black dark:text-primary text-primary rounded-b-lg">
+          <p className="text-center 2xl:text-lg text-sm font-semibold py-2 px-4  bg-gray-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-300 rounded-b-lg">
             {projects[0].name}
           </p>
         </div>

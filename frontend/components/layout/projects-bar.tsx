@@ -52,7 +52,7 @@ export function ProjectsBar() {
       <SheetContent side={"left"} className="p-0">
         <SheetHeader className="p-6">
           <div className="flex justify-between">
-            <SheetTitle className="2xl:text-xl text-lg">
+            <SheetTitle className="2xl:text-xl text-lg text-neutral-500 dark:text-neutral-300">
               All Projects
             </SheetTitle>
             <IconChevronLeft
@@ -76,7 +76,7 @@ export function ProjectsBar() {
               pathName == "/projects/" + project.projectId
                 ? " dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white hover:bg-muted font-semibold"
                 : " bg-transparent text-white hover:bg",
-              "text-black justify-start w-full p-6 2xl:text-lg text-md rounded-none "
+              "text-neutral-500 dark:text-neutral-300 justify-start w-full p-6 2xl:text-lg text-md rounded-none "
             )}
           >
             {project.name}
@@ -94,8 +94,8 @@ export function ProjectsBar() {
               setOpenProjectsBar(false);
             }}
           >
-            <IconPlus className="text-black dark:text-white" />
-            <p className="2xl:text-lg text-md font-semibold text-black dark:text-white">
+            <IconPlus className="text-neutral-500 dark:text-neutral-300" />
+            <p className="2xl:text-lg text-md font-semibold text-neutral-500 dark:text-neutral-300">
               Create new project
             </p>
           </Link>
