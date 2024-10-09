@@ -10,7 +10,12 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { IconRobot, IconTrash, IconWand } from "@tabler/icons-react";
+import {
+  IconRobot,
+  IconSettings,
+  IconTrash,
+  IconWand,
+} from "@tabler/icons-react";
 function CustomNode({ id, data }: any) {
   const { getNodes, setNodes } = useReactFlow();
   const [hovered, setHovered] = useState(false);
@@ -34,7 +39,7 @@ function CustomNode({ id, data }: any) {
               <IconWand className="w-4 h-4 m-0 p-0" />
             </Button>
             <Button variant={"ghost"} className="p-1 m-0 hover:text-yellow-500">
-              <IconRobot className="w-4 h-4 m-0 p-0" />
+              <IconSettings className="w-4 h-4 m-0 p-0" />
             </Button>
 
             <Button

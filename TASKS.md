@@ -38,6 +38,9 @@ Easy conect - https://reactflow.dev/examples/nodes/easy-connect
 Side bar
 
 1. Add node +
+   - Choose label
+   - Choose chain
+   - Choose prompt
 2. AI agents
 
 - From Phala response
@@ -93,3 +96,48 @@ Side bar
     Try to build this mainly for them
 11. LayerZero - 3.5k SET
     Story x Base
+
+## TODO
+
+1. Create node modal
+   - Label
+   - Chain
+   - Prompt
+2. Node data
+   - Label
+   - Chain
+   - AI Agents
+   - Deployment
+   - Add tool tip to side bar icons
+3. Ask Gojo Sheet
+   - Generic
+   - Specific
+4. App testing
+   - Generic
+   - Specific
+5. Export Modal
+   - Connect Github
+   - Project Name
+   - Show Used AI Agents
+   - Show Royalty amount splits
+   - Pay and get code in Github
+
+// Later
+
+1. Contribute
+   - Choose an AI agent (cards)
+     - Name
+     - Image
+     - Description
+     - Contributors
+   - AI Agent page
+     - Choose any problem statement
+   - Problem Statement Modal
+     - Name
+     - description
+     - Token rewards
+       - GOJO
+       - Protocol
+     - Clone template
+     - Submit template
+       - Connect Github
