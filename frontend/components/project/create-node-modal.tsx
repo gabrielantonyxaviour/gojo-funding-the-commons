@@ -150,6 +150,9 @@ export default function CreateNodeModal({
                 chain: chains[parseInt(selectedChainIndex) - 1],
               });
               setOpen(false);
+              setLabel("");
+              setPrompt("");
+              setSelectedChainIndex("0");
             }}
           >
             Add node

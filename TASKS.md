@@ -123,10 +123,10 @@ Side bar
 
 // Tomorrow
 
-1. Setup NEAR
-2. XMTP Chat fully setup in client
-3. Story Protocol with LayerZero contracts
-4. Phala AI agents that make attestations
+1. Setup Github
+2. Setup NEAR
+3. XMTP Chat fully setup in client
+4. Story Protocol with LayerZero contracts
 
 // Friday
 
