@@ -24,11 +24,6 @@ const edgeTypes = {
   custom: CustomEdge,
 };
 
-const connectionLineStyle = {
-  strokeWidth: 1,
-  stroke: "white",
-};
-
 const nodeClassName = (node: any) => node.type;
 
 export default function Flow({
@@ -103,7 +98,6 @@ export default function Flow({
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
       connectionLineComponent={CustomConnectionLine}
-      connectionLineStyle={connectionLineStyle}
       fitView
       colorMode={theme == "light" ? theme : "dark"}
     >
