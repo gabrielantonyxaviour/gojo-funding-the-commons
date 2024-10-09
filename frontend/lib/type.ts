@@ -1,4 +1,9 @@
-import { type OnConnectEnd, OnEdgesChange, OnNodesChange } from "@xyflow/react";
+import {
+  type MarkerType,
+  type OnConnectEnd,
+  OnEdgesChange,
+  OnNodesChange,
+} from "@xyflow/react";
 import { Dispatch, SetStateAction } from "react";
 export interface Node {
   id: string;
@@ -17,6 +22,9 @@ export interface Edge {
   type: string;
   source: string;
   target: string;
+  markerEnd: {
+    type: MarkerType;
+  };
 }
 export interface FlowProps {
   nodes: Node[];

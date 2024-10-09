@@ -1,28 +1,15 @@
 "use client";
 import Flow from "@/components/project/flow";
 import { ToolBar } from "@/components/project/tool-bar";
-import { useEdgesState, useNodesState, useReactFlow } from "@xyflow/react";
+import { Node } from "@/lib/type";
+import {
+  MarkerType,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
+} from "@xyflow/react";
 import { useCallback, useState } from "react";
-const initNodes = [
-  {
-    id: "1",
-    type: "custom",
-    data: { label: "hello" },
-    position: { x: 0, y: 50 },
-  },
-  {
-    id: "2",
-    type: "custom",
-    data: { label: "jeez" },
-    position: { x: -200, y: 200 },
-  },
-  {
-    id: "3",
-    type: "custom",
-    data: { label: "bye" },
-    position: { x: 200, y: 200 },
-  },
-];
+const initNodes: Node[] = [];
 
 const initEdges = [
   {
@@ -30,12 +17,18 @@ const initEdges = [
     type: "custom",
     source: "1",
     target: "2",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+    },
   },
   {
     id: "e1-3",
     type: "custom",
     source: "1",
     target: "3",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+    },
   },
 ];
 export default function Project() {

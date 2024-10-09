@@ -24,7 +24,12 @@ export default function CustomEdge({
 
   return (
     <>
-      <BaseEdge id={id} path={edgePath} />
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        markerStart="url(#arrow)"
+        markerEnd="url(#arrow)"
+      />
       <EdgeLabelRenderer>
         <Button
           style={{
