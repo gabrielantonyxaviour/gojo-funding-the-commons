@@ -16,7 +16,7 @@ export default function Suggestions({
       {suggestedPrompts.map((p, id) => (
         <Badge
           key={id}
-          className="xl:text-sm text-xs cursor-pointer hover:scale-105 transition  ease-out duration-150"
+          className="xl:text-sm text-xs cursor-pointer hover:scale-105 transition  ease-out duration-150 dark:bg-white bg-secondary text-black hover:bg-secondary"
           onClick={() => {
             setPrompt(p);
           }}

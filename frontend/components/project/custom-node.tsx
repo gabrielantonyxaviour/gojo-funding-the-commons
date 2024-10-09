@@ -4,50 +4,17 @@ import { Card, CardContent } from "@/components/ui/card";
 
 function CustomNode({ data }: { data: any }) {
   return (
-    <Card>
-      <CardContent className="w-[200px] h-[200px]">
+    <Card className="border-[2px] border-secondary">
+      <CardContent className="w-[200px] h-[200px] relative">
         <p>Hello</p>
+        <Handle
+          type="target"
+          position={Position.Top}
+          // className="w-full h-full absolute top-0 left-0 transform-none rounded-none opacity-0"
+        />
       </CardContent>
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="w-16 bg-secondary"
-      />
-      <div
-        style={{
-          display: "flex",
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          justifyContent: "space-evenly",
-          left: 0,
-        }}
-      >
-        <Handle
-          style={{ position: "relative", left: 0, transform: "none" }}
-          id="a"
-          type="source"
-          position={Position.Bottom}
-          className="w-4"
-        />
-        <Handle
-          style={{ position: "relative", left: 0, transform: "none" }}
-          id="b"
-          type="source"
-          className="w-4"
-          position={Position.Bottom}
-        />
-      </div>
-      {/* <Handle
-        type="source"
-        position={Position.Left}
-        className="h-16 bg-secondary"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="h-16 bg-secondary"
-      /> */}
+
+      <Handle type="source" position={Position.Bottom} />
     </Card>
   );
 }

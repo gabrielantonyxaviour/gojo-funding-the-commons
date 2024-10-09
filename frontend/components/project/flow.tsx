@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import CustomNode from "./custom-node";
 import CustomEdge from "./custom-edge";
 import { FlowProps } from "@/lib/type";
+import CustomConnectionLine from "./connection-line";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -21,6 +22,11 @@ const nodeTypes = {
 
 const edgeTypes = {
   custom: CustomEdge,
+};
+
+const connectionLineStyle = {
+  strokeWidth: 1,
+  stroke: "white",
 };
 
 const nodeClassName = (node: any) => node.type;
@@ -95,6 +101,8 @@ export default function Flow({
       onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
+      connectionLineComponent={CustomConnectionLine}
+      connectionLineStyle={connectionLineStyle}
       fitView
       colorMode={theme == "light" ? theme : "dark"}
     >
