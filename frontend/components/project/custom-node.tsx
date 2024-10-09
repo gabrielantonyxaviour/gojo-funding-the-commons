@@ -28,11 +28,13 @@ function CustomNode({ data }: { data: any }) {
           id="a"
           type="source"
           position={Position.Bottom}
+          className="w-4"
         />
         <Handle
           style={{ position: "relative", left: 0, transform: "none" }}
           id="b"
           type="source"
+          className="w-4"
           position={Position.Bottom}
         />
       </div>

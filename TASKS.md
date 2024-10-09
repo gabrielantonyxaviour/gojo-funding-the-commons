@@ -27,6 +27,29 @@
 - Contribute
   1. Connect github and pass a hardhat project.
 
+### Contribute page
+
+1. Import hardhat project to contribute
+2. Need to pass tests.
+
+### No code page
+
+Side bar
+
+1. Add node +
+2. AI agents
+3. Testing Contract calls
+4. AI Chat interact with Core.
+
+- XMTP chat interacting with Phala
+- Phala interacts with it's available knowledge sources.
+
+5. Export
+
+- Story - Users pays royalty to the contirbutors of the AI agents.
+- Lit Protocol - Hence unlocking the key to decrypt the code and export it to github.
+-
+
 # Contracts
 
 - Design contracts

@@ -4,7 +4,7 @@ import { SearchBar } from "./search-bar";
 
 export default function Home() {
   return (
-    <div className="flex flex-col justify-center items-center h-full">
+    <div className="flex flex-col justify-center items-center h-full space-y-4">
       <Image
         src="/logo.png"
         alt="logo"
