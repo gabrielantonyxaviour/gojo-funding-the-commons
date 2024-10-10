@@ -10,6 +10,7 @@ import {
 } from "@xyflow/react";
 import { useCallback, useState } from "react";
 import CreateNodeModal from "./create-node-modal";
+import AskGojoSheet from "./ask-gojo-sheet";
 const initNodes: Node[] = [];
 
 const initEdges = [
@@ -56,6 +57,8 @@ export default function Project() {
   const [nodeIds, setNodeIds] = useState(0);
   const [edgeIds, setEdgeIds] = useState(0);
   const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [openAskGojoSheet, setOpenAskGojoSheet] = useState(false);
 
   const onAddNode = useCallback(
     (data: { label: string; chain: { name: string; image: string } }) => {
@@ -100,11 +103,19 @@ export default function Project() {
           </p>
         </div>
       </div>
-      <ToolBar setOpenCreateNodeModal={setOpenCreateNodeModal} />
+      <ToolBar
+        setOpenCreateNodeModal={setOpenCreateNodeModal}
+        setOpenAskGojoSheet={setOpenAskGojoSheet}
+      />
       <CreateNodeModal
         onAddNode={onAddNode}
         open={openCreateNodeModal}
         setOpen={setOpenCreateNodeModal}
+      />
+      <AskGojoSheet
+        open={openAskGojoSheet}
+        setOpen={setOpenAskGojoSheet}
+        node={selectedNode}
       />
     </div>
   );

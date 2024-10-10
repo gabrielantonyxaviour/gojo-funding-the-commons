@@ -41,3 +41,10 @@ export interface FlowProps {
   setNodeIds: Dispatch<SetStateAction<number>>;
   setEdgeIds: Dispatch<SetStateAction<number>>;
 }
+
+export interface Convo {
+  id: string;
+  message: string;
+  isAi: boolean;
+  node: Node | null;
+}

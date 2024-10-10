@@ -15,8 +15,10 @@ import { FloatingVerticalDock } from "../ui/acternity/floating-vertical-dock";
 
 export function ToolBar({
   setOpenCreateNodeModal,
+  setOpenAskGojoSheet,
 }: {
   setOpenCreateNodeModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenAskGojoSheet: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const links = [
     {
@@ -24,16 +26,14 @@ export function ToolBar({
       icon: (
         <IconPlus className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      onClick: () => {
-        setOpenCreateNodeModal(true);
-      },
+      onClick: () => setOpenCreateNodeModal(true),
     },
     {
       title: "Ask Gojo",
       icon: (
         <IconWand className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      onClick: () => console.log("Add Node"),
+      onClick: () => setOpenAskGojoSheet(true),
     },
     {
       title: "AI Agents",
