@@ -272,6 +272,7 @@ export default function AskGojoSheet({
           {convos.map((c) => {
             return (
               <div
+                key={c.id}
                 className={`flex space-x-2 py-1 items-center ${
                   !c.isAi ? "justify-end" : ""
                 }`}
