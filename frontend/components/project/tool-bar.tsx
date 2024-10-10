@@ -37,13 +37,7 @@ export function ToolBar({
       ),
       onClick: () => setOpenAskGojoSheet(true),
     },
-    {
-      title: "AI Agents",
-      icon: (
-        <IconRobot className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      onClick: () => console.log("Add Node"),
-    },
+
     {
       title: "App Testing",
       icon: (

@@ -34,7 +34,7 @@ const initEdges = [
     },
   },
 ];
-export default function Project() {
+export default function Project({ name }: { name: string }) {
   const projects = [
     {
       id: 1,
@@ -115,7 +115,11 @@ export default function Project() {
         open={openCreateNodeModal}
         setOpen={setOpenCreateNodeModal}
       />
-      <ExportModal open={openExportModal} setOpen={setOpenExportModal} />
+      <ExportModal
+        open={openExportModal}
+        setOpen={setOpenExportModal}
+        name={name}
+      />
       <AskGojoSheet
         open={openAskGojoSheet}
         setOpen={setOpenAskGojoSheet}

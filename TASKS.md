@@ -118,7 +118,7 @@ Side bar
 5. App testing -
    - Generic
    - Specific
-6. Export Modal -
+6. Export Modal - DONE
    - Connect Github
    - Project Name
    - Show Used AI Agents

@@ -20,13 +20,16 @@ import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import { IconBrandGithub } from "@tabler/icons-react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { Input } from "../ui/input";
 
 export default function ExportModal({
   open,
   setOpen,
+  name,
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  name: string;
 }) {
   const [repos, setRepos] = useState<any[]>([]);
   const [newRepoName, setNewRepoName] = useState("");
@@ -103,29 +106,68 @@ export default function ExportModal({
                   Sign Out
                 </Button>
               </div>
+              <p className="text-center font-semibold">{name}</p>
               <Separator />
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="label" className="text-sm font-semibold">
+                  AI Agents Used
+                </Label>
+                <div className="flex space-x-2">
+                  {chains.map((c, idx) => (
+                    <Image
+                      src={c.image}
+                      alt="chain"
+                      width={30}
+                      height={30}
+                      key={idx}
+                    />
+                  ))}
+                </div>
+                <Label
+                  htmlFor="label"
+                  className="text-xs text-muted-foreground"
+                >
+                  You pay royalty for all the AI agents used in the app.
+                </Label>
+              </div>
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="label" className="text-sm font-semibold">
+                  Intellectual Property Fee
+                </Label>
+                <div className="flex space-x-2 items-center">
+                  <p>4</p>
+                  <Image
+                    src="/chains/story.png"
+                    alt="chain"
+                    width={20}
+                    height={20}
+                  />
+                  <p>IP</p>
+                </div>
+                <Label
+                  htmlFor="label"
+                  className="text-xs text-muted-foreground"
+                >
+                  This fee is used to incentivize the code contributors.
+                </Label>
+              </div>
             </>
           )}
         </div>
 
-        {/* <DialogFooter>
+        <DialogFooter>
           <Button
             variant={"ghost"}
             onClick={() => {
-              setLabel("");
-              setPrompt("");
-              setSelectedChainIndex("0");
+              setOpen(false);
             }}
           >
-            Reset
+            Go Back
           </Button>
-          <Button
-            disabled={selectedChainIndex == "0" || label == "" || prompt == ""}
-            onClick={() => {}}
-          >
-            Add node
+          <Button onClick={() => {}} className="text-sm font-semibold">
+            Purchase App
           </Button>
-        </DialogFooter> */}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
