@@ -11,6 +11,7 @@ import {
 import { useCallback, useState } from "react";
 import CreateNodeModal from "./create-node-modal";
 import AskGojoSheet from "./ask-gojo-sheet";
+import ExportModal from "./export-modal";
 const initNodes: Node[] = [];
 
 const initEdges = [
@@ -59,6 +60,7 @@ export default function Project() {
   const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [openAskGojoSheet, setOpenAskGojoSheet] = useState(false);
+  const [openExportModal, setOpenExportModal] = useState(false);
 
   const onAddNode = useCallback(
     (data: { label: string; chain: { name: string; image: string } }) => {
@@ -106,12 +108,14 @@ export default function Project() {
       <ToolBar
         setOpenCreateNodeModal={setOpenCreateNodeModal}
         setOpenAskGojoSheet={setOpenAskGojoSheet}
+        setOpenExportModal={setOpenExportModal}
       />
       <CreateNodeModal
         onAddNode={onAddNode}
         open={openCreateNodeModal}
         setOpen={setOpenCreateNodeModal}
       />
+      <ExportModal open={openExportModal} setOpen={setOpenExportModal} />
       <AskGojoSheet
         open={openAskGojoSheet}
         setOpen={setOpenAskGojoSheet}

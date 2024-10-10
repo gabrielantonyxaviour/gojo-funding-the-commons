@@ -103,18 +103,22 @@ Side bar
    - Label
    - Chain
    - Prompt
-2. Node data - DONE
+2. Create edge modal -
+   - Label
+   - Different chain? Show create node to create new node
+   - (PENDING)
+3. Node data - DONE
    - Label
    - Chain
    - AI Agents
    - Deployment
-3. Ask Gojo Sheet -
+4. Ask Gojo Sheet - DONE
    - Generic
    - Specific
-4. App testing -
+5. App testing -
    - Generic
    - Specific
-5. Export Modal -
+6. Export Modal -
    - Connect Github
    - Project Name
    - Show Used AI Agents

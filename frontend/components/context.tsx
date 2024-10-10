@@ -1,6 +1,7 @@
 "use client";
 
 import { createEnvironmentStore, type EnvironmentStore } from "@/lib/store";
+import { SessionProvider, SessionProviderProps } from "next-auth/react";
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
@@ -10,22 +11,21 @@ export const EnvironmentStoreContext = createContext<
   EnvironmentStoreApi | undefined
 >(undefined);
 
-export interface EnvironmentStoreProviderProps {
-  children: ReactNode;
-}
-
 export const EnvironmentStoreProvider = ({
+  session,
   children,
-}: EnvironmentStoreProviderProps) => {
+}: SessionProviderProps) => {
   const storeRef = useRef<EnvironmentStoreApi>();
   if (!storeRef.current) {
     storeRef.current = createEnvironmentStore();
   }
 
   return (
-    <EnvironmentStoreContext.Provider value={storeRef.current}>
-      {children}
-    </EnvironmentStoreContext.Provider>
+    <SessionProvider session={session}>
+      <EnvironmentStoreContext.Provider value={storeRef.current}>
+        {children}
+      </EnvironmentStoreContext.Provider>
+    </SessionProvider>
   );
 };
 

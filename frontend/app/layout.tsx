@@ -6,7 +6,6 @@ import { WalletProvider } from "@/components/providers/wallet-provider";
 import { EnvironmentStoreProvider } from "@/components/context";
 import Layout from "@/components/layout";
 import { ReactFlowProvider } from "@xyflow/react";
-
 export const metadata: Metadata = {
   title: "Gojo",
   description:
@@ -19,24 +18,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {/* <WalletProvider> */}
-          <ReactFlowProvider>
-            <EnvironmentStoreProvider>
+    <EnvironmentStoreProvider>
+      <html lang="en">
+        <body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {/* <WalletProvider> */}
+            <ReactFlowProvider>
               <Toaster />
               <Layout>{children}</Layout>
-            </EnvironmentStoreProvider>
-          </ReactFlowProvider>
-          {/* </WalletProvider> */}
-        </ThemeProvider>
-      </body>
-    </html>
+            </ReactFlowProvider>
+            {/* </WalletProvider> */}
+          </ThemeProvider>
+        </body>
+      </html>
+    </EnvironmentStoreProvider>
   );
 }
