@@ -47,7 +47,6 @@ export function Navigation() {
     },
   ];
   return (
-    <div></div>
-    // <FloatingHorizontalDock mobileClassName="translate-x-20" items={links} />
+    <FloatingHorizontalDock mobileClassName="translate-x-20" items={links} />
   );
 }
