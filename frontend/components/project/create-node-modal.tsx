@@ -101,6 +101,7 @@ export default function CreateNodeModal({
                 >
                   {chains.map((c, idx) => (
                     <DropdownMenuRadioItem
+                      key={idx}
                       value={(idx + 1).toString()}
                       className="flex space-x-2"
                     >
