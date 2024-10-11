@@ -13,8 +13,9 @@ import "@xyflow/react/dist/base.css";
 import { useTheme } from "next-themes";
 import CustomNode from "./custom-node";
 import CustomEdge from "./custom-edge";
-import { FlowProps } from "@/lib/type";
+import { FlowProps, Node } from "@/lib/type";
 import CustomConnectionLine from "./connection-line";
+import { useToast } from "@/hooks/use-toast";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -37,11 +38,39 @@ export default function Flow({
   setEdgeIds,
 }: FlowProps) {
   const { theme } = useTheme();
-  const onConnect = useCallback(
-    (params: any) =>
-      setEdges((eds) => addEdge({ ...params, type: "custom" }, eds)),
-    []
-  );
+  const { getNode } = useReactFlow();
+  const { toast } = useToast();
+  const onConnect = useCallback((params: any) => {
+    const { source, target } = params;
+    const sourceNode = getNode(source);
+    const targetNode = getNode(target);
+    if (sourceNode && targetNode) {
+      if (
+        (sourceNode as Node).data.chain.chainId !==
+        (targetNode as Node).data.chain.chainId
+      ) {
+        toast({
+          title: "Cannot Establish Connection",
+          description: "You need a crosschain protocol to connect two chains.",
+        });
+        return;
+      }
+      setEdges((eds) => {
+        console.log("ON connect");
+        console.log("EDS");
+        console.log(eds);
+        return addEdge(
+          {
+            ...params,
+            id: "e" + source + "-" + target,
+            type: "custom",
+            markerEnd: { type: "arrowclosed" },
+          },
+          eds
+        );
+      });
+    }
+  }, []);
 
   return (
     <ReactFlow

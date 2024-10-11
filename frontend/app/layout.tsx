@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { WalletProvider } from "@/components/providers/wallet-provider";
 import { EnvironmentStoreProvider } from "@/components/context";
 import Layout from "@/components/layout";
 import { ReactFlowProvider } from "@xyflow/react";
@@ -27,12 +26,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {/* <WalletProvider> */}
             <ReactFlowProvider>
               <Toaster />
               <Layout>{children}</Layout>
             </ReactFlowProvider>
-            {/* </WalletProvider> */}
           </ThemeProvider>
         </body>
       </html>

@@ -1,7 +1,7 @@
 "use client";
 import Flow from "@/components/project/flow";
 import { ToolBar } from "@/components/project/tool-bar";
-import { Node } from "@/lib/type";
+import { Edge, Node } from "@/lib/type";
 import {
   MarkerType,
   useEdgesState,
@@ -16,26 +16,7 @@ import { useEnvironmentStore } from "../context";
 import AppTestingSheet from "./app-testing-sheet";
 const initNodes: Node[] = [];
 
-const initEdges = [
-  {
-    id: "e1-2",
-    type: "custom",
-    source: "1",
-    target: "2",
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-    },
-  },
-  {
-    id: "e1-3",
-    type: "custom",
-    source: "1",
-    target: "3",
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-    },
-  },
-];
+const initEdges: Edge[] = [];
 export default function Project({ name }: { name: string }) {
   const projects = [
     {
