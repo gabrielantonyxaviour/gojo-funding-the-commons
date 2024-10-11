@@ -12,6 +12,7 @@ export interface Node {
     label: string;
     chain: {
       name: string;
+      chainId: number;
       image: string;
     };
     address: string;
@@ -22,6 +23,11 @@ export interface Node {
   };
 }
 
+export interface Chain {
+  name: string;
+  chainId: number;
+  image: string;
+}
 export interface Edge {
   id: string;
   type: string;

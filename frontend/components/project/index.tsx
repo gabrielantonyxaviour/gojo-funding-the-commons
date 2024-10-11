@@ -8,10 +8,12 @@ import {
   useNodesState,
   useReactFlow,
 } from "@xyflow/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CreateNodeModal from "./create-node-modal";
 import AskGojoSheet from "./ask-gojo-sheet";
 import ExportModal from "./export-modal";
+import { useEnvironmentStore } from "../context";
+import AppTestingSheet from "./app-testing-sheet";
 const initNodes: Node[] = [];
 
 const initEdges = [
@@ -59,11 +61,20 @@ export default function Project({ name }: { name: string }) {
   const [edgeIds, setEdgeIds] = useState(0);
   const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [openAskGojoSheet, setOpenAskGojoSheet] = useState(false);
   const [openExportModal, setOpenExportModal] = useState(false);
+  const { askGojo, setOpenAskGojo, appSettings, setOpenAppSettings } =
+    useEnvironmentStore((state) => state);
+
+  useEffect(() => {
+    console.log("Updating ask gojo");
+    console.log(askGojo);
+  }, [askGojo]);
 
   const onAddNode = useCallback(
-    (data: { label: string; chain: { name: string; image: string } }) => {
+    (data: {
+      label: string;
+      chain: { name: string; chainId: number; image: string };
+    }) => {
       setNodeIds((prev) => {
         console.log("TRUgggered");
         setNodes((nodes) => [
@@ -107,7 +118,6 @@ export default function Project({ name }: { name: string }) {
       </div>
       <ToolBar
         setOpenCreateNodeModal={setOpenCreateNodeModal}
-        setOpenAskGojoSheet={setOpenAskGojoSheet}
         setOpenExportModal={setOpenExportModal}
       />
       <CreateNodeModal
@@ -115,16 +125,13 @@ export default function Project({ name }: { name: string }) {
         open={openCreateNodeModal}
         setOpen={setOpenCreateNodeModal}
       />
+      <AppTestingSheet appTesting={appSettings} />
       <ExportModal
         open={openExportModal}
         setOpen={setOpenExportModal}
         name={name}
       />
-      <AskGojoSheet
-        open={openAskGojoSheet}
-        setOpen={setOpenAskGojoSheet}
-        node={selectedNode}
-      />
+      <AskGojoSheet askGojo={askGojo} />
     </div>
   );
 }

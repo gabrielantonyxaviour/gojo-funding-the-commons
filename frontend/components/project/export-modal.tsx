@@ -35,10 +35,10 @@ export default function ExportModal({
   const [newRepoName, setNewRepoName] = useState("");
 
   const chains = [
-    { name: "SKALE", image: "/chains/skale.png" },
-    { name: "Neon EVM", image: "/chains/neon.png" },
-    { name: "Gnosis Chain", image: "/chains/gnosis.png" },
-    { name: "Zircuit", image: "/chains/zircuit.png" },
+    { name: "SKALE", chainId: 69, image: "/chains/skale.png" },
+    { name: "Neon EVM", chainId: 21, image: "/chains/neon.png" },
+    { name: "Gnosis Chain", chainId: 33, image: "/chains/gnosis.png" },
+    { name: "Zircuit", chainId: 4423, image: "/chains/zircuit.png" },
   ];
 
   const [label, setLabel] = useState("");

@@ -19,9 +19,14 @@ import {
 import Image from "next/image";
 import { Separator } from "../ui/separator";
 import { shortenAddress } from "@/lib/utils";
-function CustomNode({ id, data }: any) {
-  const { getNodes, setNodes } = useReactFlow();
+import { useEnvironmentStore } from "../context";
+function CustomNode(node: any) {
+  const { id, data } = node;
+  const { setNodes } = useReactFlow();
   const [hovered, setHovered] = useState(false);
+  const { setNodeOpenAskGojo, setNodeOpenAppSettings } = useEnvironmentStore(
+    (state) => state
+  );
   return (
     <Card
       className="border-[2px] border-secondary"
@@ -38,10 +43,28 @@ function CustomNode({ id, data }: any) {
             exit={{ opacity: 0, y: 2, x: "-50%" }}
             className="px-1  whitespace-pre rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute top-16 -translate-y-1/2 -right-8 w-fit 2xl:text-md text-xs flex flex-col"
           >
-            <Button variant={"ghost"} className="p-1 m-0 hover:text-blue-500">
+            <Button
+              variant={"ghost"}
+              className="p-1 m-0 hover:text-blue-500"
+              onClick={() => {
+                setNodeOpenAskGojo({
+                  open: true,
+                  node,
+                });
+              }}
+            >
               <IconWand className="w-4 h-4 m-0 p-0" />
             </Button>
-            <Button variant={"ghost"} className="p-1 m-0 hover:text-yellow-500">
+            <Button
+              variant={"ghost"}
+              className="p-1 m-0 hover:text-yellow-500"
+              onClick={() => {
+                setNodeOpenAppSettings({
+                  open: true,
+                  node,
+                });
+              }}
+            >
               <IconSettings className="w-4 h-4 m-0 p-0" />
             </Button>
 

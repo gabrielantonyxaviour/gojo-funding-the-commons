@@ -8,7 +8,7 @@ import {
   IconWand,
 } from "@tabler/icons-react";
 import { Separator } from "@/components/ui/separator";
-import { Convo, Node } from "@/lib/type";
+import { Chain, Convo, Node } from "@/lib/type";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,31 +16,30 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Switch } from "../ui/switch";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "../ui/card";
+import { useEnvironmentStore } from "../context";
 export default function AskGojoSheet({
-  open,
-  setOpen,
-  node,
+  askGojo,
 }: {
-  open: boolean;
-  setOpen: any;
-  node: Node | null;
+  askGojo: { open: boolean; node: Node | null };
 }) {
-  const [label, setLabel] = useState(node ? node.data.label : "");
-  const [selectedChainIndex, setSelectedChainIndex] = useState(
-    node ? node.data.label : "0"
+  const { setOpenAskGojo, setNodeOpenAskGojo } = useEnvironmentStore(
+    (store) => store
   );
-  const [selectContract, setSelectContract] = useState(node != null);
-  const chains = [
-    { name: "SKALE", image: "/chains/skale.png" },
-    { name: "Neon EVM", image: "/chains/neon.png" },
-    { name: "Gnosis Chain", image: "/chains/gnosis.png" },
-    { name: "Zircuit", image: "/chains/zircuit.png" },
+
+  const [label, setLabel] = useState("");
+  const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
+  const [selectContract, setSelectContract] = useState(false);
+  const chains: Chain[] = [
+    { name: "SKALE", chainId: 69, image: "/chains/skale.png" },
+    { name: "Neon EVM", chainId: 21, image: "/chains/neon.png" },
+    { name: "Gnosis Chain", chainId: 33, image: "/chains/gnosis.png" },
+    { name: "Zircuit", chainId: 4423, image: "/chains/zircuit.png" },
   ];
   const [prompt, setPrompt] = useState("");
   const [convos, setConvos] = useState<Convo[]>([
@@ -49,131 +48,151 @@ export default function AskGojoSheet({
       message:
         "Hello, what can I help with today? This is crazy chad. I am here to help you with your queries.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "2",
       message: "Hello, what can I help with today?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "3",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "4",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "5",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "6",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "7",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "8",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "9",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "10",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "11",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "12",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "13",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "14",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "15",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "16",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "17",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "18",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "19",
       message: "I am trying to deploy a contract.",
       isAi: true,
-      node: node,
+      node: askGojo.node,
     },
     {
       id: "20",
       message: "What contract are you trying to deploy?",
       isAi: false,
-      node: node,
+      node: askGojo.node,
     },
   ]);
+
+  useEffect(() => {
+    if (askGojo.open) {
+      setLabel(askGojo.node ? askGojo.node.data.label : "");
+      setSelectedChain(askGojo.node ? askGojo.node.data.chain : null);
+      setSelectContract(askGojo.node != null);
+    }
+  }, [askGojo.open]);
+
   return (
     <Sheet
-      open={open}
+      open={askGojo.open}
       onOpenChange={(val: boolean) => {
-        setOpen(val);
-        setLabel(node ? node.data.label : "");
-        setSelectedChainIndex(node ? node.data.chain.name : "0");
-        setSelectContract(node != null);
+        if (val == false) {
+          setLabel("");
+          setSelectedChain(null);
+          setSelectContract(false);
+
+          setNodeOpenAskGojo({
+            open: false,
+            node: null,
+          });
+        } else {
+          setNodeOpenAskGojo({
+            open: true,
+            node: askGojo.node,
+          });
+        }
       }}
     >
       <SheetContent side={"right"} className="p-0 flex flex-col space-y-0">
@@ -188,7 +207,15 @@ export default function AskGojoSheet({
           <p>Select Contract</p>
           <Switch
             checked={selectContract}
-            onCheckedChange={setSelectContract}
+            onCheckedChange={(val: boolean) => {
+              if (val) {
+                setSelectContract(true);
+              } else {
+                setLabel("");
+                setSelectedChain(null);
+                setSelectContract(false);
+              }
+            }}
           />
         </div>
         <motion.div
@@ -223,25 +250,31 @@ export default function AskGojoSheet({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="flex space-x-2">
-                    {selectedChainIndex == "0" ? (
+                    {selectedChain == null ? (
                       <p>Choose Chain</p>
                     ) : (
                       <>
                         <Image
-                          src={chains[parseInt(selectedChainIndex) - 1].image}
+                          src={selectedChain.image}
                           alt="selected"
                           width={20}
                           height={20}
                         />
-                        <p>{chains[parseInt(selectedChainIndex) - 1].name}</p>
+                        <p>{selectedChain.name}</p>
                       </>
                     )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
                   <DropdownMenuRadioGroup
-                    value={selectedChainIndex}
-                    onValueChange={setSelectedChainIndex}
+                    value={
+                      selectedChain != null
+                        ? (chains.indexOf(selectedChain) + 1).toString()
+                        : "0"
+                    }
+                    onValueChange={(val: string) => {
+                      setSelectedChain(chains[parseInt(val) - 1]);
+                    }}
                   >
                     {chains.map((c, idx) => (
                       <DropdownMenuRadioItem

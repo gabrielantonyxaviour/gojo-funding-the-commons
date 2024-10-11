@@ -12,16 +12,18 @@ import {
   IconWand,
 } from "@tabler/icons-react";
 import { FloatingVerticalDock } from "../ui/acternity/floating-vertical-dock";
+import { useEnvironmentStore } from "../context";
 
 export function ToolBar({
   setOpenCreateNodeModal,
-  setOpenAskGojoSheet,
   setOpenExportModal,
 }: {
   setOpenCreateNodeModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setOpenAskGojoSheet: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenExportModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const { setOpenAppSettings, setOpenAskGojo } = useEnvironmentStore(
+    (state) => state
+  );
   const links = [
     {
       title: "Add Node",
@@ -35,7 +37,7 @@ export function ToolBar({
       icon: (
         <IconWand className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      onClick: () => setOpenAskGojoSheet(true),
+      onClick: () => setOpenAskGojo(true),
     },
 
     {
@@ -43,7 +45,7 @@ export function ToolBar({
       icon: (
         <IconSettings className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      onClick: () => console.log("Add Node"),
+      onClick: () => setOpenAppSettings(true),
     },
 
     {
