@@ -46,6 +46,7 @@ export interface FlowProps {
   setEdges: Dispatch<SetStateAction<Edge[]>>;
   setNodeIds: Dispatch<SetStateAction<number>>;
   setEdgeIds: Dispatch<SetStateAction<number>>;
+  setOpenCreateEdgeModal: (data: any) => void;
 }
 
 export interface Convo {

@@ -2,14 +2,7 @@ import React, { memo, useState } from "react";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
-import {
-  AnimatePresence,
-  MotionValue,
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { motion } from "framer-motion";
 import {
   IconRobot,
   IconSettings,

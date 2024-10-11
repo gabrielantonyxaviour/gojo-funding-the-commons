@@ -14,6 +14,7 @@ import AskGojoSheet from "./ask-gojo-sheet";
 import ExportModal from "./export-modal";
 import { useEnvironmentStore } from "../context";
 import AppTestingSheet from "./app-testing-sheet";
+import CreateEdgeModal from "./create-edge-modal";
 const initNodes: Node[] = [];
 
 const initEdges: Edge[] = [];
@@ -43,6 +44,7 @@ export default function Project({ name }: { name: string }) {
   const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [openExportModal, setOpenExportModal] = useState(false);
+  const [openCreateEdgeModal, setOpenCreateEdgeModal] = useState<any>(null);
   const { askGojo, setOpenAskGojo, appSettings, setOpenAppSettings } =
     useEnvironmentStore((state) => state);
 
@@ -57,7 +59,6 @@ export default function Project({ name }: { name: string }) {
       chain: { name: string; chainId: number; image: string };
     }) => {
       setNodeIds((prev) => {
-        console.log("TRUgggered");
         setNodes((nodes) => [
           ...nodes,
           {
@@ -88,6 +89,7 @@ export default function Project({ name }: { name: string }) {
           onEdgesChange={onEdgesChange}
           setNodeIds={setNodeIds}
           setEdgeIds={setEdgeIds}
+          setOpenCreateEdgeModal={setOpenCreateEdgeModal}
         />
       </div>
       <div className="fixed top-0 left-0 right-0 select-none ">
@@ -105,6 +107,10 @@ export default function Project({ name }: { name: string }) {
         onAddNode={onAddNode}
         open={openCreateNodeModal}
         setOpen={setOpenCreateNodeModal}
+      />
+      <CreateEdgeModal
+        edgeData={openCreateEdgeModal}
+        setEdgeData={setOpenCreateEdgeModal}
       />
       <AppTestingSheet appTesting={appSettings} />
       <ExportModal

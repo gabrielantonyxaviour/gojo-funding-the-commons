@@ -2,11 +2,11 @@
 import React, { useCallback, useState } from "react";
 import {
   ReactFlow,
-  addEdge,
   MiniMap,
   Controls,
   Background,
   useReactFlow,
+  addEdge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/base.css";
 
@@ -36,6 +36,7 @@ export default function Flow({
   setEdges,
   setNodeIds,
   setEdgeIds,
+  setOpenCreateEdgeModal,
 }: FlowProps) {
   const { theme } = useTheme();
   const { getNode } = useReactFlow();
@@ -51,24 +52,32 @@ export default function Flow({
       ) {
         toast({
           title: "Cannot Establish Connection",
-          description: "You need a crosschain protocol to connect two chains.",
+          description:
+            "You need a crosschain protocol to connect different chains.",
         });
         return;
       }
-      setEdges((eds) => {
-        console.log("ON connect");
-        console.log("EDS");
-        console.log(eds);
-        return addEdge(
-          {
-            ...params,
-            id: "e" + source + "-" + target,
-            type: "custom",
-            markerEnd: { type: "arrowclosed" },
-          },
-          eds
-        );
+      setOpenCreateEdgeModal({
+        ...params,
+        id: "e" + source + "-" + target,
+        type: "custom",
+        markerEnd: { type: "arrowclosed" },
       });
+      // setEdges((eds) => {
+      //   console.log("ON connect");
+      //   console.log("EDS");
+      //   console.log(eds);
+
+      //   return addEdge(
+      //     {
+      //       ...params,
+      //       id: "e" + source + "-" + target,
+      //       type: "custom",
+      //       markerEnd: { type: "arrowclosed" },
+      //     },
+      //     eds
+      //   );
+      // });
     }
   }, []);
 
