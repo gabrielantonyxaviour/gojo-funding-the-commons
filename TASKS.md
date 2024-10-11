@@ -99,38 +99,14 @@ Side bar
 
 ## TODO
 
-1. Create node modal - DONE
-   - Label
-   - Chain
-   - Prompt
-2. Create edge modal -
-   - Label
-   - Different chain? Show create node to create new node
-   - (PENDING)
-3. Node data - DONE
-   - Label
-   - Chain
-   - AI Agents
-   - Deployment
-4. Ask Gojo Sheet - DONE
-   - Generic
-   - Specific
-5. App testing -
-   - Generic
-   - Specific
-6. Export Modal - DONE
-   - Connect Github
-   - Project Name
-   - Show Used AI Agents
-   - Show Royalty amount splits
-   - Pay and get code in Github
+1. Copy button next to deployment in the node
+2. Ask Gojo and app settings should be available also for edges
 
 // Tomorrow
 
-1. Setup Github
-2. Setup NEAR
-3. XMTP Chat fully setup in client
-4. Story Protocol with LayerZero contracts
+1. Setup Gtihub
+2. XMTP Chat fully setup in client
+3. Story Protocol with LayerZero contracts
 
 // Friday
 
@@ -158,3 +134,12 @@ Side bar
      - Clone template
      - Submit template
        - Connect Github
+
+// FLOW
+
+1. User needs to pay and decrypt the data
+2. Phala core AI agents encrypt the data when returning to back to the XMTP chat.
+3. User can encrypt as long as he pays enough royalties in STORY.
+4. Lit Actions. Fetch the latest balance state of IP using theGraph. If enough balance is present, the lit action sends a transaction to consume the decryption to STORY.
+5. This will be validated and the decryption signature will be provided
+6. You will fetch
