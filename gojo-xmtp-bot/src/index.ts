@@ -36,7 +36,7 @@ run(async (context: HandlerContext) => {
     return;
   }
 
-  let chatHistory = JSON.parse((await redisClient.get(sender.address)) || "[]");
+  let chatHistory = inMemoryCacheStep.get(sender.address) || [];
 
   chatHistory.push({ role: "user", content: text });
 
