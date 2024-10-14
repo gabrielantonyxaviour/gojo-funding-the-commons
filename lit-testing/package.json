@@ -13,6 +13,7 @@
     "test:credit:sessionSigs": "npx @dotenvx/dotenvx run -- mocha test/**/getSessionSigsWithCapacityCredit.spec.ts"
   },
   "dependencies": {
+    "@coinbase/coinbase-sdk": "^0.8.0",
     "@dotenvx/dotenvx": "^0.44.1",
     "@lit-protocol/auth-helpers": "^6.4.0",
     "@lit-protocol/constants": "^6.4.0",
