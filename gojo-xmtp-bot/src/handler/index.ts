@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-
 interface Convo {
   role: string;
   content: string;
@@ -9,10 +8,16 @@ export default async function handler(
   context: Convo[],
   input: string
 ): Promise<string> {
+  const contextInput: any = context.map((c) => {
+    return {
+      role: c.role,
+      content: [{ type: "text", content: c.content }],
+    };
+  });
   const completion = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      { role: "system", content: "You are a helpful assistant." },
+      ...contextInput,
       {
         role: "user",
         content: input,

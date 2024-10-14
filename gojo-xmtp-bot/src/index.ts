@@ -43,7 +43,9 @@ run(async (context: HandlerContext) => {
   let message = "";
   if (chatHistory.length == 0 || text == "init") {
     message = "Hey Chad! Gojo Here. Let me help you ship an MVP today. 💪";
-    inMemoryCacheStep.set(sender.address, [{ role: "bot", content: message }]);
+    inMemoryCacheStep.set(sender.address, [
+      { role: "assistant", content: message },
+    ]);
   } else {
     if (text.includes("bye")) {
       message = "Goodbye! 🙏";
