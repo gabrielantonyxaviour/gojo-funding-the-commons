@@ -50,12 +50,12 @@ run(async (context: HandlerContext) => {
       inMemoryCacheStep.set(sender.address, []);
     } else {
       // Handle the actual logic
-      message = handler(chatHistory, text);
+      message = await handler(chatHistory, text);
       chatHistory.push({ role: "bot", content: message });
       inMemoryCacheStep.set(sender.address, chatHistory);
     }
   }
-
+  console.log(message);
   //Send the message
   await context.reply(message);
 });
