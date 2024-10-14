@@ -2,12 +2,15 @@ import { getRedisClient } from "./lib/redis.js";
 import { run, HandlerContext } from "@xmtp/message-kit";
 import { startCron } from "./lib/cron.js";
 import { RedisClientType } from "@redis/client";
+import handler from "./handler/index.js";
 
-//Tracks conversation steps
-const inMemoryCacheStep = new Map<string, number>();
+interface Convo {
+  role: string;
+  content: string;
+}
 
-//List of words to stop or unsubscribe.
-const stopWords = ["stop", "unsubscribe", "cancel", "list"];
+//Tracks conversation
+const inMemoryCacheStep = new Map<string, Convo[]>();
 
 const redisClient: RedisClientType = await getRedisClient();
 
@@ -27,44 +30,30 @@ run(async (context: HandlerContext) => {
     clientInitialized = true;
   }
   if (typeId !== "text") {
-    /* If the input is not text do nothing */
-    return;
-  }
-
-  const lowerContent = text?.toLowerCase();
-
-  //Handles unsubscribe and resets step
-  if (stopWords.some((word) => lowerContent.includes(word))) {
-    inMemoryCacheStep.set(sender.address, 0);
-    await redisClient.del(sender.address);
     await context.reply(
-      "You are now unsubscribed. You will no longer receive updates!.",
+      "Sorry I can only understand text messages for now. :/"
     );
     return;
   }
 
-  const cacheStep = inMemoryCacheStep.get(sender.address) || 0;
+  let chatHistory = JSON.parse((await redisClient.get(sender.address)) || "[]");
+
+  chatHistory.push({ role: "user", content: text });
+
   let message = "";
-  if (cacheStep === 0) {
-    message = "Welcome! Choose an option:\n1. Info\n2. Subscribe";
-    // Move to the next step
-    inMemoryCacheStep.set(sender.address, cacheStep + 1);
-  } else if (cacheStep === 1) {
-    if (text === "1") {
-      message = "Here is the info.";
-    } else if (text === "2") {
-      await redisClient.set(sender.address, "subscribed"); //test
-      message =
-        "You are now subscribed. You will receive updates.\n\ntype 'stop' to unsubscribe";
-      //reset the app to the initial step
-      inMemoryCacheStep.set(sender.address, 0);
-    } else {
-      message = "Invalid option. Please choose 1 for Info or 2 to Subscribe.";
-      // Keep the same step to allow for re-entry
-    }
+  if (chatHistory.length == 0 || text == "init") {
+    message = "Hey Chad! Gojo Here. Let me help you ship an MVP today. 💪";
+    inMemoryCacheStep.set(sender.address, [{ role: "bot", content: message }]);
   } else {
-    message = "Invalid option. Please start again.";
-    inMemoryCacheStep.set(sender.address, 0);
+    if (text.includes("bye")) {
+      message = "Goodbye! 🙏";
+      inMemoryCacheStep.set(sender.address, []);
+    } else {
+      // Handle the actual logic
+      message = handler(chatHistory, text);
+      chatHistory.push({ role: "bot", content: message });
+      inMemoryCacheStep.set(sender.address, chatHistory);
+    }
   }
 
   //Send the message
