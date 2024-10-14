@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { EnvironmentStoreProvider } from "@/components/context";
 import { ReactFlowProvider } from "@xyflow/react";
-import OnchainProviders from "@/components/providers/onchain-providers";
+// import OnchainProviders from "@/components/providers/onchain-providers";
 export const metadata: Metadata = {
   title: "Gojo",
   description:
@@ -20,19 +20,19 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <EnvironmentStoreProvider>
-          <OnchainProviders>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <ReactFlowProvider>
-                <Toaster />
-                {children}
-              </ReactFlowProvider>
-            </ThemeProvider>
-          </OnchainProviders>
+          {/* <OnchainProviders> */}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ReactFlowProvider>
+              <Toaster />
+              {children}
+            </ReactFlowProvider>
+          </ThemeProvider>
+          {/* </OnchainProviders> */}
         </EnvironmentStoreProvider>
       </body>
     </html>
