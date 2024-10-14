@@ -99,23 +99,32 @@ Side bar
 
 ## TODO
 
+1. Complete Story protocol contract with LayerZero, Base and SKALE.
+2. ETHSign Hook
+3. Walrus testing?
+4. TheGraph indexer
+
+## NEXT TODO
+
+1. Create and test Lit Action (WAITING FOR REPLY)
+2. Make Lit work in Node.js (WAITING FOR REPLY)
+3. Test Phala AI agents (WAITING FOR REPLY)
+
+## UNIMPORTANT TODO
+
 1. Copy button next to deployment in the node
 2. Ask Gojo and app settings should be available also for edges
 
-// Tomorrow
+## AT HACKATHON
 
-1. Setup Gtihub
-2. XMTP Chat fully setup in client
-3. Story Protocol with LayerZero contracts
+1.  Make Phala work
+2.  Make Walrus work
+3.  Fix Lit issues
+4.  Something cool with Coinbase
+5.  Something different with SKALE
+6.  XMTP
 
-// Friday
-
-1. Walrus?
-2. XMTP chat is an AI agent
-3. Lit Protocol
-4. TheGraph
-
-// Later
+## Later
 
 1. Contribute
    - Choose an AI agent (cards)
@@ -135,7 +144,7 @@ Side bar
      - Submit template
        - Connect Github
 
-// FLOW
+## FLOW
 
 1. User needs to pay and decrypt the data
 2. Phala core AI agents encrypt the data when returning to back to the XMTP chat.
@@ -143,3 +152,39 @@ Side bar
 4. Lit Actions. Fetch the latest balance state of IP using theGraph. If enough balance is present, the lit action sends a transaction to consume the decryption to STORY.
 5. This will be validated and the decryption signature will be provided
 6. You will fetch
+
+## WORKS
+
+1. Phala
+   - AI
+   - MPC Wallets
+   - Lit
+   - Off chain Attest?
+2. Lit Actions
+3. Lit Client side
+4. Walrus Data storage
+   - Code upload
+   - Website hosting
+   - Metadata?
+5. TheGraph
+   - Indexer
+   - Testing
+   - Client side
+6. LayerZero
+   - Crosschain contracts
+   - Testing
+7. Coinbase
+   - Client connect and send tx
+   - MPC wallets in Phala
+   - Connect Smart wallet
+   - Paymaster in Client
+   - Webhooks?
+   - Display Base names?
+8. NounsDAO
+   - Artwork
+9. XMTP
+   - Chat as AI chat bot
+10. SKALE
+
+- Just deploy
+- Different type of chains. Play around?
