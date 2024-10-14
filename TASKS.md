@@ -155,36 +155,35 @@ Side bar
 
 ## WORKS
 
-1. Phala
+1. Phala - 2/10
    - AI
    - MPC Wallets
    - Lit
    - Off chain Attest?
-2. Lit Actions
-3. Lit Client side
-4. Walrus Data storage
+2. Lit Protocol - 6/10
+   - Lit Actions Code
+   - Lit Client Side
+3. Walrus Data storage - 2/10
    - Code upload
    - Website hosting
    - Metadata?
-5. TheGraph
+4. TheGraph - 2/10
    - Indexer
    - Testing
    - Client side
-6. LayerZero
+5. LayerZero - 4/10
    - Crosschain contracts
    - Testing
-7. Coinbase
+6. Coinbase - 4/10
    - Client connect and send tx
    - MPC wallets in Phala
    - Connect Smart wallet
-   - Paymaster in Client
    - Webhooks?
    - Display Base names?
-8. NounsDAO
+7. NounsDAO - 4/10
    - Artwork
-9. XMTP
+8. XMTP - 7/10
    - Chat as AI chat bot
-10. SKALE
-
-- Just deploy
-- Different type of chains. Play around?
+9. SKALE - 5/10
+   - Just deploy
+   - Different type of chains. Play around?
