@@ -15,6 +15,7 @@ import {
 } from "@xmtp/react-sdk";
 import { FormEvent, useCallback, useState } from "react";
 import { isAddress } from "viem";
+import { Coinbase, Wallet } from "@coinbase/coinbase-sdk";
 export default function HomePage() {
   const [peerAddress, setPeerAddress] = useState("");
   const [message, setMessage] = useState("");
@@ -70,6 +71,17 @@ export default function HomePage() {
         />
         <Button onClick={handleSendMessage} disabled={isLoading}>
           Send Message
+        </Button>
+        <Button
+          onClick={async () => {
+            let coinbase = Coinbase.configureFromJson({
+              filePath: "~/Downloads/cdp_api_key.json",
+            });
+            let wallet = await Wallet.create();
+            console.log(`Wallet successfully created: `, wallet.toString());
+          }}
+        >
+          Create MPC Wallet
         </Button>
       </form>
     </div>
