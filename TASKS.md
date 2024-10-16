@@ -174,7 +174,7 @@ Side bar
 5. LayerZero - 4/10
    - Crosschain contracts
    - Testing
-6. Coinbase - 4/10
+6. Coinbase - 6/10
    - Client connect and send tx
    - MPC wallets in Phala
    - Connect Smart wallet
@@ -187,3 +187,27 @@ Side bar
 9. SKALE - 5/10
    - Just deploy
    - Different type of chains. Play around?
+10. Polygon - 2/10
+11. Sign Protocol - 4/10
+
+## AI Agents
+
+1. Openzeppelin
+2. Worldcoin
+3. LayerZero
+4. SKALE
+5. Sign Protocol
+
+## Proper Demo Flow
+
+UI (Nouns)
+Contracts (LayerZero, Polygon, SKALE)
+Indexer (TheGraph)
+
+1. Let's say that I train my domain specific AI agents with some pieces of code. (PHALA + Lit + Walrus)
+2. My core AI agent is trained to interact and handle these domain specific AI agents. (PHALA + COINBASE MPC + Sign Protocol)
+3. The user enters the app, logs in and clicks on create new project gaslessly using SKALE. (COINBASE)
+4. After creating the app, the user can create nodes with prompts aka. AI Agents (XMTP chat + PHALA + Lit)
+5. Need to decrypt the encrypted code in the client side and parse it properly (Lit)
+6. Run the code in the client side and with smart contract calls interaction (COINBASE)
+7. OPTIONAL: Code contribution UI which makes the user import his code directly from Github (Walrus + Lit)
