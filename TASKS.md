@@ -250,8 +250,11 @@ Indexer (TheGraph)
 8. Wrap IP (Converts IP to WrappedGojoIP and sends it to SKALE) - Story
 9. Make attestation (hook verifies the logic) - Polygon
 
-Story to SKALE
-SKALE to Story
+#### Contracts Pending
+
+1. Attestation validation logic
+2. Create IP logic
+3. Fix SKALE crosschain fee token issue
 
 ### Added Features
 

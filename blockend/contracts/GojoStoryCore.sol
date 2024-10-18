@@ -45,9 +45,11 @@ contract GojoStoryCore is OApp{
     address public gojoStoryIPWrapperAddress;
     uint32 public constant STORY_EID = 40315;
     uint32 public constant SKALE_EID = 40273;
+    uint32 public constant POLYGON_EID = 40267;
 
     uint256 public resourceIdCount;
     uint32 public aiAgentsCount;
+    uint32 public exportedProjectsCount;
 
     mapping(uint256 => Resource) public resources;
     mapping(uint32 => DomainSpecificAiAgent) public domainSpecificAiAgents;
@@ -87,11 +89,11 @@ contract GojoStoryCore is OApp{
         emit DomainSpecificAiAgentAdded(aiAgents);
     }
 
-    // TODO: Create IP
     function createResource(string memory metadata, uint32 aiAgentId) external {
         uint256 resourceId = resourceIdCount;
         resources[resourceId] = Resource(metadata, msg.sender, 0, 0, 0);
 
+        // TODO: Create IP
         uint256 assetTokenId = 0;
         uint256 ipTokenId = 0;
 
@@ -121,11 +123,12 @@ contract GojoStoryCore is OApp{
     ) internal override  onlyGojoCore(_origin.srcEid, _origin.sender){
         Project memory project = abi.decode(_payload, (Project));   
         IGojoStoryIPWrapper(gojoStoryIPWrapperAddress).unwrap(project.ipConsumption);
-        exportedProjects[project.generationsCount] = project;
+        exportedProjects[exportedProjectsCount] = project;
         uint256 aiAgentsUsed = project.aiAgentsUsed.length;
         uint256 revenuePerAgent = project.ipConsumption / aiAgentsUsed;
         for(uint i = 0; i < aiAgentsUsed; i++) aiAgentsRevenue[project.aiAgentsUsed[i]] += revenuePerAgent;
         emit MessageReceived(_guid, _origin, _executor, _payload, _extraData);
+        exportedProjectsCount++;
     }
 
     function getQuote(uint32 _dstEid, string memory _message, bytes calldata _options) external view returns (uint256, uint256) {

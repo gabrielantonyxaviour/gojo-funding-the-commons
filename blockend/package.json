@@ -10,6 +10,7 @@
     "@chainlink/env-enc": "^1.0.5",
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.1",
+    "@ethsign/sign-protocol-evm": "^1.1.1",
     "@layerzerolabs/oapp-evm": "^0.0.4",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.3",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.6",

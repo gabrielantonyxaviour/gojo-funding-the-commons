@@ -17,6 +17,7 @@ contract GojoWrappedIP is ERC20, OApp {
     bytes32 public gojoStoryIpWrapperAddress;
     uint32 public constant STORY_EID = 40315;
     uint32 public constant SKALE_EID = 40273;
+    uint32 public constant POLYGON_EID = 40267;
 
     constructor(string memory name, string memory symbol, address _endpoint) ERC20(name, symbol) OApp(_endpoint, msg.sender) Ownable(msg.sender) {}
     
