@@ -240,9 +240,9 @@ Indexer (TheGraph)
 
 #### Functions
 
-1. Create project - SKALE
-2. Register generation (called by AI Agent. Keeps track of consumed WrappedGojoIP for the project id.) - SKALE
-3. Register export (pay for the consumption with WrappedGojoIP, using Lit Action) - SKALE
+1. Create project - SKALE DONE
+2. Register generation (called by AI Agent. Keeps track of consumed WrappedGojoIP for the project id.) - SKALE DONE
+3. Register export (pay for the consumption with WrappedGojoIP, using Lit Action) - SKALE DONE
 4. Consume WrappedGojoIP called by Gojo AI agent - SKALE
 5. Unwrap IP (converts WrappedGojoIP to IP and sends it to Story) - SKALE
 6. Register AI agent/ Whitlist AI agent - Story and Crosschain tsx from Story to SKALE
