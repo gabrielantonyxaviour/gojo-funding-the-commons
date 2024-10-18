@@ -160,18 +160,18 @@ Side bar
    - MPC Wallets
    - Lit
    - Off chain Attest?
-2. Lit Protocol - 6/10
+2. Lit Protocol - 6/10 => 7/10
    - Lit Actions Code
    - Lit Client Side
-3. Walrus Data storage - 2/10
+3. Walrus Data storage - 2/10 => 4/10
    - Code upload
    - Website hosting
    - Metadata?
-4. TheGraph - 2/10
+4. TheGraph - 2/10 => 7/10
    - Indexer
    - Testing
    - Client side
-5. LayerZero - 4/10
+5. LayerZero - 4/10 => 8/10
    - Crosschain contracts
    - Testing
 6. Coinbase - 6/10
@@ -180,15 +180,15 @@ Side bar
    - Connect Smart wallet
    - Webhooks?
    - Display Base names?
-7. NounsDAO - 4/10
+7. NounsDAO - 4/10 => 10/10
    - Artwork
 8. XMTP - 7/10
    - Chat as AI chat bot
-9. SKALE - 5/10
+9. SKALE - 5/10 => 7/10
    - Just deploy
    - Different type of chains. Play around?
-10. Polygon - 2/10
-11. Sign Protocol - 4/10
+10. Polygon - 2/10 => 9/10
+11. Sign Protocol - 4/10 => 9/10
 
 ## AI Agents
 
@@ -211,3 +211,13 @@ Indexer (TheGraph)
 5. Need to decrypt the encrypted code in the client side and parse it properly (Lit)
 6. Run the code in the client side and with smart contract calls interaction (COINBASE)
 7. OPTIONAL: Code contribution UI which makes the user import his code directly from Github (Walrus + Lit)
+
+## Tasks
+
+1. Create new project modal - DONE
+2. Change to Nouns
+3. Checkout Phala
+4. Complete base Lit actions
+5. Complete contracts
+6. COmplete indexer
+7. Try XMTP
