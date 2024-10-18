@@ -193,10 +193,10 @@ Side bar
 ## AI Agents
 
 1. Openzeppelin
-2. Worldcoin
-3. LayerZero
-4. SKALE
-5. Sign Protocol
+2. LayerZero
+3. SKALE
+4. Sign Protocol
+5. FLOW?
 
 ## Proper Demo Flow
 
@@ -228,3 +228,27 @@ Indexer (TheGraph)
 2. Walrus data storage automation and website hosting - 4 hours
 3. Sort out Lit Protocol issue and Lit Action - 4 hours
 4. Frontend for contract interaction - 7 hours
+
+## Contracts
+
+#### Elements
+
+1. Basic logic implemenation (SKALE)
+2. Register IP when uploading new code. (Story Protocol)
+3. Claimmable royalties received from the AI Agents (Story Protocol)
+4. Sign Protocol hook (Polygon)
+
+#### Functions
+
+1. Create project - SKALE
+2. Register generation (called by AI Agent. Keeps track of consumed WrappedGojoIP for the project id.) - SKALE
+3. Register export (pay for the consumption with WrappedGojoIP, using Lit Action) - SKALE
+4. Consume WrappedGojoIP called by Gojo AI agent - SKALE
+5. Unwrap IP (converts WrappedGojoIP to IP and sends it to Story) - SKALE
+6. Register AI agent/ Whitlist AI agent - Story and Crosschain tsx from Story to SKALE
+7. Register knowledge. Mints IP to the user. - Story
+8. Wrap IP (Converts IP to WrappedGojoIP and sends it to SKALE) - Story
+9. Make attestation (hook verifies the logic) - Polygon
+
+Story to SKALE
+SKALE to Story
