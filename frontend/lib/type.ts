@@ -16,6 +16,7 @@ export interface Node {
       image: string;
     };
     address: string;
+    salt: number;
   };
   position: {
     x: number;
@@ -35,6 +36,10 @@ export interface Edge {
   target: string;
   markerEnd: {
     type: MarkerType;
+  };
+  data: {
+    label: string;
+    salt: number;
   };
 }
 export interface FlowProps {

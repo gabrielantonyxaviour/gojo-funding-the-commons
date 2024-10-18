@@ -215,9 +215,9 @@ Indexer (TheGraph)
 ## Tasks
 
 1. Create new project modal - DONE
-2. Change to Nouns
-3. Checkout Phala
-4. Complete base Lit actions
+2. Change to Nouns - DONE
+3. Checkout Phala - PENDING
+4. Complete base Lit actions -
 5. Complete contracts
 6. COmplete indexer
 7. Try XMTP

@@ -67,6 +67,7 @@ export default function Project({ name }: { name: string }) {
             data: {
               ...data,
               address: "0x0000000000000000000000000000000000000000",
+              salt: Math.floor(Math.random() * 100000000001),
             },
             position: { x: 0, y: 100 },
           },
@@ -94,7 +95,7 @@ export default function Project({ name }: { name: string }) {
       </div>
       <div className="fixed top-0 left-0 right-0 select-none ">
         <div className="flex justify-center">
-          <p className="text-center 2xl:text-lg text-sm font-semibold py-2 px-4  bg-gray-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-300 rounded-b-lg">
+          <p className="text-center 2xl:text-lg text-sm font-medium py-2 px-4  bg-gray-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-300 rounded-b-lg">
             {projects[0].name}
           </p>
         </div>

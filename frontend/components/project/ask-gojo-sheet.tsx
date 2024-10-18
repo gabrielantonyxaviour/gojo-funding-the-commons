@@ -199,7 +199,7 @@ export default function AskGojoSheet({
         <SheetHeader className="pt-3">
           <div className="flex justify-center items-center space-x-2">
             <IconWand className="h-7 w-7 text-neutral-500 dark:text-neutral-300" />
-            <p className="2xl:text-xl text-md font-semibold">Ask Gojo</p>
+            <p className="2xl:text-xl text-md font-medium">Ask Gojo</p>
           </div>
         </SheetHeader>
         <Separator className="mb-0" />
@@ -312,7 +312,7 @@ export default function AskGojoSheet({
               >
                 {c.isAi && (
                   <Image
-                    src={"/logo.png"}
+                    src={"/logo-nouns.png"}
                     width={30}
                     height={30}
                     alt="chat"

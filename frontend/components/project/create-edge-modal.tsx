@@ -99,6 +99,7 @@ export default function CreateEdgeModal({
                     ...edgeData,
                     data: {
                       label: label,
+                      salt: Math.floor(Math.random() * 100000000001),
                     },
                   },
                   eds

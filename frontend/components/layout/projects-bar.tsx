@@ -71,7 +71,7 @@ export function ProjectsBar() {
             className={cn(
               buttonVariants({ variant: "secondary" }),
               pathName == "/projects/" + project.projectId
-                ? " dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white hover:bg-muted font-semibold"
+                ? " dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white hover:bg-muted font-medium"
                 : " bg-transparent text-white hover:bg",
               "text-neutral-500 dark:text-neutral-300 justify-start w-full p-6 2xl:text-lg text-md rounded-none "
             )}
@@ -92,7 +92,7 @@ export function ProjectsBar() {
             }}
           >
             <IconPlus className="text-black dark:text-neutral-300" />
-            <p className="2xl:text-lg text-md font-semibold text-black dark:text-neutral-300">
+            <p className="2xl:text-lg text-md font-medium text-black dark:text-neutral-300">
               Create new project
             </p>
           </Link>

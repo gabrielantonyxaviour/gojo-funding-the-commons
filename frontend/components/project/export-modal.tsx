@@ -106,10 +106,10 @@ export default function ExportModal({
                   Sign Out
                 </Button>
               </div>
-              <p className="text-center font-semibold">{name}</p>
+              <p className="text-center font-medium">{name}</p>
               <Separator />
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="label" className="text-sm font-semibold">
+                <Label htmlFor="label" className="text-sm font-medium">
                   AI Agents Used
                 </Label>
                 <div className="flex space-x-2">
@@ -131,7 +131,7 @@ export default function ExportModal({
                 </Label>
               </div>
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="label" className="text-sm font-semibold">
+                <Label htmlFor="label" className="text-sm font-medium">
                   Intellectual Property Fee
                 </Label>
                 <div className="flex space-x-2 items-center">
@@ -164,7 +164,7 @@ export default function ExportModal({
           >
             Go Back
           </Button>
-          <Button onClick={() => {}} className="text-sm font-semibold">
+          <Button onClick={() => {}} className="text-sm font-medium">
             Purchase App
           </Button>
         </DialogFooter>

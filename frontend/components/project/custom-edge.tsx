@@ -52,8 +52,15 @@ export default function CustomEdge({
         >
           <CardContent className="w-[170px] h-[80px]  px-0">
             <div className="flex flex-col items-center justify-center py-2 w-full">
-              <div className="flex items-center justify-center w-full px-3 pb-2">
-                <p className="text-sm font-semibold">{data.label}</p>
+              <div className="flex items-center justify-center w-full px-3 pb-2 space-x-2">
+                <img
+                  src={`https://noun-api.com/beta/pfp?name=${data.salt}`}
+                  width={20}
+                  height={20}
+                  alt="nouns_pfp"
+                  className="rounded-full"
+                />
+                <p className="text-sm font-medium">{data.label}</p>
               </div>
               <Separator className="dark:bg-neutral-700 bg-neutral-400 " />
               <div className="flex justify-center space-x-3">

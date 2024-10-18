@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
@@ -20,6 +20,12 @@ function CustomNode(node: any) {
   const { setNodeOpenAskGojo, setNodeOpenAppSettings } = useEnvironmentStore(
     (state) => state
   );
+
+  useEffect(() => {
+    console.log("Node updated");
+    console.log(node);
+    console.log(`https://noun-api.com/beta/pfp?name=${data.salt.toString()}`);
+  }, []);
   return (
     <Card
       className="border-[2px] border-secondary"
@@ -74,7 +80,16 @@ function CustomNode(node: any) {
         )}
         <div className="flex flex-col items-center justify-center py-2 w-full">
           <div className="flex items-center justify-between w-full px-3 pb-2">
-            <p className="text-sm font-semibold">{data.label}</p>
+            <div className="flex space-x-2">
+              <img
+                src={`https://noun-api.com/beta/pfp?name=${data.salt.toString()}`}
+                width={20}
+                height={20}
+                alt="nouns_pfp"
+                className="rounded-full"
+              />
+              <p className="text-sm font-medium">{data.label}</p>
+            </div>
             <Image src={data.chain.image} width={20} height={20} alt="chain" />
           </div>
           <Separator />
