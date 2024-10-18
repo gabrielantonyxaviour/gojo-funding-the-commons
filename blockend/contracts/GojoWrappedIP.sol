@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 error NotGojoCore(address caller);
 error InvalidCrosschainCaller(uint32 eid, bytes32 caller);
+error NotEnoughBalance(uint256 balance, uint256 amount);
 
 contract GojoWrappedIP is ERC20, OApp {
     address public gojoCoreAddress;
@@ -27,17 +28,22 @@ contract GojoWrappedIP is ERC20, OApp {
         _;
     }
 
-    function transferAuthorized(address from, uint256 amount) external {
-        if(msg.sender != gojoCoreAddress) revert NotGojoCore(msg.sender);
-        _transfer(from, gojoCoreAddress, amount);
-    }
-
     function setGojoCoreAddress(address _gojoCoreAddress) external onlyOwner {
         gojoCoreAddress = _gojoCoreAddress;
     }
 
     function setGojoStoryAddress(bytes32 _gojoStoryAddress) external onlyOwner {
         gojoStoryAddress = _gojoStoryAddress;
+    }
+
+    function transferAuthorized(address from, uint256 amount) external {
+        if(msg.sender != gojoCoreAddress) revert NotGojoCore(msg.sender);
+        _transfer(from, gojoCoreAddress, amount);
+    }
+
+    function unwrap(uint256 _amount, bytes calldata _options) external payable {
+        if(balanceOf(msg.sender) < _amount) revert NotEnoughBalance(balanceOf(msg.sender), _amount);
+        _send(abi.encode(_amount), _options);
     }
 
     function _send(
@@ -63,6 +69,8 @@ contract GojoWrappedIP is ERC20, OApp {
         address _executor,  
         bytes calldata _extraData  
     ) internal override  onlyGojoStory(_origin.srcEid, _origin.sender){
+        (address receiver, uint256 amount) = abi.decode(_payload, (address, uint256));
+        _mint(receiver, amount);
         emit MessageReceived(_guid, _origin, _executor, _payload, _extraData);
     }
 
