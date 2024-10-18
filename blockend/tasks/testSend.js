@@ -1,12 +1,12 @@
 const { networks } = require("../networks");
-const {
-  abi: gojoAbi,
-} = require("../build/artifacts/contracts/Sigma.sol/Sigma.json");
 
 task("test-send", "Test croschain transaction").setAction(async (taskArgs) => {
   const { ethers } = hre;
   const [signer] = await ethers.getSigners();
   console.log("Signer: " + signer.address);
+
+  // TODO: Replace
+  const abi = [];
 
   const destination = "storyTestnet";
   console.log(
@@ -23,7 +23,7 @@ task("test-send", "Test croschain transaction").setAction(async (taskArgs) => {
   console.log("Args");
   console.log(args);
 
-  const gojo = new ethers.Contract(gojoDeployment, gojoAbi, signer);
+  const gojo = new ethers.Contract(gojoDeployment, abi, signer);
 
   const quote = await gojo.getQuote(...args);
   console.log("Quote");

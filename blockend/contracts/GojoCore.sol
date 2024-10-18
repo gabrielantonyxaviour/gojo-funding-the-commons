@@ -16,7 +16,6 @@ contract GojoCore is OApp{
     
     struct ConstructorParams{
         address endpoint;
-        address owner;
         address gojoWrappedIP;
         address gojoCoreAIAgent;
     }
@@ -38,8 +37,10 @@ contract GojoCore is OApp{
     address public gojoWrappedIP;
     address public gojoCoreAIAgent;
     bytes32 public gojoStoryCoreAddress;
+    bytes32 public gojoSignHookAddres;
     uint32 public constant STORY_EID = 40315;
     uint32 public constant SKALE_EID = 40273;
+    uint32 public constant POLYGON_EID = 40267;
 
     uint256 public projectIdCount;
     uint32 public aiAgentsCount;
@@ -59,8 +60,8 @@ contract GojoCore is OApp{
     event MessageSent(bytes32 guid, uint32 dstEid, bytes payload, MessagingFee fee, uint64 nonce);
     event MessageReceived(bytes32 guid, Origin origin, address executor, bytes payload, bytes extraData);
     
-    modifier onlyGojoStory(uint32 _eid, bytes32 _sender){
-        if(_sender != gojoStoryCoreAddress) revert InvalidCrosschainCaller(_eid, _sender);
+    modifier onlyGojoStoryCore(uint32 _eid, bytes32 _sender){
+        if(_eid != STORY_EID || _sender != gojoStoryCoreAddress) revert InvalidCrosschainCaller(_eid, _sender);
         _;
     }
 
@@ -72,6 +73,11 @@ contract GojoCore is OApp{
     function setGojoStoryAddress(address _gojoStoryCoreAddress) external onlyOwner {
         gojoStoryCoreAddress = addressToBytes32(_gojoStoryCoreAddress);
         setPeer(STORY_EID, addressToBytes32(_gojoStoryCoreAddress));
+    }
+
+    function setGojoSignHook(address _gojoSignHookAddress) external onlyOwner {
+        gojoSignHookAddres = addressToBytes32(_gojoSignHookAddress);
+        setPeer(POLYGON_EID, addressToBytes32(_gojoSignHookAddress));
     }
 
     function setGojoWrappedIP(address _gojoWrappedIP) external onlyOwner {
@@ -94,18 +100,21 @@ contract GojoCore is OApp{
         emit GenerationAction(_projectId, newAiAgentsUsed, _ipConsumption);
     }
 
-    function exportGeneration(uint256 _projectId) external {
+    function exportProject(uint256 _projectId, bytes calldata _options) external payable {
         if(projects[_projectId].isExported) revert AlreadyExported(_projectId);
         if(projects[_projectId].owner != msg.sender) revert NotProjectOwner(_projectId, msg.sender);
         
         uint256 _availaleIP = IGojoWrappedIP(gojoWrappedIP).balanceOf(msg.sender);
         if(projects[_projectId].ipConsumption > _availaleIP) revert NotEnoughIP(_projectId, projects[_projectId].ipConsumption, _availaleIP);
-        IGojoWrappedIP(gojoWrappedIP).transferAuthorized(msg.sender, projects[_projectId].ipConsumption);
+        IGojoWrappedIP(gojoWrappedIP).exportProject(msg.sender, projects[_projectId].ipConsumption);
         
         Project storage project = projects[_projectId];
         project.isExported = true;
+        bytes memory _payload = abi.encode(projects[_projectId]);
+        _send(_payload, _options);
     }
 
+    // TODO: This should do batch send.
     function _send(
         bytes memory _payload,
         bytes calldata _options
@@ -126,7 +135,7 @@ contract GojoCore is OApp{
         bytes calldata _payload,
         address _executor,  
         bytes calldata _extraData  
-    ) internal override  onlyGojoStory(_origin.srcEid, _origin.sender){
+    ) internal override  onlyGojoStoryCore(_origin.srcEid, _origin.sender){
         DomainSpecificAiAgent[] memory agents = abi.decode(_payload, (DomainSpecificAiAgent[]));
         for(uint i = 0; i < agents.length; i++){
             domainSpecificAiAgents[aiAgentsCount] = agents[i];

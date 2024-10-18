@@ -1,10 +1,12 @@
 const { networks } = require("../networks");
-const { abi } = require("../build/artifacts/contracts/Sigma.sol/Sigma.json");
 task("set-crosschain", "Sets crosschain addresses").setAction(
   async (taskArgs) => {
     const { ethers } = hre;
     const [signer] = await ethers.getSigners();
     console.log(signer.address);
+
+    // TODO: Replace
+    const abi = [];
 
     const gojoDeployment = networks[network.name].layerZeroTesting;
 

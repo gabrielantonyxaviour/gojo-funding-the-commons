@@ -10,10 +10,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 error InvalidCrosschainCaller(uint32 eid, bytes32 caller);
 error NotEnoughBalance(uint256 balance, uint256 amount);
+error UnAuthorizedCaller(address caller);
 
 contract GojoStoryIPWrapper is OApp {
 
     bytes32 public gojoWrappedIpAddress;
+    address public gojoStoryCoreAddress;
     uint32 public constant STORY_EID = 40315;
     uint32 public constant SKALE_EID = 40273;
 
@@ -32,9 +34,18 @@ contract GojoStoryIPWrapper is OApp {
         setPeer(SKALE_EID, addressToBytes32(_gojoWrappedIpAddress));
     }
 
+    function setGojoStoryCoreAddress(address _gojoStoryCoreAddress) external onlyOwner {
+        gojoStoryCoreAddress = _gojoStoryCoreAddress;
+    }
+
     function wrap(uint256 _amount, bytes calldata _options) external payable {
         if(msg.value <= _amount) revert NotEnoughBalance(msg.value, _amount);
         _send(abi.encode(msg.sender, _amount), _options);
+    }
+
+    function unwrap( uint256 _amount) external payable {
+        if(msg.sender != gojoStoryCoreAddress) revert UnAuthorizedCaller(msg.sender);
+        msg.sender.call{value: _amount}("");
     }
 
     function _send(

@@ -37,9 +37,9 @@ contract GojoWrappedIP is ERC20, OApp {
         setPeer(STORY_EID, _gojoStoryIpWrapperAddress);
     }
 
-    function transferAuthorized(address from, uint256 amount) external {
+    function exportProject(address from, uint256 amount) external {
         if(msg.sender != gojoCoreAddress) revert NotGojoCore(msg.sender);
-        _transfer(from, gojoCoreAddress, amount);
+        _burn(from, amount);
     }
 
     function unwrap(uint256 _amount, bytes calldata _options) external payable {
