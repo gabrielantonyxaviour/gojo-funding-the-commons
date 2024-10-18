@@ -243,12 +243,18 @@ Indexer (TheGraph)
 1. Create project - SKALE DONE
 2. Register generation (called by AI Agent. Keeps track of consumed WrappedGojoIP for the project id.) - SKALE DONE
 3. Register export (pay for the consumption with WrappedGojoIP, using Lit Action) - SKALE DONE
-4. Consume WrappedGojoIP called by Gojo AI agent - SKALE
-5. Unwrap IP (converts WrappedGojoIP to IP and sends it to Story) - SKALE
-6. Register AI agent/ Whitlist AI agent - Story and Crosschain tsx from Story to SKALE
+4. Consume WrappedGojoIP called by Gojo AI agent - SKALE DONE
+5. Unwrap IP (converts WrappedGojoIP to IP and sends it to Story) - SKALE DONE
+6. Register AI agent/ Whitlist AI agent - Story and Crosschain txs from Story to SKALE
 7. Register knowledge. Mints IP to the user. - Story
 8. Wrap IP (Converts IP to WrappedGojoIP and sends it to SKALE) - Story
 9. Make attestation (hook verifies the logic) - Polygon
 
 Story to SKALE
 SKALE to Story
+
+### Added Features
+
+1. Implement as IP currency as OFT and Each resource as ONFT?
+2. Implement FLOW
+3. Proper register knowledge UI
