@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.22;
-
+pragma solidity ^0.8.26;
 
 import { OApp, Origin, MessagingFee, MessagingReceipt} from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
+import { OAppOptionsType3 } from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OAppOptionsType3.sol";
 import "./interface/IGojoWrappedIP.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -11,8 +11,9 @@ error AlreadyExported(uint256 projectId);
 error NotProjectOwner(uint256 projectId, address owner);
 error NotEnoughIP(uint256 projectId, uint256 ipConsumption, uint256 availableIP);
 error InvalidCrosschainCaller(uint32 eid, bytes32 caller);
+error InvalidMsgType();
 
-contract GojoCore is OApp{
+contract GojoCore is OApp, OAppOptionsType3{
     
     struct ConstructorParams{
         address endpoint;
@@ -41,6 +42,7 @@ contract GojoCore is OApp{
     uint32 public constant STORY_EID = 40315;
     uint32 public constant SKALE_EID = 40273;
     uint32 public constant POLYGON_EID = 40267;
+    uint16 public constant SEND = 1;
 
     uint256 public projectIdCount;
     uint32 public aiAgentsCount;
@@ -68,6 +70,11 @@ contract GojoCore is OApp{
     modifier onlyGojoCoreAiAgent(address _sender){
         if(_sender != gojoCoreAIAgent) revert InvalidCaller(_sender);
         _;
+    }
+
+    function _payNative(uint256 _nativeFee) internal override returns (uint256 nativeFee) {
+        if (msg.value < _nativeFee) revert NotEnoughNative(msg.value);
+        return _nativeFee;
     }
     
     function setGojoStoryAddress(address _gojoStoryCoreAddress) external onlyOwner {
@@ -111,22 +118,45 @@ contract GojoCore is OApp{
         Project storage project = projects[_projectId];
         project.isExported = true;
         bytes memory _payload = abi.encode(projects[_projectId]);
-        _send(_payload, _options);
+        _batchSend(_payload, _options);
     }
 
     // TODO: This should do batch send.
-    function _send(
+    function _batchSend(
         bytes memory _payload,
-        bytes calldata _options
+        bytes calldata _options 
     ) internal {
-        MessagingReceipt memory _receipt = _lzSend(
-            STORY_EID,
-            _payload,
-            _options,
-            MessagingFee(msg.value, 0),
-            payable(msg.sender)
-        );
-        emit MessageSent(_receipt.guid, STORY_EID, _payload, _receipt.fee, _receipt.nonce);
+        uint32[] memory _dstEids=new uint32[](2);
+        _dstEids[0]=STORY_EID;
+        _dstEids[1]=POLYGON_EID;
+
+        // Calculate the total messaging fee required.
+        MessagingFee memory totalFee = getQuote(_dstEids, _payload, _options, false);
+        require(msg.value >= totalFee.nativeFee, "Insufficient fee provided");
+
+        uint256 totalNativeFeeUsed = 0;
+        uint256 remainingValue = msg.value;
+
+        for (uint i = 0; i < _dstEids.length; i++) {
+            bytes memory options = combineOptions(_dstEids[i], SEND, _options);
+            MessagingFee memory fee = _quote(_dstEids[i], _payload, options, false);
+
+            totalNativeFeeUsed += fee.nativeFee;
+            remainingValue -= fee.nativeFee;
+
+            // Ensure the current call has enough allocated fee from msg.value.
+            require(remainingValue >= 0, "Insufficient fee for this destination");
+
+            MessagingReceipt memory _receipt =_lzSend(
+                _dstEids[i],
+                _payload,
+                options,
+                fee,
+                payable(msg.sender)
+            );
+
+            emit MessageSent(_receipt.guid, _dstEids[i], _payload, _receipt.fee, _receipt.nonce);
+        }
     }
 
     function _lzReceive(
@@ -145,9 +175,18 @@ contract GojoCore is OApp{
         emit MessageReceived(_guid, _origin, _executor, _payload, _extraData);
     }
 
-    function getQuote(uint32 _dstEid, string memory _message, bytes calldata _options) external view returns (uint256, uint256) {
-        MessagingFee memory quote=_quote(_dstEid, abi.encode(_message), _options, false);
-        return (quote.nativeFee, quote.lzTokenFee);
+    function getQuote(
+        uint32[] memory _dstEids,
+        bytes memory _payload,
+        bytes calldata _options,
+        bool _payInLzToken
+    ) public view returns (MessagingFee memory totalFee) {
+        for (uint i = 0; i < _dstEids.length; i++) {
+            bytes memory options = combineOptions(_dstEids[i], SEND, _options);
+            MessagingFee memory fee = _quote(_dstEids[i], _payload, options, _payInLzToken);
+            totalFee.nativeFee += fee.nativeFee;
+            totalFee.lzTokenFee += fee.lzTokenFee;
+        }
     }
 
     function addressToBytes32(address _address) public pure returns (bytes32) {
