@@ -23,7 +23,7 @@ const networks = {
     verifyApiUrl: "https://testnet.storyscan.xyz/api",
     ipRegistry: "0x1a9d0d28a0422F26D31Be72Edc6f13ea4371E11B",
     endpoint: "0x6C7Ab2202C98C4227C5c46f1417D81144DA716Ff",
-    layerZeroTesting: "0x4ab8f50796b059aE5C8b8534afC6bb4c84912ff6",
+    layerZeroTesting: "0x08AC2b69feB202b34aD7c65E5Ac876E901CA6216",
   },
   baseSepolia: {
     url:
@@ -40,7 +40,7 @@ const networks = {
     blockExplorer: "https://sepolia.basescan.org/",
     verifyApiUrl: "https://api-sepolia.basescan.org/api",
     endpoint: "0x6EDCE65403992e310A62460808c4b910D972f10f",
-    layerZeroTesting: "0xBe7F03168C672227bC12293445e1C109cF918538",
+    layerZeroTesting: "0x10529ceb5C5Ca607f6438B8A5277c96fbaAfA730",
   },
   polygonAmoy: {
     url: "https://polygon-amoy-bor-rpc.publicnode.com",
@@ -55,7 +55,7 @@ const networks = {
     blockExplorer: "https://amoy.polygonscan.com/",
     verifyApiUrl: "https://api-amoy.polygonscan.com/api",
     endpoint: "0x6EDCE65403992e310A62460808c4b910D972f10f",
-    layerZeroTesting: "0xf2c043F3Bd4c6D1a38e27Df2b00bC23b931068DB",
+    layerZeroTesting: "0x9Fa2f0872498f56Fec437d92D66842f162c6B922",
   },
   skaleTestnet: {
     url: "https://testnet.skalenodes.com/v1/juicy-low-small-testnet",
@@ -72,7 +72,7 @@ const networks = {
     verifyApiUrl:
       "https://juicy-low-small-testnet.explorer.testnet.skalenodes.com/api",
     endpoint: "0x82b7dc04A4ABCF2b4aE570F317dcab49f5a10f24",
-    layerZeroTesting: "0x16CBC6Cb38D19B73A3b545109c70b2031d20EA37",
+    layerZeroTesting: "0x4ab8f50796b059aE5C8b8534afC6bb4c84912ff6",
   },
 };
 

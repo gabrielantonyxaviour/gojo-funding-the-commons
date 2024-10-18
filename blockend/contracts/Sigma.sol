@@ -17,14 +17,14 @@ contract Sigma is OApp{
     event MessageReceived(bytes32 guid, Origin origin, address executor, string message, bytes extraData);
     
 
-    modifier onlyCrosschainWhitelisted(uint32 _srcId, address sender){
-        require(crosschainAddresses[_srcId]==sender, "Invalid Crosschain address ");
+    modifier onlyCrosschainWhitelisted(uint32 _srcId, bytes32 sender){
+        require(peers[_srcId]==sender, "Invalid Crosschain address ");
         _;
     }
 
     function setCrosschainAddresses(uint32[] memory _dstIds, address[] memory _dstAddresses) external onlyOwner {
         for(uint i=0; i<_dstIds.length; i++){
-            crosschainAddresses[_dstIds[i]]=_dstAddresses[i];
+            peers[_dstIds[i]]=addressToBytes32(_dstAddresses[i]);
         }
     }
 
@@ -53,7 +53,7 @@ contract Sigma is OApp{
         bytes calldata _payload,
         address _executor,  
         bytes calldata _extraData  
-    ) internal override  onlyCrosschainWhitelisted(_origin.srcEid,  bytes32ToAddress(_origin.sender)){
+    ) internal override  onlyCrosschainWhitelisted(_origin.srcEid,  _origin.sender){
         data = abi.decode(_payload, (string));
         emit MessageReceived(_guid, _origin, _executor, data, _extraData);
     }
@@ -63,5 +63,10 @@ contract Sigma is OApp{
 
     function bytes32ToAddress(bytes32 _bytes32) public pure returns (address) {
         return address(uint160(uint256(_bytes32)));
+    }
+
+    function getQuote(uint32 _dstEid, string memory _message, bytes calldata _options) external view returns (uint256, uint256) {
+        MessagingFee memory quote=_quote(_dstEid, abi.encode(_message), _options, false);
+        return (quote.nativeFee, quote.lzTokenFee);
     }
 }
