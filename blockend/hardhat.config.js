@@ -39,6 +39,8 @@ module.exports = {
     apiKey: {
       baseSepolia: networks.baseSepolia.verifyApiKey,
       storyTestnet: networks.storyTestnet.verifyApiKey,
+      skaleTestnet: networks.skaleTestnet.verifyApiKey,
+      polygonAmoy: networks.polygonAmoy.verifyApiKey,
     },
     customChains: [
       {
@@ -55,6 +57,22 @@ module.exports = {
         urls: {
           apiURL: networks.storyTestnet.verifyApiUrl,
           browserURL: networks.storyTestnet.blockExplorer,
+        },
+      },
+      {
+        network: "skaleTestnet",
+        chainId: networks.skaleTestnet.chainId,
+        urls: {
+          apiURL: networks.skaleTestnet.verifyApiUrl,
+          browserURL: networks.skaleTestnet.blockExplorer,
+        },
+      },
+      {
+        network: "polygonAmoy",
+        chainId: networks.polygonAmoy.chainId,
+        urls: {
+          apiURL: networks.polygonAmoy.verifyApiUrl,
+          browserURL: networks.polygonAmoy.blockExplorer,
         },
       },
     ],

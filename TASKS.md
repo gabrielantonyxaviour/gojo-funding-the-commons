@@ -182,7 +182,7 @@ Side bar
    - Display Base names?
 7. NounsDAO - 4/10 => 10/10
    - Artwork
-8. XMTP - 7/10
+8. XMTP - 7/10 => 10/10
    - Chat as AI chat bot
 9. SKALE - 5/10 => 7/10
    - Just deploy
@@ -216,8 +216,15 @@ Indexer (TheGraph)
 
 1. Create new project modal - DONE
 2. Change to Nouns - DONE
-3. Checkout Phala - PENDING
-4. Complete base Lit actions -
-5. Complete contracts
-6. COmplete indexer
-7. Try XMTP
+3. Checkout Phala - DONE
+4. Complete base Lit actions - 2 hours
+5. Complete contracts - 5 hours
+6. COmplete indexer - 3 hours
+7. Complete XMTP - 3 hours
+
+## In hacakthon
+
+1. Figure out Phala - 7 hours
+2. Walrus data storage automation and website hosting - 4 hours
+3. Sort out Lit Protocol issue and Lit Action - 4 hours
+4. Frontend for contract interaction - 7 hours
