@@ -104,38 +104,32 @@ Indexer (TheGraph)
 #### Contracts Pending
 
 1. Attestation validation logic
-2. Create IP logic
-3. Fix SKALE crosschain fee token issue
+2. Fix SKALE crosschain fee token issue
 
 ### Added Features
 
-1. Implement as IP currency as OFT and Each resource as ONFT?
-2. Implement FLOW
-3. Proper register knowledge UI
-4. Copy button next to deployment in the node
+1. Add license
+2. Implement as IP currency as OFT and Each resource as ONFT?
+3. Implement FLOW
+4. Proper register knowledge UI
+5. Copy button next to deployment in the node
 
 ## TODO
 
-Before Hack starts
+Before 7 am
 
-1. Graph indexing node for SKALE
-2. Contracts Pending and Testing
-3. Get started with Phala
-
-First night
-
-1. Complete Lit Actions
-2. Try Phala
+1. Complete contracts fully and tested with indexer (with some bugs)
+2. Test graph
 
 Sat Morning
 
 1. Complete Phala
-2. Integrate Walrus more
+2. Complete Lit Actions
 
-Sat Afternoon
+Sat Evening
 
 1. Complete XMTP
 
-Sat Night
+Sat Night to morning
 
 1. Complete Everything hopefully
