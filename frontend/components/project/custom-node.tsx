@@ -1,9 +1,11 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 import {
+  IconEye,
+  IconPencil,
   IconRobot,
   IconSettings,
   IconTrash,
@@ -11,14 +13,40 @@ import {
 } from "@tabler/icons-react";
 import Image from "next/image";
 import { Separator } from "../ui/separator";
+import { idToChain } from "@/lib/constants";
 import { shortenAddress } from "@/lib/utils";
 import { useEnvironmentStore } from "../context";
+import UpdateNodeModal from "./update-node-modal";
+import { Node } from "@/lib/type";
+import { zeroAddress } from "viem";
 function CustomNode(node: any) {
   const { id, data } = node;
   const { setNodes } = useReactFlow();
   const [hovered, setHovered] = useState(false);
-  const { setNodeOpenAskGojo, setNodeOpenAppSettings } = useEnvironmentStore(
-    (state) => state
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const { setNodeOpenAskGojo, setNodeOpenAppSettings, setViewCodeNodeId } =
+    useEnvironmentStore((state) => state);
+
+  const onChangeNode = useCallback(
+    (onChangeNodeData: { nodeId: string; chainId: number; label: string }) => {
+      const { nodeId, chainId, label } = onChangeNodeData;
+      setNodes((nds) => {
+        return nds.map((node) => {
+          if (node.id == nodeId) {
+            return {
+              ...node,
+              data: {
+                label,
+                chainId: chainId,
+                salt: Math.floor(Math.random() * 100000000001),
+                address: chainId != data.chainId ? zeroAddress : data.address,
+              },
+            };
+          } else return node;
+        });
+      });
+    },
+    []
   );
 
   useEffect(() => {
@@ -40,11 +68,29 @@ function CustomNode(node: any) {
             initial={{ opacity: 0, y: 10, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: 2, x: "-50%" }}
-            className="px-1  whitespace-pre rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute top-16 -translate-y-1/2 -right-8 w-fit 2xl:text-md text-xs flex flex-col"
+            className="px-1  whitespace-pre rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute top-[100px] -translate-y-1/2 -right-[36px] w-fit 2xl:text-md text-xs flex flex-col"
           >
             <Button
               variant={"ghost"}
+              className="p-1 m-0 hover:text-yellow-500"
+              onClick={() => {
+                setOpenEditModal(true);
+              }}
+            >
+              <IconPencil className="w-4 h-4 m-0 p-0" />
+            </Button>
+            <Button
+              variant={"ghost"}
               className="p-1 m-0 hover:text-blue-500"
+              onClick={() => {
+                setViewCodeNodeId(id);
+              }}
+            >
+              <IconEye className="w-4 h-4 m-0 p-0" />
+            </Button>
+            <Button
+              variant={"ghost"}
+              className="p-1 m-0 hover:text-indigo-500"
               onClick={() => {
                 setNodeOpenAskGojo({
                   open: true,
@@ -56,7 +102,7 @@ function CustomNode(node: any) {
             </Button>
             <Button
               variant={"ghost"}
-              className="p-1 m-0 hover:text-yellow-500"
+              className="p-1 m-0 hover:text-green-500"
               onClick={() => {
                 setNodeOpenAppSettings({
                   open: true,
@@ -88,21 +134,32 @@ function CustomNode(node: any) {
                 alt="nouns_pfp"
                 className="rounded-full"
               />
-              <p className="text-sm font-medium">{data.label}</p>
+              <p className="text-sm font-semibold">{data.label}</p>
             </div>
-            <Image src={data.chain.image} width={20} height={20} alt="chain" />
+            <Image
+              src={idToChain[data.chainId].image}
+              width={20}
+              height={20}
+              alt="chain"
+            />
           </div>
           <Separator />
-          <p className="text-sm pb-2 pt-4">AI Agents</p>
+          <p className="text-sm pb-2 pt-4">Agents Used</p>
           <div className="flex justify-center space-x-2">
-            <Image src="/chains/neon.png" width={20} height={20} alt="robot" />
             <Image
-              src="/chains/gnosis.png"
+              src="/agents/layerzero.png"
+              width={20}
+              height={20}
+              alt="robot"
+              className="bg-white rounded-full"
+            />
+            <Image
+              src="/agents/chainlink.jpg"
               width={20}
               height={20}
               alt="robot"
             />
-            <Image src="/chains/skale.png" width={20} height={20} alt="robot" />
+            <Image src="/agents/sign.jpg" width={20} height={20} alt="robot" />
           </div>
           <p className="text-sm pt-6 pb-1">Deployment</p>
           <p className="text-muted-foreground">
@@ -120,6 +177,14 @@ function CustomNode(node: any) {
         type="source"
         position={Position.Bottom}
         className="w-16 h-3 rounded-b-md -bottom-1.5 bg-neutral-300 dark:bg-neutral-800"
+      />
+      <UpdateNodeModal
+        nodeId={id}
+        initLabel={data.label}
+        initChainId={data.chainId}
+        open={openEditModal}
+        setOpen={setOpenEditModal}
+        onChangeNode={onChangeNode}
       />
     </Card>
   );

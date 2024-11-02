@@ -41,7 +41,7 @@ export function ToolBar({
     },
 
     {
-      title: "App Testing",
+      title: "Deploy App",
       icon: (
         <IconSettings className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),

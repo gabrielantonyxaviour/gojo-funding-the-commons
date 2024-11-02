@@ -34,8 +34,6 @@ export default function Flow({
   onEdgesChange,
   setNodes,
   setEdges,
-  setNodeIds,
-  setEdgeIds,
   setOpenCreateEdgeModal,
 }: FlowProps) {
   const { theme } = useTheme();
@@ -46,17 +44,6 @@ export default function Flow({
     const sourceNode = getNode(source);
     const targetNode = getNode(target);
     if (sourceNode && targetNode) {
-      if (
-        (sourceNode as Node).data.chain.chainId !==
-        (targetNode as Node).data.chain.chainId
-      ) {
-        toast({
-          title: "Cannot Establish Connection",
-          description:
-            "You need a crosschain protocol to connect different chains.",
-        });
-        return;
-      }
       setOpenCreateEdgeModal({
         ...params,
         id: "e" + source + "-" + target,

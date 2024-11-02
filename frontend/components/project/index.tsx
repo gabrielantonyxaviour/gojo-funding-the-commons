@@ -12,72 +12,101 @@ import { useCallback, useEffect, useState } from "react";
 import CreateNodeModal from "./create-node-modal";
 import AskGojoSheet from "./ask-gojo-sheet";
 import ExportModal from "./export-modal";
-import { useEnvironmentStore } from "../context";
-import AppTestingSheet from "./app-testing-sheet";
+import DeployAppSheet from "./deploy-app-sheet";
 import CreateEdgeModal from "./create-edge-modal";
+import dynamic from "next/dynamic";
+import { idToChain } from "@/lib/constants";
+import { zeroAddress } from "viem";
+import ViewCodeModal from "./view-code-modal";
+import { useEnvironmentStore } from "../context";
+const AskGojoSheetWrapper = dynamic(
+  () => import("@/components/project/ask-gojo-sheet-wrapper"),
+  {
+    ssr: false,
+  }
+);
 const initNodes: Node[] = [];
 
 const initEdges: Edge[] = [];
-export default function Project({ name }: { name: string }) {
-  const projects = [
-    {
-      id: 1,
-      projectId: "dckadtgfjert",
-      name: "Chainlink Protocol x Chiliz Chain",
-    },
-    {
-      id: 2,
-      projectId: "ackaddffaflo",
-      name: "Base and Arbitrum using Hyperlane",
-    },
-    {
-      id: 3,
-      projectId: "xxxxckadtgdrt",
-      name: "SKALE Network x Chainlink Protocol",
-    },
-  ];
+export default function Project({ id }: { id: string }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
 
-  const [nodeIds, setNodeIds] = useState(0);
-  const [edgeIds, setEdgeIds] = useState(0);
+  const [isGenerated, setIsGenerated] = useState(false);
+  const { projects } = useEnvironmentStore((store) => store);
+
   const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [openExportModal, setOpenExportModal] = useState(false);
   const [openCreateEdgeModal, setOpenCreateEdgeModal] = useState<any>(null);
-  const { askGojo, setOpenAskGojo, appSettings, setOpenAppSettings } =
-    useEnvironmentStore((state) => state);
-
-  useEffect(() => {
-    console.log("Updating ask gojo");
-    console.log(askGojo);
-  }, [askGojo]);
-
+  const [openViewCodeModal, setOpenViewCodeModal] = useState(false);
   const onAddNode = useCallback(
-    (data: {
-      label: string;
-      chain: { name: string; chainId: number; image: string };
-    }) => {
-      setNodeIds((prev) => {
-        setNodes((nodes) => [
-          ...nodes,
-          {
-            id: prev.toString(),
-            type: "custom",
-            data: {
-              ...data,
-              address: "0x0000000000000000000000000000000000000000",
-              salt: Math.floor(Math.random() * 100000000001),
-            },
-            position: { x: 0, y: 100 },
+    (data: { label: string; chainId: number; code: string }) => {
+      setNodes((nodes) => [
+        ...nodes,
+        {
+          id: (nodes.length + 1).toString(),
+          type: "custom",
+          data: {
+            ...data,
+            address: zeroAddress,
+            salt: Math.floor(Math.random() * 100000000001),
           },
-        ]);
-        return prev + 1;
-      });
+          position: { x: 0, y: 100 },
+        },
+      ]);
     },
     []
   );
 
+  const onChangeNode = useCallback(
+    (data: {
+      nodeId: string;
+      chainId: number;
+      label: string;
+      code: string;
+    }) => {
+      const { nodeId, chainId, label, code } = data;
+      const modifiedNodes: Node[] = [];
+      nodes.forEach((node) => {
+        if (node.id == nodeId) {
+          modifiedNodes.push({
+            ...node,
+            data: {
+              label,
+              chainId: chainId,
+              code,
+              salt: Math.floor(Math.random() * 100000000001),
+              address: zeroAddress,
+            },
+          });
+        } else modifiedNodes.push(node);
+      });
+      setNodes(modifiedNodes);
+    },
+    []
+  );
+  const solidityCode = `
+  pragma solidity ^0.8.0;
+
+  contract MyToken {
+      string public name = "My Token";
+      string public symbol = "MTK";
+      uint256 public totalSupply = 1000000;
+
+      mapping(address => uint256) public balanceOf;
+
+      constructor() {
+          balanceOf[msg.sender] = totalSupply;
+      }
+
+      function transfer(address to, uint256 amount) public {
+          require(balanceOf[msg.sender] >= amount, "Insufficient balance");
+          balanceOf[msg.sender] -= amount;
+          balanceOf[to] += amount;
+      }
+  }
+`;
   return (
     <div className="h-full flex flex-col">
       <div className="w-full flex-1">
@@ -88,15 +117,13 @@ export default function Project({ name }: { name: string }) {
           setNodes={setNodes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          setNodeIds={setNodeIds}
-          setEdgeIds={setEdgeIds}
           setOpenCreateEdgeModal={setOpenCreateEdgeModal}
         />
       </div>
       <div className="fixed top-0 left-0 right-0 select-none ">
         <div className="flex justify-center">
-          <p className="text-center 2xl:text-lg text-sm font-medium py-2 px-4  bg-gray-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-300 rounded-b-lg">
-            {projects[0].name}
+          <p className="text-center 2xl:text-lg text-sm font-semibold py-2 px-4  bg-gray-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-300 rounded-b-lg">
+            {projects[parseInt(id)].name}
           </p>
         </div>
       </div>
@@ -105,6 +132,7 @@ export default function Project({ name }: { name: string }) {
         setOpenExportModal={setOpenExportModal}
       />
       <CreateNodeModal
+        nodes={nodes}
         onAddNode={onAddNode}
         open={openCreateNodeModal}
         setOpen={setOpenCreateNodeModal}
@@ -113,13 +141,14 @@ export default function Project({ name }: { name: string }) {
         edgeData={openCreateEdgeModal}
         setEdgeData={setOpenCreateEdgeModal}
       />
-      <AppTestingSheet appTesting={appSettings} />
+      <DeployAppSheet nodes={nodes} />
       <ExportModal
         open={openExportModal}
         setOpen={setOpenExportModal}
-        name={name}
+        name={projects[parseInt(id)].name}
       />
-      <AskGojoSheet askGojo={askGojo} />
+      <AskGojoSheetWrapper id={id} onAddNode={onAddNode} nodes={nodes} />
+      <ViewCodeModal nodes={nodes} />
     </div>
   );
 }

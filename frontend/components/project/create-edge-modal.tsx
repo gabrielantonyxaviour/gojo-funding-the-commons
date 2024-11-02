@@ -49,7 +49,7 @@ export default function CreateEdgeModal({
         <Separator />
         <div className="flex flex-col space-y-4 w-full">
           <div className="flex flex-col space-y-2">
-            <Label htmlFor="label" className="text-sm font-medium">
+            <Label htmlFor="label" className="text-sm font-semibold">
               Label
             </Label>
             <Input
@@ -60,12 +60,15 @@ export default function CreateEdgeModal({
                 setLabel(e.target.value);
               }}
             />
-            <Label htmlFor="label" className="text-xs text-muted-foreground">
+            <Label
+              htmlFor="label"
+              className="text-xs font-medium text-muted-foreground"
+            >
               The name by which you reference this connection.
             </Label>
           </div>
           <div className="flex flex-col space-y-2">
-            <Label htmlFor="prompt" className="text-sm font-medium">
+            <Label htmlFor="prompt" className="text-sm font-semibold">
               Prompt
             </Label>
             <Textarea
@@ -111,7 +114,7 @@ export default function CreateEdgeModal({
               setPrompt("");
             }}
           >
-            Add node
+            Create Connection
           </Button>
         </DialogFooter>
       </DialogContent>

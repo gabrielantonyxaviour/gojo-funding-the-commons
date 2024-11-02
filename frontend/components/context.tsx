@@ -2,7 +2,7 @@
 
 import { createEnvironmentStore, type EnvironmentStore } from "@/lib/store";
 import { SessionProvider, SessionProviderProps } from "next-auth/react";
-import { type ReactNode, createContext, useRef, useContext } from "react";
+import { createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
 export type EnvironmentStoreApi = ReturnType<typeof createEnvironmentStore>;
@@ -21,11 +21,11 @@ export const EnvironmentStoreProvider = ({
   }
 
   return (
-    <SessionProvider session={session}>
-      <EnvironmentStoreContext.Provider value={storeRef.current}>
-        {children}
-      </EnvironmentStoreContext.Provider>
-    </SessionProvider>
+    // <SessionProvider session={session}>
+    <EnvironmentStoreContext.Provider value={storeRef.current}>
+      {children}
+    </EnvironmentStoreContext.Provider>
+    // </SessionProvider>
   );
 };
 

@@ -34,21 +34,14 @@ export default function ExportModal({
   const [repos, setRepos] = useState<any[]>([]);
   const [newRepoName, setNewRepoName] = useState("");
 
-  const chains = [
-    { name: "SKALE", chainId: 69, image: "/chains/skale.png" },
-    { name: "Neon EVM", chainId: 21, image: "/chains/neon.png" },
-    { name: "Gnosis Chain", chainId: 33, image: "/chains/gnosis.png" },
-    { name: "Zircuit", chainId: 4423, image: "/chains/zircuit.png" },
-  ];
-
   const [label, setLabel] = useState("");
   const [prompt, setPrompt] = useState("");
   const [selectedChainIndex, setSelectedChainIndex] = useState("0");
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
 
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
+  // useEffect(() => {
+  //   console.log(session);
+  // }, [session]);
 
   return (
     <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
@@ -57,7 +50,14 @@ export default function ExportModal({
           <DialogTitle>Export App</DialogTitle>
         </DialogHeader>
         <Separator />
-        <div className="flex flex-col space-y-4 w-full">
+
+        <div className="flex flex-col space-y-4 w-full items-center">
+          <p className="text-stone-400 font-semibold text-lg py-24">
+            {" "}
+            Coming soon
+          </p>
+        </div>
+        {/* <div className="flex flex-col space-y-4 w-full">
           {session == null ? (
             <div className="flex flex-col space-y-2">
               <Button
@@ -106,10 +106,10 @@ export default function ExportModal({
                   Sign Out
                 </Button>
               </div>
-              <p className="text-center font-medium">{name}</p>
+              <p className="text-center font-semibold">{name}</p>
               <Separator />
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="label" className="text-sm font-medium">
+                <Label htmlFor="label" className="text-sm font-semibold">
                   AI Agents Used
                 </Label>
                 <div className="flex space-x-2">
@@ -131,7 +131,7 @@ export default function ExportModal({
                 </Label>
               </div>
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="label" className="text-sm font-medium">
+                <Label htmlFor="label" className="text-sm font-semibold">
                   Intellectual Property Fee
                 </Label>
                 <div className="flex space-x-2 items-center">
@@ -153,9 +153,9 @@ export default function ExportModal({
               </div>
             </>
           )}
-        </div>
+        </div> */}
 
-        <DialogFooter>
+        {/* <DialogFooter>
           <Button
             variant={"ghost"}
             onClick={() => {
@@ -164,10 +164,10 @@ export default function ExportModal({
           >
             Go Back
           </Button>
-          <Button onClick={() => {}} className="text-sm font-medium">
+          <Button onClick={() => {}} className="text-sm font-semibold">
             Purchase App
           </Button>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );

@@ -1,11 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;400;900&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: "Londrina Solid", sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
@@ -15,10 +13,6 @@ body {
 }
 
 @layer base {
-  body {
-    @apply bg-background text-foreground;
-    font-family: "Londrina Solid", sans-serif;
-  }
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -84,26 +78,27 @@ body {
   }
 }
 
-.londrina-solid-thin {
-  font-family: "Londrina Solid", sans-serif;
-  font-weight: 100;
-  font-style: normal;
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1); /* Light border */
+  border-top: 4px solid #ffffff; /* Blue border */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
 }
-
-.londrina-solid-light {
-  font-family: "Londrina Solid", sans-serif;
-  font-weight: 300;
-  font-style: normal;
+.black-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1); /* Light border */
+  border-top: 4px solid #000000; /* Black border */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
 }
-
-.londrina-solid-regular {
-  font-family: "Londrina Solid", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.londrina-solid-black {
-  font-family: "Londrina Solid", sans-serif;
-  font-weight: 900;
-  font-style: normal;
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

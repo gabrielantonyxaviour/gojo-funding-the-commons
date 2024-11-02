@@ -1,0 +1,35 @@
+{
+  "11155111": {
+    "linkToken": "0x779877A7B0D9E8603169DdbD7836e478b4624789",
+    "vrfCoordinator": "0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B",
+    "vrfWrapper": "0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1",
+    "other_constants": {
+      "keyHash": "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae",
+      "maxGasLimit": "2500000",
+      "min_confirmations": "3",
+      "max_confirmations": "200"
+    }
+  },
+  "80002": {
+    "linkToken": "0x0fd9e8d3af1aaee056eb9e802c3a762a667b1904",
+    "vrfCoordinator": "0x343300b5d84D444B2ADc9116FEF1bED02BE49Cf2",
+    "vrfWrapper": "0x6e6c366a1cd1F92ba87Fd6f96F743B0e6c967Bf0",
+    "other_constants": {
+      "keyHash": "0x816bedba8a50b294e5cbd47842baf240c2385f2eaf719edbd4f250a137a8c899",
+      "maxGasLimit": "2500000",
+      "min_confirmations": "3",
+      "max_confirmations": "200"
+    }
+  },
+  "84532": {
+    "linkToken": "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+    "vrfCoordinator": "0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE",
+    "vrfWrapper": "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
+    "other_constants": {
+      "keyHash": "0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71",
+      "maxGasLimit": "2500000",
+      "min_confirmations": "0",
+      "max_confirmations": "200"
+    }
+  }
+}

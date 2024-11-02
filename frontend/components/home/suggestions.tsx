@@ -9,7 +9,7 @@ export default function Suggestions({
   const suggestedPrompts = [
     "Build a cross chain NFT using LayerZero",
     "Build a ETHSign Whitelist Hook Smart contract",
-    "Build an enrypted IP solution for Story using Lit Protocol",
+    "Build a lottery using Chainlink VRF",
   ];
   return (
     <div className="flex flex-wrap justify-center space-x-4 gap-y-2 py-4">

@@ -1,0 +1,7 @@
+dstack-sdk==0.1.2
+asyncio>=3.4.3
+fastapi
+uvicorn
+pydantic
+aiohttp
+openai
