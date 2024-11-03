@@ -35,6 +35,20 @@ class AIResponse(BaseModel):
     message: str
     contracts: List[AIQueryContract]
 
+CHAIN_INFO = {
+    'ethereum': {'id': 11155111, 'keywords': ['ethereum', 'eth', 'sepolia']},
+    'base': {'id': 84532, 'keywords': ['base', 'base sepolia']},
+    'polygon': {'id': 80002, 'keywords': ['polygon', 'amoy', 'polygon amoy']},
+}
+
+DEFAULT_CHAIN_ID = 11155111  # Ethereum Sepolia
+DEFAULT_CROSS_CHAIN_PAIRS = [(11155111, 80002)]  # Default: Ethereum Sepolia - Polygon Amoy
+CHAIN_NAME_MAP = {
+    11155111: 'EthereumSepolia',
+    84532: 'BaseSepolia',
+    80002: 'PolygonAmoy'
+}
+
 # Document loading and processing setup
 loader = DirectoryLoader("data/", glob="**/*.txt", loader_cls=TextLoader)
 docs = loader.load()
@@ -90,6 +104,29 @@ class State(TypedDict):
     answer: str
     contracts: List[AIQueryContract]
 
+def determine_chain_ids(message: str, code: str) -> list[int]:
+    """Determine which chain IDs to use based on the message content"""
+    message_lower = message.lower()
+    
+    # Check if all chains are requested
+    if any(word in message_lower for word in ['all chains', 'all networks', 'three chains']):
+        return [11155111, 84532, 80002]
+    
+    # Check for specific chains mentioned
+    mentioned_chains = []
+    for chain, info in CHAIN_INFO.items():
+        if any(keyword in message_lower for keyword in info['keywords']):
+            mentioned_chains.append(info['id'])
+    
+    # Handle cross-chain scenarios
+    if any(term in message_lower for term in ['cross chain', 'cross-chain', 'crosschain']):
+        if len(mentioned_chains) >= 2:
+            return mentioned_chains[:2]  # Use first two mentioned chains
+        return [11155111, 80002]  # Default cross-chain pair
+    
+    # Return mentioned chains or default
+    return mentioned_chains if mentioned_chains else [DEFAULT_CHAIN_ID]
+
 def format_contracts(contracts: List[AIQueryContract]) -> str:
     """Format contracts for prompt context"""
     if not contracts:
@@ -109,6 +146,31 @@ def get_selected_contract(contracts: List[AIQueryContract], selected_id: Optiona
         if contract.nodeId == selected_id:
             return f"Working with contract '{contract.label}' ({contract.nodeId})"
     return "Selected contract not found"
+
+def generate_contract_label(code: str, context: str = "") -> str:
+    """Generate a meaningful name for the contract based on its code and context"""
+    # Common contract patterns to look for
+    patterns = {
+        "airdrop": ["airdrop", "drop", "distribute"],
+        "token": ["ERC20", "ERC721", "token"],
+        "bridge": ["bridge", "cross chain", "layerzero"],
+        "vault": ["vault", "storage", "safe"],
+        "governance": ["governance", "dao", "voting"],
+        "staking": ["stake", "staking", "reward"],
+    }
+    
+    code_lower = code.lower()
+    context_lower = context.lower()
+    
+    # Check for patterns in both code and context
+    for category, keywords in patterns.items():
+        if any(keyword in code_lower or keyword in context_lower for keyword in keywords):
+            if "cross" in code_lower or "cross" in context_lower:
+                return f"CrossChain{category.title()}Contract"
+            return f"{category.title()}Contract"
+    
+    return "SmartContract"
+
 
 def format_connection(contracts: List[AIQueryContract], connection: Optional[List[str]]) -> str:
     """Format connection information"""
@@ -131,8 +193,7 @@ def process_input(state: State) -> State:
     }
 
 
-def call_model(state: State):
-    """Call the RAG chain and update the state with the response."""
+def call_model(state: State) -> State:
     response = rag_chain.invoke({
         "chat_history": state.get("chat_history", []),
         "input": state["input_message"],
@@ -141,33 +202,35 @@ def call_model(state: State):
         "selected_connection": state.get("selected_connection", "No connection selected")
     })
     
-    # Parse the response to extract any new contracts
-    # This is a simplified example - you might need more sophisticated parsing
+    response_parts = response["answer"].split("```solidity")
+    message = response_parts[0].strip()
+    
     new_contracts = []
-    if "```solidity" in response["answer"]:
-        code_blocks = response["answer"].split("```solidity")
-        for i in range(1, len(code_blocks)):
-            if "```" in code_blocks[i]:
-                code = code_blocks[i].split("```")[0].strip()
-                new_contracts.append(AIQueryContract(
-                    nodeId=f"new_contract_{i}",
-                    chainId=1,  # Default chain ID
-                    code=code,
-                    label=f"Generated Contract {i}"
-                ))
+    if len(response_parts) > 1:
+        code = response_parts[1].split("```")[0].strip()
+        chain_ids = determine_chain_ids(state["input_message"], code)
+        
+        for i, chain_id in enumerate(chain_ids):
+            label = generate_contract_label(code, message)
+            if len(chain_ids) > 1:
+                label = f"{label}{CHAIN_NAME_MAP[chain_id]}"
+            new_contracts.append(AIQueryContract(
+                nodeId=f"{len(state.get('contracts', [])) + i + 1}",
+                chainId=chain_id,
+                code=code,
+                label=label
+            ))
     
     return {
-        "chat_history": [
-            *state.get("chat_history", []),
+        "chat_history": state.get("chat_history", []) + [
             HumanMessage(content=state["input_message"]),
-            AIMessage(content=response["answer"])
+            AIMessage(content=message)
         ],
         "input_message": state["input_message"],
         "context": response.get("context", ""),
-        "answer": response["answer"],
+        "answer": message,
         "contracts": [*state.get("contracts", []), *new_contracts]
     }
-
 
 # Graph setup
 workflow = StateGraph(State)
