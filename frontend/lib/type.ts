@@ -62,7 +62,7 @@ export interface Conversation {
   isGojo: boolean;
   message: string;
   reference_node_hash: string;
-  contracts: string[];
+  contracts: AIQueryContract[];
 }
 interface CallMethodOptions {
   contractId: string;
@@ -104,7 +104,6 @@ export interface AIQueryContract {
   chainId: number;
   code: string;
   label: string;
-  usedAIAgents: number[];
 }
 
 export interface AIQuery {
@@ -119,7 +118,6 @@ export interface AIResponse {
   name: string;
   message: string;
   contracts: AIQueryContract[];
-  agentsUsedInGeneration: number[];
 }
 
 export interface Project {

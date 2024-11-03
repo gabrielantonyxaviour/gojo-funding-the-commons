@@ -1,6 +1,5 @@
 "use client";
 
-import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { Navigation } from "./navigation";
 import { ProjectsBar } from "./projects-bar";
 import Image from "next/image";
@@ -55,11 +54,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setBalances,
     setGojoNearConnection,
     gojoWallet,
+    projects,
   } = useEnvironmentStore((state) => state);
   const [openWalletPopover, setOpenWalletPopover] = useState<boolean>(false);
   const [openConvertGojoModal, setOpenConvertGojoModal] = useState(false);
   const [signedTransaction, setSignedTransaction] = useState<string>("");
   const [transactions, setTransactions] = useState<string[]>([]);
+  const [projectExists, setProjectExists] = useState<boolean>(false);
   const [reloaded, setReloaded] = useState(false);
   const pathName = usePathname();
   const router = useRouter();
@@ -364,7 +365,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [signedAccountId, nearConnection]);
 
-  useEffect(() => {}, [userAccount]);
+  useEffect(() => {
+    console.log(pathName);
+
+    if (pathName.startsWith("/project")) {
+      const projectId = pathName.split("/")[2];
+      console.log(projectId);
+      console.log(projects.length);
+
+      if (parseInt(projectId) > projects.length) {
+        console.log("Redirecting");
+        router.push("/");
+      } else if (!projectExists) {
+        // Ensure `setProjectExists` is only called if necessary
+        setProjectExists(true);
+      }
+    }
+  }, [pathName, projects.length, projectExists]);
 
   // return (
   //   <div className="h-screen w-screen select-text">
@@ -422,7 +439,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   //   }
   // }
 
-  return nearConnection != null ? (
+  return nearConnection != null ||
+    (pathName.startsWith("/project") && projectExists) ? (
     <div className="h-screen w-screen select-text">
       {children}
       <ProjectsBar />

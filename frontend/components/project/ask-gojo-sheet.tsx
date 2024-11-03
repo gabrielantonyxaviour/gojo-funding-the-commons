@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
+  IconArrowUpRight,
   IconChevronLeft,
   IconChevronRight,
   IconWand,
@@ -23,7 +24,7 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "../ui/card";
 import { useEnvironmentStore } from "../context";
-import { chains, idToChain } from "@/lib/constants";
+import { chains, GOJO_CONTRACT, idToChain, THIRTY_GAS } from "@/lib/constants";
 import { useWallets } from "@privy-io/react-auth";
 import { useSendMessage, useStreamMessages } from "@xmtp/react-sdk";
 import { privateKeyToAccount } from "viem/accounts";
@@ -32,6 +33,7 @@ import { polygonAmoy, skaleEuropaTestnet, storyTestnet } from "viem/chains";
 import { title } from "process";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useToast } from "@/hooks/use-toast";
+import { uploadToWalrus } from "@/lib/utils";
 export default function AskGojoSheet({
   id,
   onAddNode,
@@ -41,12 +43,21 @@ export default function AskGojoSheet({
   onAddNode: (data: { label: string; chainId: number; code: string }) => void;
   nodes: Node[];
 }) {
-  const { askGojo, setNodeOpenAskGojo, conversations, addChat } =
-    useEnvironmentStore((store) => store);
+  const {
+    askGojo,
+    setNodeOpenAskGojo,
+    conversations,
+    addChat,
+    signedAccountId,
+    setCreateProjectInitNodes,
+    wallet,
+  } = useEnvironmentStore((store) => store);
   // const { wallets } = useWallets();
   const { toast } = useToast();
   const [selectedContract, setSelectedContract] = useState<boolean>(false);
   const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [walrusBlobId, setWalrusBlobId] = useState("");
   useEffect(() => {
     if (askGojo.node != null) setSelectedContract(true);
   }, [askGojo]);
@@ -240,15 +251,15 @@ export default function AskGojoSheet({
                       <p className="2xl:text-sm text-xs">{c.message}</p>
                     </CardContent>
                   </Card>
-                  {/* {!c.isGojo && (
-                  <img
-                    src={`https://noun-api.com/beta/pfp?name=${wallets[0].address}`}
-                    width={30}
-                    height={30}
-                    alt="nouns_pfp"
-                    className="rounded-full my-2 "
-                  />
-                )} */}
+                  {!c.isGojo && (
+                    <img
+                      src={`https://noun-api.com/beta/pfp?name=${signedAccountId}`}
+                      width={30}
+                      height={30}
+                      alt="nouns_pfp"
+                      className="rounded-full my-2 "
+                    />
+                  )}
                 </div>
               );
             })}
@@ -274,129 +285,180 @@ export default function AskGojoSheet({
           <ScrollBar orientation="vertical" className="w-1" />
         </ScrollArea>
         <div className="flex pb-3  justify-between space-x-2 px-3">
-          <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+          <Input
+            disabled={loading}
+            value={loading ? "" : prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
           <Button
             size={"sm"}
             className="p-3"
-            disabled={selectedContract && askGojo.node == null}
-            // onClick={async () => {
-            //   setConvos([
-            //     ...convos,
-            //     {
-            //       id: convos.length.toString(),
-            //       message: prompt,
-            //       isAi: false,
-            //       node: null,
-            //     },
-            //   ]);
-            //   setPrompt("");
-            //   setWaiting(true);
-            //   await new Promise((resolve) => setTimeout(resolve, 12000));
-            //   setWaiting(false);
-            //   const account = privateKeyToAccount(
-            //     process.env.NEXT_PUBLIC_XMTP_PRIVATE_KEY as `0x${string}`
-            //   );
-            //   const walletClient = createWalletClient({
-            //     account,
-            //     chain: skaleEuropaTestnet,
-            //     transport: http(),
-            //   });
-            //   const inputOne: readonly [bigint, readonly number[], bigint] = [
-            //     BigInt("1"),
-            //     [1],
-            //     BigInt("50000000000000000"),
-            //   ];
-            //   const inputTwo: readonly [bigint, readonly number[], bigint] = [
-            //     BigInt("1"),
-            //     [2],
-            //     BigInt("70000000000000000"),
-            //   ];
+            disabled={(selectedContract && askGojo.node == null) || loading}
+            onClick={async () => {
+              setLoading(true);
+              toast({
+                title: "Make Generation (1/4)",
+                description: " Generating Code...",
+              });
+              addChat(id, {
+                id:
+                  conversations[id] == null
+                    ? "1"
+                    : conversations[id].length.toString(),
+                isGojo: false,
+                message: prompt,
+                reference_node_hash: askGojo.node ? askGojo.node.id : "",
+                contracts: nodes.map((n) => {
+                  return {
+                    nodeId: n.id,
+                    chainId: n.data.chainId,
+                    code: n.data.code,
+                    label: n.data.label,
+                  };
+                }),
+              });
+              let aiResponse;
+              try {
+                const res = await fetch("http://127.0.0.1:8000/chat", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    message: "Create a cross-chain airdrop contract",
+                    contracts: [],
+                    selectedContract: null,
+                    selectedConnection: null,
+                    name: "",
+                  }),
+                });
+                console.log("AI Response");
+                aiResponse = await res.json();
+              } catch (e) {
+                console.log(e);
+              }
+              console.log(aiResponse);
+              addChat(id, {
+                id: conversations[id].length.toString(),
+                isGojo: true,
+                message: aiResponse.message,
+                reference_node_hash: "",
+                contracts: aiResponse.contracts,
+              });
+              setCreateProjectInitNodes(aiResponse.contracts);
+              toast({
+                title: "Make Generation (2/4)",
+                description: "Code Generated. Uploading to Walrus...",
+              });
+              const metadata = {
+                id: conversations[id].length.toString(),
+                isGojo: true,
+                message: aiResponse.message,
+                reference_node_hash: "",
+                contracts: aiResponse.contracts,
+                timestamp: Date.now(),
+              };
+              const jsonString = JSON.stringify(metadata); // Convert JSON object to string
 
-            //   try {
-            //     const { request } = await skalePublicClient.simulateContract({
-            //       address: "0x649d81f1A8F4097eccA7ae1076287616E433c5E8",
-            //       abi: [
-            //         {
-            //           inputs: [
-            //             {
-            //               internalType: "uint256",
-            //               name: "_projectId",
-            //               type: "uint256",
-            //             },
-            //             {
-            //               internalType: "uint32[]",
-            //               name: "newAiAgentsUsed",
-            //               type: "uint32[]",
-            //             },
-            //             {
-            //               internalType: "uint256",
-            //               name: "_ipConsumption",
-            //               type: "uint256",
-            //             },
-            //           ],
-            //           name: "registerGeneration",
-            //           outputs: [],
-            //           stateMutability: "nonpayable",
-            //           type: "function",
-            //         },
-            //       ],
-            //       functionName: "registerGeneration",
-            //       args: convos.length < 2 ? inputOne : inputTwo,
-            //       account:
-            //         "0xbE9044946343fDBf311C96Fb77b2933E2AdA8B5D" as `0x${string}`,
-            //     });
-            //     const hash = await walletClient.writeContract(request);
-            //     toast({
-            //       title: "Transaction Sent",
-            //       description: `Transaction hash: ${hash}`,
-            //       action: (
-            //         <ToastAction
-            //           altText="Goto schedule to undo"
-            //           onClick={() => {
-            //             window.open(
-            //               "https://juicy-low-small-testnet.explorer.testnet.skalenodes.com/tx/" +
-            //                 hash,
-            //               "_blank"
-            //             );
-            //           }}
-            //         >
-            //           View Tx
-            //         </ToastAction>
-            //       ),
-            //     });
-            //   } catch (e) {
-            //     console.log(e);
-            //   }
-            //   setConvos([
-            //     ...convos,
-            //     {
-            //       id: convos.length.toString(),
-            //       message: prompt,
-            //       isAi: false,
-            //       node: null,
-            //     },
-            //     {
-            //       id: (convos.length + 1).toString(),
-            //       message: "Created Crosschain Airdrop contract",
-            //       isAi: true,
-            //       node: null,
-            //     },
-            //   ]);
-            //   setOpenAskGojo(false);
+              const file = new File(
+                [jsonString],
+                (aiResponse.name as string).toLocaleLowerCase() +
+                  Math.floor(Math.random() * 100000000001) +
+                  ".json",
+                {
+                  type: "application/json",
+                }
+              );
 
-            //   if (convos.length < 2) {
-            //     onAddNode({
-            //       label: label,
-            //       chain: chains[0],
-            //     });
-            //     onAddNode({
-            //       label: label,
-            //       chain: chains[2],
-            //     });
-            //   }
-            // }}
+              const tempBlobId = await uploadToWalrus(
+                file,
+                (blobId) => {
+                  setWalrusBlobId(blobId);
+                },
+                (error) => {
+                  console.log(error);
+                }
+              );
+              toast({
+                title: "Make Generation (3/4)",
+                description: "Uploaded To Walrus. Sending Transaction...",
+                action: (
+                  <ToastAction
+                    onClick={() => {
+                      window.open(
+                        "https://aggregator-devnet.walrus.space/v1/" +
+                          tempBlobId,
+                        "_blank"
+                      );
+                    }}
+                    altText="View Transaction"
+                  >
+                    View in Walrus <IconArrowUpRight size={16} />
+                  </ToastAction>
+                ),
+              });
+
+              const transaction = await wallet.callMethod({
+                contractId: GOJO_CONTRACT,
+                method: "make_generation",
+                args: {
+                  project_id: id,
+                  agents_used: [1, 2],
+                  generation_walrus_hash: tempBlobId,
+                },
+                deposit: "0",
+                gas: THIRTY_GAS,
+              });
+              if (transaction) {
+                toast({
+                  title: "Make Generation (4/4)",
+                  description: "Transaction Success",
+                  action: (
+                    <ToastAction
+                      onClick={() => {
+                        console.log(transaction);
+                        window.open(
+                          "https://testnet.nearblocks.io/txns/" +
+                            transaction.hash,
+                          "_blank"
+                        );
+                      }}
+                      altText="View Transaction"
+                    >
+                      View Tx <IconArrowUpRight size={16} />
+                    </ToastAction>
+                  ),
+                });
+              } else {
+                toast({
+                  title: "Make Generation (4/4)",
+                  description: "Transaction Success",
+                  action: (
+                    <ToastAction
+                      onClick={() => {
+                        window.open(
+                          "https://testnet.nearblocks.io/address/" +
+                            GOJO_CONTRACT,
+                          "_blank"
+                        );
+                      }}
+                      altText="View Transaction"
+                    >
+                      View Tx <IconArrowUpRight size={16} />
+                    </ToastAction>
+                  ),
+                });
+              }
+
+              setLoading(false);
+              setPrompt("");
+            }}
           >
-            <IconWand className="h-5 w-5" />
+            {loading ? (
+              <div className="black-spinner"></div>
+            ) : (
+              <IconWand className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </SheetContent>

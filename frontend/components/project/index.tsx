@@ -120,7 +120,9 @@ export default function Project({ id }: { id: string }) {
   useEffect(() => {
     if (parseInt(id) < projects.length) router.push("/");
   }, []);
-  return (
+  return parseInt(id) > projects.length ? (
+    <div></div>
+  ) : (
     <div className="h-full flex flex-col">
       <div className="w-full flex-1">
         <Flow
