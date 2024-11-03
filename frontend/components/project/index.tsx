@@ -19,6 +19,7 @@ import { idToChain } from "@/lib/constants";
 import { zeroAddress } from "viem";
 import ViewCodeModal from "./view-code-modal";
 import { useEnvironmentStore } from "../context";
+import { useRouter } from "next/navigation";
 const AskGojoSheetWrapper = dynamic(
   () => import("@/components/project/ask-gojo-sheet-wrapper"),
   {
@@ -34,6 +35,7 @@ export default function Project({ id }: { id: string }) {
 
   const [isGenerated, setIsGenerated] = useState(false);
   const { projects } = useEnvironmentStore((store) => store);
+  const router = useRouter();
 
   const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -107,6 +109,9 @@ export default function Project({ id }: { id: string }) {
       }
   }
 `;
+  useEffect(() => {
+    if (parseInt(id) < projects.length) router.push("/");
+  }, []);
   return (
     <div className="h-full flex flex-col">
       <div className="w-full flex-1">
@@ -123,7 +128,7 @@ export default function Project({ id }: { id: string }) {
       <div className="fixed top-0 left-0 right-0 select-none ">
         <div className="flex justify-center">
           <p className="text-center 2xl:text-lg text-sm font-semibold py-2 px-4  bg-gray-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-300 rounded-b-lg">
-            {projects[parseInt(id)].name}
+            {projects[parseInt(id) - 1].name}
           </p>
         </div>
       </div>
@@ -145,7 +150,7 @@ export default function Project({ id }: { id: string }) {
       <ExportModal
         open={openExportModal}
         setOpen={setOpenExportModal}
-        name={projects[parseInt(id)].name}
+        name={projects[parseInt(id) - 1].name}
       />
       <AskGojoSheetWrapper id={id} onAddNode={onAddNode} nodes={nodes} />
       <ViewCodeModal nodes={nodes} />

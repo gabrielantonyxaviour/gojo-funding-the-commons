@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os 
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain_community.document_loaders import PyPDFLoader
@@ -13,10 +13,11 @@ from pydantic import BaseModel
 # Load environment variables
 load_dotenv()
 API_KEY = os.getenv('OPENAI_API_KEY')
-Model = 'gpt-4-turbo'
+Model = 'gpt-4o-mini'
 
 # Initialize OpenAI model
-model = ChatOpenAI(api_key=API_KEY, model=Model)
+
+llm = ChatOpenAI(model=Model)
 
 # Load and process the document
 file_loader = PyPDFLoader('fhenixdata.pdf')
