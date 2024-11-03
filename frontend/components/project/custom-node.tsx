@@ -134,7 +134,11 @@ function CustomNode(node: any) {
                 alt="nouns_pfp"
                 className="rounded-full"
               />
-              <p className="text-sm font-semibold">{data.label}</p>
+              <p className="text-sm font-semibold">
+                {data.label.length > 14
+                  ? data.label.slice(0, 7) + " ... " + data.label.slice(-4)
+                  : data.label.length}
+              </p>
             </div>
             <Image
               src={idToChain[data.chainId].image}

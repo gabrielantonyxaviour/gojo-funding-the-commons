@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "../ui/badge";
 import { useCallback, useState } from "react";
 import Suggestions from "./suggestions";
-import { useSendMessage, useStartConversation } from "@xmtp/react-sdk";
+import {
+  setConversationUpdatedAt,
+  useSendMessage,
+  useStartConversation,
+} from "@xmtp/react-sdk";
 import { useRouter } from "next/navigation";
 import { useEnvironmentStore } from "../context";
-import { createWalletClient, custom } from "viem";
+import { createWalletClient, custom, zeroAddress } from "viem";
 import { skaleEuropaTestnet } from "viem/chains";
 import { useWallets } from "@privy-io/react-auth";
 import { timestamp } from "rxjs";
@@ -18,14 +22,21 @@ import { uploadToWalrus } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { GOJO_CONTRACT, THIRTY_GAS } from "@/lib/constants";
 import { ToastAction } from "../ui/toast";
+import Image from "next/image";
 
 export function SearchBar({ conversation }: { conversation: any }) {
-  const { prompt, setPrompt, addChat, addProject, projects } =
-    useEnvironmentStore((store) => store);
+  const {
+    prompt,
+    setPrompt,
+    addChat,
+    addProject,
+    projects,
+    setCreateProjectInitNodes,
+  } = useEnvironmentStore((store) => store);
   const { wallet, userAccount } = useEnvironmentStore((store) => store);
-  const [walrusUploading, setWalrusUploading] = useState(false);
   const [walrusBlobId, setWalrusBlobId] = useState("");
-  const [transactionPending, setTransactionPending] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
   const { toast } = useToast();
   const router = useRouter();
   // const { startConversation } = useStartConversation();
@@ -50,50 +61,109 @@ export function SearchBar({ conversation }: { conversation: any }) {
   return (
     <div className="xl:w-[1000px] lg:w-[800px] w-[600px]">
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 relative">
+          {loading && (
+            <div className="absolute w-full flex justify-center items-center rounded-lg">
+              <Image src="/loading.gif" width={95} height={95} alt="loading" />
+              <p className="text-center text-sm pt-6 text-muted-foreground">
+                {status}
+              </p>
+            </div>
+          )}
           <Input
-            value={prompt}
+            disabled={loading}
+            value={loading ? "" : prompt}
             onChange={(e) => [setPrompt(e.target.value)]}
-            placeholder="Ask a question or search for answers..."
+            placeholder={
+              loading ? "" : "Ask a question or search for answers..."
+            }
             className="2xl:text-lg text-md font-medium p-4 bg-transparent border-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
           />
-          <div className="flex justify-end">
+          <div className="flex justify-end ">
             <Button
               variant={"secondary"}
               className="px-3 py-4 m-2"
+              disabled={loading}
               onClick={async () => {
                 if (!userAccount) return;
+                setLoading(true);
+                setStatus("Generating Smart Contracts");
+
+                // TODO: Interact with AI and get title and response
+                // TODO: Add chat twice to add both prompt and repsonse
+                // TODO: Create nodes with the response from the AI
+                toast({
+                  title: "Create Project (1/4)",
+                  description: "Generating Smart contracts. Please wait...",
+                });
+                let aiResponse;
+                try {
+                  const res = await fetch("http://127.0.0.1:8000/chat", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      message: "Create a cross-chain airdrop contract",
+                      contracts: [],
+                      selectedContract: null,
+                      selectedConnection: null,
+                      name: "",
+                    }),
+                  });
+                  console.log("AI REsponse");
+                  aiResponse = await res.json();
+                } catch (err) {
+                  console.log(err);
+                  toast({
+                    title: "Create Project Failed",
+                    description:
+                      "Something is wrong with the AI. If issue persists, contact @gabrielaxyy at tg.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                setStatus("Uploading to Walrus");
+
+                toast({
+                  title: "Create Project (2/4)",
+                  description: "Contracts Generated. Uploading to Walrus...",
+                });
+
                 // Create a project with simple metadata and upload to Walrus and send Tx
                 const metadata = {
-                  name: "Project",
+                  name: aiResponse.name,
                   initPrompt: prompt,
                   owner: userAccount.accountId,
                   timestamp: Date.now(),
                 };
                 const jsonString = JSON.stringify(metadata); // Convert JSON object to string
 
-                const file = new File([jsonString], "project_metadata.json", {
-                  type: "application/json",
-                });
-                setWalrusUploading(true);
-                toast({
-                  title: "Create Project (1/3)",
-                  description: "Uploading Project Metadata to Walrus",
-                });
+                const file = new File(
+                  [jsonString],
+                  (aiResponse.name as string).toLocaleLowerCase() +
+                    Math.floor(Math.random() * 100000000001) +
+                    ".json",
+                  {
+                    type: "application/json",
+                  }
+                );
+
                 const tempBlobId = await uploadToWalrus(
                   file,
                   (blobId) => {
                     setWalrusBlobId(blobId);
-                    setWalrusUploading(false);
                   },
                   (error) => {
                     console.log(error);
                   }
                 );
+
+                setStatus("Sending Transaction");
                 toast({
-                  title: "Create Project (2/3)",
-                  description:
-                    "Uploeded Metadata to Walrus. Intiating transaction...",
+                  title: "Create Project (3/4)",
+                  description: "Uploaded to Walrus. Intiating transaction...",
                   action: (
                     <ToastAction
                       onClick={() => {
@@ -109,21 +179,21 @@ export function SearchBar({ conversation }: { conversation: any }) {
                     </ToastAction>
                   ),
                 });
-                setTransactionPending(true);
 
                 const transaction = await wallet.callMethod({
                   contractId: GOJO_CONTRACT,
                   method: "create_project",
                   args: {
-                    name: metadata.name,
+                    name: aiResponse.name,
                     metadata_walrus_hash: tempBlobId,
                   },
                   deposit: "0",
                   gas: THIRTY_GAS,
                 });
+                console.log("All set! Redirecting to Project");
                 if (transaction) {
                   toast({
-                    title: "Create Project (3/3)",
+                    title: "Create Project (4/4)",
                     description: "Transaction Success",
                     action: (
                       <ToastAction
@@ -143,7 +213,7 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   });
                 } else {
                   toast({
-                    title: "Create Project (3/3)",
+                    title: "Create Project (4/4)",
                     description: "Transaction Success",
                     action: (
                       <ToastAction
@@ -162,16 +232,32 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   });
                 }
 
-                // TODO: Interact with AI and get title and response
-                // TODO: Add chat twice to add both prompt and repsonse
-                // TODO: Create nodes with the response from the AI
-
                 // Store in global state and direct to the project page
                 addProject({
                   id: (projects.length + 1).toString(),
-                  name: "Generated Name XOXOX",
+                  name: aiResponse.name,
                   initPrompt: prompt,
                 });
+
+                setCreateProjectInitNodes(
+                  aiResponse.contracts.map((contract: any, idx: number) => {
+                    return {
+                      id: contract.nodeId,
+                      type: "custom",
+                      data: {
+                        label: contract.label,
+                        chainId: contract.chainId,
+                        address: zeroAddress,
+                        code: contract.code,
+                        salt: Math.floor(Math.random() * 100000000001),
+                      },
+                      position: {
+                        x: 0,
+                        y: 0,
+                      },
+                    };
+                  })
+                );
 
                 router.push("/project/" + (projects.length + 1).toString());
               }}

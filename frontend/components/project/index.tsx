@@ -34,7 +34,8 @@ export default function Project({ id }: { id: string }) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
 
   const [isGenerated, setIsGenerated] = useState(false);
-  const { projects } = useEnvironmentStore((store) => store);
+  const { projects, createProjectInitNodes, setCreateProjectInitNodes } =
+    useEnvironmentStore((store) => store);
   const router = useRouter();
 
   const [openCreateNodeModal, setOpenCreateNodeModal] = useState(false);
@@ -109,6 +110,13 @@ export default function Project({ id }: { id: string }) {
       }
   }
 `;
+
+  useEffect(() => {
+    if (createProjectInitNodes.length > 0) {
+      setNodes(createProjectInitNodes);
+      setCreateProjectInitNodes([]);
+    }
+  }, [createProjectInitNodes]);
   useEffect(() => {
     if (parseInt(id) < projects.length) router.push("/");
   }, []);

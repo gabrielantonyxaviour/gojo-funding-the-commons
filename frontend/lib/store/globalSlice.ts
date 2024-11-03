@@ -2,7 +2,7 @@ import { StateCreator } from "zustand";
 import { Near, Account } from "near-api-js";
 import { Wallet } from "../services/near-wallet";
 import { GOJO_CONTRACT } from "../constants";
-import { Conversation, Project } from "../type";
+import { Conversation, Node, Project } from "../type";
 
 interface GlobalState {
   openProjectsBar: boolean;
@@ -22,6 +22,7 @@ interface GlobalState {
   baseBalance: string;
   polBalance: string;
   projects: Project[];
+  createProjectInitNodes: Node[];
 }
 
 interface GlobalActions {
@@ -37,6 +38,7 @@ interface GlobalActions {
   setBalances: (eth: string, base: string, pol: string) => void;
   addProject: (project: Project) => void;
   setGojoNearConnection: (val: Near) => void;
+  setCreateProjectInitNodes: (nodes: Node[]) => void;
 }
 
 export type GlobalSlice = GlobalState & GlobalActions;
@@ -65,6 +67,7 @@ export const initialGlobalState: GlobalState = {
   ethBalance: "0",
   baseBalance: "0",
   polBalance: "0",
+  createProjectInitNodes: [],
 };
 
 export const createGlobalSlice: StateCreator<
@@ -110,4 +113,6 @@ export const createGlobalSlice: StateCreator<
     })),
   addProject: (proj) =>
     set((state) => ({ ...state, projects: [...state.projects, proj] })),
+  setCreateProjectInitNodes: (nodes) =>
+    set((state) => ({ ...state, createProjectInitNodes: nodes })),
 });

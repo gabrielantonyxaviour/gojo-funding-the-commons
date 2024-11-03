@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from typing import Sequence, List, Optional
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
@@ -16,8 +17,13 @@ from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings
 from langchain.chains import create_retrieval_chain, create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from os import getenv
 
 load_dotenv()
+ 
+origins = getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
+
 
 class AIQueryContract(BaseModel):
     nodeId: str
@@ -27,12 +33,14 @@ class AIQueryContract(BaseModel):
 
 class AIQuery(BaseModel):
     message: str
+    name: str
     contracts: List[AIQueryContract]
     selectedContract: Optional[str]
     selectedConnection: Optional[List[str]]
 
 class AIResponse(BaseModel):
     message: str
+    name: str
     contracts: List[AIQueryContract]
 
 CHAIN_INFO = {
@@ -103,6 +111,16 @@ class State(TypedDict):
     context: str
     answer: str
     contracts: List[AIQueryContract]
+
+def generate_project_name(message: str, contracts: List[AIQueryContract]) -> str:
+    """Generate a project name based on context if none provided"""
+    if "airdrop" in message.lower():
+        return "AirdropProtocol"
+    if "bridge" in message.lower():
+        return "BridgeProtocol"
+    if "stake" in message.lower():
+        return "StakingProtocol"
+    return "SmartContractProtocol"
 
 def determine_chain_ids(message: str, code: str) -> list[int]:
     """Determine which chain IDs to use based on the message content"""
@@ -197,6 +215,7 @@ def call_model(state: State) -> State:
     response = rag_chain.invoke({
         "chat_history": state.get("chat_history", []),
         "input": state["input_message"],
+        "context": state.get("context", ""),
         "contracts": format_contracts(state.get("contracts", [])),
         "selected_contract": state.get("selected_contract", "No contract selected"),
         "selected_connection": state.get("selected_connection", "No connection selected")
@@ -251,6 +270,13 @@ ai_app = workflow.compile(checkpointer=memory)
 # FastAPI setup
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 class Message(BaseModel):
     input: str
 
@@ -267,8 +293,11 @@ async def chat(query: AIQuery) -> AIResponse:
     }
     
     output = ai_app.invoke(initial_state, config={"configurable": {"thread_id": "121322342"}})
+
+    project_name = query.name if query.name.strip() else generate_project_name(query.message, output["contracts"])
     
     return AIResponse(
         message=output["answer"],
-        contracts=output["contracts"]
+        contracts=output["contracts"],
+        name=project_name
     )

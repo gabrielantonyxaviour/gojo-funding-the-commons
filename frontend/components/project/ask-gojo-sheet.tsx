@@ -143,7 +143,13 @@ export default function AskGojoSheet({
                           value={n.id}
                           className="flex space-x-2"
                         >
-                          <p>{n.data.label}</p>
+                          <p>
+                            {n.data.label.length > 14
+                              ? n.data.label.slice(0, 7) +
+                                " ... " +
+                                n.data.label.slice(-8)
+                              : n.data.label.length}
+                          </p>
                         </DropdownMenuRadioItem>
                       ))
                     )}

@@ -108,6 +108,7 @@ export interface AIQueryContract {
 }
 
 export interface AIQuery {
+  name: string;
   message: string;
   contracts: AIQueryContract[];
   selectedContract: string | null;
@@ -115,6 +116,7 @@ export interface AIQuery {
 }
 
 export interface AIResponse {
+  name: string;
   message: string;
   contracts: AIQueryContract[];
   agentsUsedInGeneration: number[];
