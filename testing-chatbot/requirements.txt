@@ -1,4 +1,4 @@
-uvicorna
+uvicorn
 fastapi
 python-dotenv
 pydantic
