@@ -159,7 +159,7 @@ export default function AskGojoSheet({
                               ? n.data.label.slice(0, 7) +
                                 " ... " +
                                 n.data.label.slice(-8)
-                              : n.data.label.length}
+                              : n.data.label}
                           </p>
                         </DropdownMenuRadioItem>
                       ))
@@ -325,9 +325,17 @@ export default function AskGojoSheet({
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    message: "Create a cross-chain airdrop contract",
-                    contracts: [],
-                    selectedContract: null,
+                    message: prompt,
+                    contracts: nodes.map((n) => {
+                      return {
+                        nodeId: n.id,
+                        chainId: n.data.chainId,
+                        code: n.data.code,
+                        label: n.data.label,
+                      };
+                    }),
+                    selectedContract:
+                      selectedContract && askGojo.node ? askGojo.node.id : null,
                     selectedConnection: null,
                     name: "",
                   }),
@@ -339,19 +347,43 @@ export default function AskGojoSheet({
               }
               console.log(aiResponse);
               addChat(id, {
-                id: conversations[id].length.toString(),
+                id:
+                  conversations[id] == null
+                    ? "2"
+                    : conversations[id].length.toString(),
                 isGojo: true,
                 message: aiResponse.message,
                 reference_node_hash: "",
                 contracts: aiResponse.contracts,
               });
-              setCreateProjectInitNodes(aiResponse.contracts);
+              setCreateProjectInitNodes(
+                aiResponse.contracts.map((contract: any) => {
+                  return {
+                    id: contract.nodeId,
+                    type: "custom",
+                    data: {
+                      label: contract.label,
+                      chainId: contract.chainId,
+                      address: zeroAddress,
+                      code: contract.code,
+                      salt: Math.floor(Math.random() * 100000000001),
+                    },
+                    position: {
+                      x: 0,
+                      y: 0,
+                    },
+                  };
+                })
+              );
               toast({
                 title: "Make Generation (2/4)",
                 description: "Code Generated. Uploading to Walrus...",
               });
               const metadata = {
-                id: conversations[id].length.toString(),
+                id:
+                  conversations[id] == null
+                    ? "2"
+                    : conversations[id].length.toString(),
                 isGojo: true,
                 message: aiResponse.message,
                 reference_node_hash: "",
@@ -398,38 +430,21 @@ export default function AskGojoSheet({
                 ),
               });
 
-              const transaction = await wallet.callMethod({
-                contractId: GOJO_CONTRACT,
-                method: "make_generation",
-                args: {
-                  project_id: id,
-                  agents_used: [1, 2],
-                  generation_walrus_hash: tempBlobId,
-                },
-                deposit: "0",
-                gas: THIRTY_GAS,
-              });
-              if (transaction) {
-                toast({
-                  title: "Make Generation (4/4)",
-                  description: "Transaction Success",
-                  action: (
-                    <ToastAction
-                      onClick={() => {
-                        console.log(transaction);
-                        window.open(
-                          "https://testnet.nearblocks.io/txns/" +
-                            transaction.hash,
-                          "_blank"
-                        );
-                      }}
-                      altText="View Transaction"
-                    >
-                      View Tx <IconArrowUpRight size={16} />
-                    </ToastAction>
-                  ),
+              try {
+                const transaction = await wallet.callMethod({
+                  contractId: GOJO_CONTRACT,
+                  method: "make_generation",
+                  args: {
+                    project_id: id,
+                    agents_used: [1, 2],
+                    generation_walrus_hash: tempBlobId,
+                  },
+                  deposit: "0",
+                  gas: THIRTY_GAS,
                 });
-              } else {
+              } catch (e) {
+                console.log(e);
+
                 toast({
                   title: "Make Generation (4/4)",
                   description: "Transaction Success",

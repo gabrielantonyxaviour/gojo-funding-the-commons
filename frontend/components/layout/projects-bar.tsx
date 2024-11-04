@@ -51,7 +51,7 @@ export function ProjectsBar() {
           projects.map((project, idx) => (
             <Link
               key={idx}
-              href={"/project/" + idx}
+              href={"/project/" + (idx + 1)}
               onClick={() => {
                 setOpenProjectsBar(false);
               }}

@@ -292,7 +292,7 @@ async def chat(query: AIQuery) -> AIResponse:
         "selected_connection": format_connection(query.contracts, query.selectedConnection)
     }
     
-    output = ai_app.invoke(initial_state, config={"configurable": {"thread_id": "121322342"}})
+    output = ai_app.invoke(initial_state, config={"configurable": {"thread_id": "123456789823"}})
 
     project_name = query.name if query.name.strip() else generate_project_name(query.message, output["contracts"])
     

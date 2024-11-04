@@ -137,7 +137,7 @@ function CustomNode(node: any) {
               <p className="text-sm font-semibold">
                 {data.label.length > 14
                   ? data.label.slice(0, 7) + " ... " + data.label.slice(-4)
-                  : data.label.length}
+                  : data.label}
               </p>
             </div>
             <Image

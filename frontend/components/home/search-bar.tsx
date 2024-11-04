@@ -89,9 +89,6 @@ export function SearchBar({ conversation }: { conversation: any }) {
                 setLoading(true);
                 setStatus("Generating Smart Contracts");
 
-                // TODO: Interact with AI and get title and response
-                // TODO: Add chat twice to add both prompt and repsonse
-                // TODO: Create nodes with the response from the AI
                 toast({
                   title: "Create Project (1/4)",
                   description: "Generating Smart contracts. Please wait...",
@@ -104,7 +101,7 @@ export function SearchBar({ conversation }: { conversation: any }) {
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      message: "Create a cross-chain airdrop contract",
+                      message: prompt,
                       contracts: [],
                       selectedContract: null,
                       selectedConnection: null,
