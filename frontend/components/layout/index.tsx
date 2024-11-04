@@ -509,74 +509,75 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Button
                       variant={"ghost"}
                       onClick={async () => {
-                        // window.open(
-                        //   "https://sepolia.etherscan.io/address/" +
-                        //     evmUserAddress,
-                        //   "_blank"
-                        // );
-                        // TODO: Port MPC transaction
-                        try {
-                          const res = await fetch(
-                            "http://localhost:3001/compile",
-                            {
-                              method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                              },
-                              body: JSON.stringify({
-                                contractCode: ` pragma solidity ^0.8.0;
+                        window.open(
+                          "https://sepolia.etherscan.io/address/" +
+                            evmUserAddress,
+                          "_blank"
+                        );
 
-                        contract Counter {
-                            uint256 public count;
+                        // // TODO: Port MPC transaction
+                        // try {
+                        //   const res = await fetch(
+                        //     "http://localhost:3001/compile",
+                        //     {
+                        //       method: "POST",
+                        //       headers: {
+                        //         "Content-Type": "application/json",
+                        //       },
+                        //       body: JSON.stringify({
+                        //         contractCode: ` pragma solidity ^0.8.0;
 
-                            event CountChanged(uint256 newCount);
+                        // contract Counter {
+                        //     uint256 public count;
 
-                            constructor() {
-                                count = 0;
-                            }
+                        //     event CountChanged(uint256 newCount);
 
-                            function increment() public {
-                                count += 1;
-                                emit CountChanged(count);
-                            }
+                        //     constructor() {
+                        //         count = 0;
+                        //     }
 
-                            function decrement() public {
-                                require(count > 0, "Counter: count can't go below zero");
-                                count -= 1;
-                                emit CountChanged(count);
-                            }
+                        //     function increment() public {
+                        //         count += 1;
+                        //         emit CountChanged(count);
+                        //     }
 
-                            function getCount() public view returns (uint256) {
-                                return count;
-                            }
-                        }`,
-                                name: "Gabriel",
-                              }),
-                            }
-                          );
+                        //     function decrement() public {
+                        //         require(count > 0, "Counter: count can't go below zero");
+                        //         count -= 1;
+                        //         emit CountChanged(count);
+                        //     }
 
-                          const data = await res.json();
+                        //     function getCount() public view returns (uint256) {
+                        //         return count;
+                        //     }
+                        // }`,
+                        //         name: "Gabriel",
+                        //       }),
+                        //     }
+                        //   );
 
-                          if (res.ok) {
-                            console.log("Success");
-                            console.log(data);
-                            // await sendEvmTransaction(data.bytecode);
+                        //   const data = await res.json();
 
-                            await deployContract(
-                              evmUserAddress,
-                              sepolia.id,
-                              "0x" + data.bytecode,
-                              wallet
-                            );
-                          } else {
-                            console.log("Unknown error occurred");
-                          }
-                        } catch (err) {
-                          console.log(err);
-                          console.log([
-                            "Network error: " + JSON.stringify(err),
-                          ]);
-                        }
+                        //   if (res.ok) {
+                        //     console.log("Success");
+                        //     console.log(data);
+                        //     // await sendEvmTransaction(data.bytecode);
+
+                        //     await deployContract(
+                        //       evmUserAddress,
+                        //       sepolia.id,
+                        //       "0x" + data.bytecode,
+                        //       wallet
+                        //     );
+                        //   } else {
+                        //     console.log("Unknown error occurred");
+                        //   }
+                        // } catch (err) {
+                        //   console.log(err);
+                        //   console.log([
+                        //     "Network error: " + JSON.stringify(err),
+                        //   ]);
+                        // }
                       }}
                       className="flex space-x-2 items-center justify-center mt-0 hover:bg-transparent py-0"
                     >

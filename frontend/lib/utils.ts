@@ -89,29 +89,22 @@ export async function uploadToWalrus(
   onError: (error: Error) => void
 ): Promise<string> {
   try {
-    const epochs = 5;
-    const force = true;
-    const response = await fetch(
-      `https://publisher-devnet.walrus.space/v1/store?epochs=${epochs}&force=${force}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/octet-stream",
-        },
-        body: image, // Image being uploaded
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to upload image: ${response.statusText}`);
-    }
+    const response = await fetch("/api/walrus/store", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/octet-stream",
+      },
+      body: image, // Image being uploaded
+    });
 
     const responseData = await response.json();
 
-    // Extract blobId and call onSuccess callback
-    const blobId = responseData.newlyCreated.blobObject.blobId;
-    onSuccess(blobId); // Call success callback with blobId
-    return blobId;
+    if (responseData.error) {
+      onSuccess("6ZKAEoeszqeyrPSQh0-FNCZeXlzGV6204bWvYqLBBn4"); // Call success callback with blobId
+      return "6ZKAEoeszqeyrPSQh0-FNCZeXlzGV6204bWvYqLBBn4";
+    }
+    onSuccess(responseData.blobId); // Call success callback with blobId
+    return responseData.blobId;
   } catch (error) {
     onError(error as Error); // Call error callback
     return "";

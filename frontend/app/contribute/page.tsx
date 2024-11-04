@@ -31,9 +31,8 @@ export default function ContributePage() {
   ];
   const [selectedAgent, setSelectedAgent] = useState(0);
   const [file, setFile] = useState<File | null>(null);
-  const [walrusBlobId, setWalrusBlobId] = useState<string | null>(null);
-  const [walrusUploading, setWalrusUploading] = useState<boolean>(false);
-  const [transactionPending, setTransactionPending] = useState<boolean>(false);
+  const [walrusBlobId, setWalrusBlobId] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
   const [txHash, setTxHash] = useState<string>("");
   const { wallet } = useEnvironmentStore((store) => store);
   // const { wallets } = useWallets();
@@ -63,7 +62,6 @@ export default function ContributePage() {
           </ToastAction>
         ),
       });
-      setTransactionPending(false);
     }
   }, []);
 
@@ -119,7 +117,7 @@ export default function ContributePage() {
       ) : (
         <div className="flex justify-center">
           {file != null ? (
-            walrusUploading ? (
+            status != "" ? (
               <div className="w-full flex justify-center items-center h-[100px] border border-dashed border-secondary rounded-lg">
                 <Image
                   src="/loading.gif"
@@ -128,7 +126,7 @@ export default function ContributePage() {
                   alt="loading"
                 />
                 <p className="text-center text-sm pt-6 text-muted-foreground">
-                  Uploading to Walrus
+                  {status}
                 </p>
               </div>
             ) : (
@@ -137,14 +135,14 @@ export default function ContributePage() {
                   className="flex flex-col justify-center items-center w-full h-[100px] border border-dashed border-secondary cursor-pointer rounded-lg transition-opacity duration-300 ease-in-out group-hover:opacity-50"
                   onClick={() => {
                     setFile(null);
-                    setWalrusBlobId(null);
+                    setWalrusBlobId("");
                   }}
                 >
                   <p className="text-sm text-muted-foreground text-center">
-                    {walrusBlobId != null && "Uploaded "} {file.name}
-                    {walrusBlobId != null && " to Walrus!"}
+                    {walrusBlobId != "" && "Uploaded "} {file.name}
+                    {walrusBlobId != "" && " to Walrus!"}
                   </p>
-                  {walrusBlobId != null && (
+                  {walrusBlobId != "" && (
                     <p className="text-sm text-muted-foreground text-center">
                       Blob Id
                     </p>
@@ -199,7 +197,7 @@ export default function ContributePage() {
             <p>Go Back</p>
           </Button>
           <div className="flex space-x-2">
-            {walrusBlobId != null && (
+            {walrusBlobId != "" && (
               <Button
                 variant={"ghost"}
                 className="text-stone-300"
@@ -215,32 +213,37 @@ export default function ContributePage() {
               </Button>
             )}
             <Button
-              disabled={
-                file == null ||
-                walrusUploading ||
-                transactionPending ||
-                txHash.length > 0
-              }
+              disabled={file == null || status != "" || txHash.length > 0}
               onClick={async () => {
                 if (file == null) return;
-
+                setStatus("Uploading to Walrus");
                 try {
                   toast({
                     title: "Create Resource (1/3)",
                     description: " Uploading " + file.name + " to Walrus...",
                   });
-                  setWalrusUploading(true);
                   const tempBlobId = await uploadToWalrus(
                     file,
                     (blobId) => {
                       setWalrusBlobId(blobId);
-                      setWalrusUploading(false);
+                      setStatus("Sending Transaction");
                     },
                     (error) => {
+                      console.log("Upload to Walrus failed");
                       console.log(error);
                     }
                   );
-
+                  console.log("BLob id");
+                  console.log(tempBlobId);
+                  if (!tempBlobId) {
+                    toast({
+                      title: "Walrus Upload Failed",
+                      description:
+                        "Please try again. If issue persists, contact @gabrielaxyy in Telegram",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
                   toast({
                     title: "Create Resource (2/3)",
                     description:
@@ -260,8 +263,6 @@ export default function ContributePage() {
                       </ToastAction>
                     ),
                   });
-
-                  setTransactionPending(true);
 
                   const transaction = await wallet.callMethod({
                     contractId: GOJO_CONTRACT,
@@ -316,38 +317,43 @@ export default function ContributePage() {
                       ),
                     });
                   }
+                  setStatus("");
                 } catch (e) {
                   console.log(e);
-                  if (transactionPending) {
+                  if (status == "Sending Transaction") {
                     toast({
                       title: "Transaction Failed or Rejected",
                       description:
                         "Please try again. If issue persists, contact @gabrielaxyy in Telegram",
                       variant: "destructive",
                     });
-                  }
-
-                  if (walrusUploading) {
+                  } else if (status == "Uploading to Walrus") {
                     toast({
                       title: "Walrus Upload Failed",
                       description:
                         "Please try again. If issue persists, contact @gabrielaxyy in Telegram",
                       variant: "destructive",
                     });
+                  } else {
+                    toast({
+                      title: "Unknown Error",
+                      description:
+                        "Please try again. If issue persists, contact @gabrielaxyy in Telegram",
+                      variant: "destructive",
+                    });
                   }
                 } finally {
-                  setTransactionPending(false);
                   setWalrusBlobId("");
-                  setWalrusUploading(false);
+                  setStatus("");
                   setFile(null);
                 }
               }}
             >
-              {transactionPending
+              {status == "Sending Transaction"
                 ? "Pending Tx ..."
                 : txHash.length > 0
                 ? "Success"
-                : walrusUploading
+                : status == "Uploading to Walrus"
                 ? "Uploading ..."
                 : "Contribute Code"}
             </Button>
