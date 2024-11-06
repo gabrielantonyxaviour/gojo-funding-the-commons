@@ -30,17 +30,17 @@ export const sendNearMpcTx = async (
   const requestSignature = async () => {
     try {
       const { big_r, s, recovery_id } = await wallet.callMethod({
-        contractId: "v1.signer-dev.testnet",
+        contractId: "v1.signer-prod.testnet",
         method: "sign",
         args: {
           request: {
             payload,
             path: DERIVATION_PATH,
-            key_verison: 0,
+            key_version: 0,
           },
         },
-        gas: "250000000000000",
-        deposit: parseNearAmount("0.25") || "0",
+        gas: "300000000000000",
+        deposit: "1",
       });
       return { big_r, s, recovery_id };
     } catch (e: any) {
