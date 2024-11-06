@@ -36,8 +36,9 @@ function CustomNode(node: any) {
             return {
               ...node,
               data: {
+                ...node.data,
                 label,
-                chainId: chainId,
+                chainId,
                 salt: Math.floor(Math.random() * 100000000001),
                 address: chainId != data.chainId ? zeroAddress : data.address,
               },

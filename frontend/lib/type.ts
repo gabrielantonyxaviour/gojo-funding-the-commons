@@ -124,4 +124,5 @@ export interface Project {
   id: string;
   name: string;
   initPrompt: string;
+  threadId: string;
 }

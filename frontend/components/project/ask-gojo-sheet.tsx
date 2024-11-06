@@ -318,9 +318,16 @@ export default function AskGojoSheet({
                 }),
               });
               let aiResponse;
+              console.log(
+                process.env.NEXT_PUBLIC_IS_LOCAL
+                  ? "http://127.0.0.1:8000/chat"
+                  : "https://gojo-protocol.onrender.com/chat"
+              );
               try {
                 const res = await fetch(
-                  "https://gojo-protocol.onrender.com/chat",
+                  process.env.NEXT_PUBLIC_IS_LOCAL
+                    ? "http://127.0.0.1:8000/chat"
+                    : "https://gojo-protocol.onrender.com/chat",
                   {
                     method: "POST",
                     headers: {
@@ -345,8 +352,8 @@ export default function AskGojoSheet({
                     }),
                   }
                 );
-                console.log("AI Response");
                 aiResponse = await res.json();
+                console.log(aiResponse);
               } catch (e) {
                 console.log(e);
               }

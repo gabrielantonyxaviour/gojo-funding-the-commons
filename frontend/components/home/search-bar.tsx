@@ -94,9 +94,16 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   description: "Generating Smart contracts. Please wait...",
                 });
                 let aiResponse;
+                console.log(
+                  process.env.NEXT_PUBLIC_IS_LOCAL
+                    ? "http://127.0.0.1:8000/chat"
+                    : "https://gojo-protocol.onrender.com/chat"
+                );
                 try {
                   const res = await fetch(
-                    "https://gojo-protocol.onrender.com/chat",
+                    process.env.NEXT_PUBLIC_IS_LOCAL
+                      ? "http://127.0.0.1:8000/chat"
+                      : "https://gojo-protocol.onrender.com/chat",
                     {
                       method: "POST",
                       headers: {
@@ -108,11 +115,12 @@ export function SearchBar({ conversation }: { conversation: any }) {
                         selectedContract: null,
                         selectedConnection: null,
                         name: "",
+                        thread_id: "",
                       }),
                     }
                   );
-                  console.log("AI REsponse");
                   aiResponse = await res.json();
+                  console.log(aiResponse);
                 } catch (err) {
                   console.log(err);
                   toast({
@@ -237,6 +245,7 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   id: (projects.length + 1).toString(),
                   name: aiResponse.name,
                   initPrompt: prompt,
+                  threadId: Math.floor(Math.random() * 100000000001).toString(),
                 });
 
                 setCreateProjectInitNodes(
