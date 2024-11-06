@@ -1,189 +1,189 @@
-// import { Web3 } from "web3";
-// import { bytesToHex } from "@ethereumjs/util";
-// import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
-// import {
-//   deriveChildPublicKey,
-//   najPublicKeyStrToUncompressedHexPoint,
-//   uncompressedHexPointToEvmAddress,
-// } from "../services/kdf";
-// import { Chain, Common } from "@ethereumjs/common";
-// import { Contract, JsonRpcProvider } from "ethers";
-// import { parseNearAmount } from "near-api-js/lib/utils/format";
-// import { baseSepolia, sepolia } from "viem/chains";
+import { Web3 } from "web3";
+import { bytesToHex } from "@ethereumjs/util";
+import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import {
+  deriveChildPublicKey,
+  najPublicKeyStrToUncompressedHexPoint,
+  uncompressedHexPointToEvmAddress,
+} from "../services/kdf";
+import { Chain, Common } from "@ethereumjs/common";
+import { Contract, JsonRpcProvider } from "ethers";
+import { parseNearAmount } from "near-api-js/lib/utils/format";
+import { baseSepolia, sepolia } from "viem/chains";
 
-// export class Ethereum {
-//   constructor(chain_rpc, chain_id) {
-//     this.web3 = new Web3(chain_rpc);
-//     this.provider = new JsonRpcProvider(chain_rpc);
-//     this.chain_id = chain_id;
-//     this.queryGasPrice();
-//   }
+export class Ethereum {
+  constructor(chain_rpc, chain_id) {
+    this.web3 = new Web3(chain_rpc);
+    this.provider = new JsonRpcProvider(chain_rpc);
+    this.chain_id = chain_id;
+    this.queryGasPrice();
+  }
 
-//   async deriveAddress(accountId, derivation_path) {
-//     const publicKey = await deriveChildPublicKey(
-//       najPublicKeyStrToUncompressedHexPoint(),
-//       accountId,
-//       derivation_path
-//     );
-//     const address = await uncompressedHexPointToEvmAddress(publicKey);
-//     return { publicKey: Buffer.from(publicKey, "hex"), address };
-//   }
+  async deriveAddress(accountId, derivation_path) {
+    const publicKey = await deriveChildPublicKey(
+      najPublicKeyStrToUncompressedHexPoint(),
+      accountId,
+      derivation_path
+    );
+    const address = await uncompressedHexPointToEvmAddress(publicKey);
+    return { publicKey: Buffer.from(publicKey, "hex"), address };
+  }
 
-//   async queryGasPrice() {
-//     const maxFeePerGas = await this.web3.eth.getGasPrice();
-//     const maxPriorityFeePerGas = await this.web3.eth.getMaxPriorityFeePerGas();
-//     return { maxFeePerGas, maxPriorityFeePerGas };
-//   }
+  async queryGasPrice() {
+    const maxFeePerGas = await this.web3.eth.getGasPrice();
+    const maxPriorityFeePerGas = await this.web3.eth.getMaxPriorityFeePerGas();
+    return { maxFeePerGas, maxPriorityFeePerGas };
+  }
 
-//   async getBalance(accountId) {
-//     const balance = await this.web3.eth.getBalance(accountId);
-//     return this.web3.utils.fromWei(balance, "ether");
-//   }
+  async getBalance(accountId) {
+    const balance = await this.web3.eth.getBalance(accountId);
+    return this.web3.utils.fromWei(balance, "ether");
+  }
 
-//   async getContractViewFunction(receiver, abi, methodName, args = []) {
-//     const contract = new Contract(receiver, abi, this.provider);
+  async getContractViewFunction(receiver, abi, methodName, args = []) {
+    const contract = new Contract(receiver, abi, this.provider);
 
-//     return await contract[methodName](...args);
-//   }
+    return await contract[methodName](...args);
+  }
 
-//   createTransactionData(receiver, abi, methodName, args = []) {
-//     const contract = new Contract(receiver, abi);
+  createTransactionData(receiver, abi, methodName, args = []) {
+    const contract = new Contract(receiver, abi);
 
-//     return contract.interface.encodeFunctionData(methodName, args);
-//   }
+    return contract.interface.encodeFunctionData(methodName, args);
+  }
 
-//   async createPayload(sender, receiver, amount, data) {
-//     const common = new Common({ chain: this.chain_id });
+  async createPayload(sender, receiver, amount, data) {
+    const common = new Common({ chain: this.chain_id });
 
-//     // Get the nonce & gas price
-//     const nonce = await this.web3.eth.getTransactionCount(sender);
-//     const { maxFeePerGas, maxPriorityFeePerGas } = await this.queryGasPrice();
+    // Get the nonce & gas price
+    const nonce = await this.web3.eth.getTransactionCount(sender);
+    const { maxFeePerGas, maxPriorityFeePerGas } = await this.queryGasPrice();
 
-//     // Construct transaction
-//     const transactionData = {
-//       nonce,
-//       gasLimit: 50_000,
-//       maxFeePerGas,
-//       maxPriorityFeePerGas,
-//       to: receiver,
-//       data: data,
-//       value: BigInt(this.web3.utils.toWei(amount, "ether")),
-//       chain: this.chain_id,
-//     };
+    // Construct transaction
+    const transactionData = {
+      nonce,
+      gasLimit: 1_000_000,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      to: receiver,
+      data: data,
+      value: 0,
+      chain: this.chain_id,
+    };
+    console.log("Etheruemjs Base Transacitons", transactionData);
+    // Create a transaction
+    const transaction = FeeMarketEIP1559Transaction.fromTxData(
+      transactionData,
+      { common }
+    );
+    const payload = transaction.getHashedMessageToSign();
 
-//     // Create a transaction
-//     const transaction = FeeMarketEIP1559Transaction.fromTxData(
-//       transactionData,
-//       { common }
-//     );
-//     const payload = transaction.getHashedMessageToSign();
+    // Store in sessionStorage for later
+    sessionStorage.setItem("transaction", transaction.serialize());
 
-//     // Store in sessionStorage for later
-//     sessionStorage.setItem("transaction", transaction.serialize());
+    return { transaction, payload };
+  }
 
-//     return { transaction, payload };
-//   }
+  async createDeploymentPayload(
+    sender,
+    amount,
+    bytecode,
+    constructorArgs = []
+  ) {
+    const common = new Common({
+      chain: this.chain_id,
+    });
 
-//   async createDeploymentPayload(
-//     sender,
-//     amount,
-//     bytecode,
-//     constructorArgs = []
-//   ) {
-//     const common = new Common({
-//       chain: this.chain_id,
-//     });
+    // Get the nonce & gas price
+    const nonce = await this.web3.eth.getTransactionCount(sender);
+    let { maxFeePerGas, maxPriorityFeePerGas } = await this.queryGasPrice();
+    const baseFee = await this.web3.eth.getBlock("latest").baseFeePerGas; // Get current base fee
+    if (maxFeePerGas < baseFee) {
+      console.error("maxFeePerGas is less than current baseFee. Adjusting...");
+      // Set maxFeePerGas to at least baseFee + some buffer (e.g., 10% increase)
+      maxFeePerGas = baseFee.add(baseFee.div(10)); // Increase maxFeePerGas by 10%
+    }
+    // Encode deployment data (bytecode + constructor args)
+    // const deployData = this.web3.eth.abi.encodeParameters(
+    //   constructorArgs.map(() => "uint256"),
+    //   constructorArgs
+    // );
+    const data = bytecode; // + deployData.slice(2); Combine bytecode with encoded constructor arguments
 
-//     // Get the nonce & gas price
-//     const nonce = await this.web3.eth.getTransactionCount(sender);
-//     let { maxFeePerGas, maxPriorityFeePerGas } = await this.queryGasPrice();
-//     const baseFee = await this.web3.eth.getBlock("latest").baseFeePerGas; // Get current base fee
-//     if (maxFeePerGas < baseFee) {
-//       console.error("maxFeePerGas is less than current baseFee. Adjusting...");
-//       // Set maxFeePerGas to at least baseFee + some buffer (e.g., 10% increase)
-//       maxFeePerGas = baseFee.add(baseFee.div(10)); // Increase maxFeePerGas by 10%
-//     }
-//     // Encode deployment data (bytecode + constructor args)
-//     // const deployData = this.web3.eth.abi.encodeParameters(
-//     //   constructorArgs.map(() => "uint256"),
-//     //   constructorArgs
-//     // );
-//     const data = bytecode; // + deployData.slice(2); Combine bytecode with encoded constructor arguments
+    // Construct deployment transaction
+    const transactionData = {
+      nonce,
+      gasLimit: 300_000, // Adjust as needed for the contract deployment
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      to: null, // to is `null` for contract deployments
+      data: data,
+      value: BigInt(this.web3.utils.toWei(amount, "ether")),
+      chain: this.chain_id,
+    };
 
-//     // Construct deployment transaction
-//     const transactionData = {
-//       nonce,
-//       gasLimit: 300_000, // Adjust as needed for the contract deployment
-//       maxFeePerGas,
-//       maxPriorityFeePerGas,
-//       to: null, // to is `null` for contract deployments
-//       data: data,
-//       value: BigInt(this.web3.utils.toWei(amount, "ether")),
-//       chain: this.chain_id,
-//     };
+    // Create the deployment transaction
+    const transaction = FeeMarketEIP1559Transaction.fromTxData(
+      transactionData,
+      { common }
+    );
+    const payload = transaction.getHashedMessageToSign();
 
-//     // Create the deployment transaction
-//     const transaction = FeeMarketEIP1559Transaction.fromTxData(
-//       transactionData,
-//       { common }
-//     );
-//     const payload = transaction.getHashedMessageToSign();
+    // Store in sessionStorage for later
+    sessionStorage.setItem("transaction", transaction.serialize());
 
-//     // Store in sessionStorage for later
-//     sessionStorage.setItem("transaction", transaction.serialize());
+    return { transaction, payload };
+  }
 
-//     return { transaction, payload };
-//   }
+  async requestSignatureToMPC(wallet, contractId, path, ethPayload) {
+    // Ask the MPC to sign the payload
+    sessionStorage.setItem("derivation", path);
 
-//   async requestSignatureToMPC(wallet, contractId, path, ethPayload) {
-//     // Ask the MPC to sign the payload
-//     sessionStorage.setItem("derivation", path);
+    const payload = Array.from(ethPayload);
+    const { big_r, s, recovery_id } = await wallet.callMethod({
+      contractId,
+      method: "sign",
+      args: { request: { payload, path, key_version: 0 } },
+      gas: "250000000000000",
+      deposit: parseNearAmount("0.25"),
+    });
+    return { big_r, s, recovery_id };
+  }
 
-//     const payload = Array.from(ethPayload);
-//     const { big_r, s, recovery_id } = await wallet.callMethod({
-//       contractId,
-//       method: "sign",
-//       args: { request: { payload, path, key_version: 0 } },
-//       gas: "250000000000000",
-//       deposit: parseNearAmount("0.3"),
-//     });
-//     return { big_r, s, recovery_id };
-//   }
+  async reconstructSignature(big_r, S, recovery_id, transaction) {
+    // reconstruct the signature
+    const r = Buffer.from(big_r.affine_point.substring(2), "hex");
+    const s = Buffer.from(S.scalar, "hex");
+    const v = recovery_id;
 
-//   async reconstructSignature(big_r, S, recovery_id, transaction) {
-//     // reconstruct the signature
-//     const r = Buffer.from(big_r.affine_point.substring(2), "hex");
-//     const s = Buffer.from(S.scalar, "hex");
-//     const v = recovery_id;
+    const signature = transaction.addSignature(v, r, s);
 
-//     const signature = transaction.addSignature(v, r, s);
+    if (signature.getValidationErrors().length > 0)
+      throw new Error("Transaction validation errors");
+    if (!signature.verifySignature()) throw new Error("Signature is not valid");
+    return signature;
+  }
 
-//     if (signature.getValidationErrors().length > 0)
-//       throw new Error("Transaction validation errors");
-//     if (!signature.verifySignature()) throw new Error("Signature is not valid");
-//     return signature;
-//   }
+  async reconstructSignatureFromLocalSession(big_r, s, recovery_id, sender) {
+    const serialized = Uint8Array.from(
+      JSON.parse(`[${sessionStorage.getItem("transaction")}]`)
+    );
+    const transaction =
+      FeeMarketEIP1559Transaction.fromSerializedTx(serialized);
+    console.log("transaction", transaction);
+    return this.reconstructSignature(
+      big_r,
+      s,
+      recovery_id,
+      transaction,
+      sender
+    );
+  }
 
-//   async reconstructSignatureFromLocalSession(big_r, s, recovery_id, sender) {
-//     const serialized = Uint8Array.from(
-//       JSON.parse(`[${sessionStorage.getItem("transaction")}]`)
-//     );
-//     const transaction =
-//       FeeMarketEIP1559Transaction.fromSerializedTx(serialized);
-//     console.log("transaction", transaction);
-//     return this.reconstructSignature(
-//       big_r,
-//       s,
-//       recovery_id,
-//       transaction,
-//       sender
-//     );
-//   }
-
-//   // This code can be used to actually relay the transaction to the Ethereum network
-//   async relayTransaction(signedTransaction) {
-//     const serializedTx = bytesToHex(signedTransaction.serialize());
-//     const relayed = await this.web3.eth.sendSignedTransaction(serializedTx);
-//     return relayed.transactionHash;
-//   }
-// }
+  // This code can be used to actually relay the transaction to the Ethereum network
+  async relayTransaction(signedTransaction) {
+    const serializedTx = bytesToHex(signedTransaction.serialize());
+    const relayed = await this.web3.eth.sendSignedTransaction(serializedTx);
+    return relayed.transactionHash;
+  }
+}

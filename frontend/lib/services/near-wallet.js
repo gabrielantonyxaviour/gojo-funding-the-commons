@@ -178,6 +178,7 @@ export class Wallet {
    */
   getTransactionResult = async (txhash) => {
     const walletSelector = await this.selector;
+    const { network } = walletSelector.options;
     const provider = new providers.JsonRpcProvider({ url: network.nodeUrl });
 
     const transaction = await provider.txStatus(txhash, "unnused");

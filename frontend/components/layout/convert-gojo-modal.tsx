@@ -56,127 +56,121 @@ export default function ConvertGojoModal({
   const { toast } = useToast();
 
   useEffect(() => {
-    const txHash = new URLSearchParams(window.location.search).get(
-      "transactionHashes"
-    );
-    if (txHash) {
-      const deposit = sessionStorage.getItem("deposit") || "0";
-      toast({
-        title: "Deposit NEAR (2/4)",
-        description:
-          "Transaction Success! Minting " +
-          deposit +
-          " $GOJO tokens. Waiting for confirmation...",
-        action: (
-          <ToastAction
-            onClick={() => {
-              window.open(
-                "https://testnet.nearblocks.io/txns/" + txHash,
-                "_blank"
-              );
-            }}
-            altText="View Transaction"
-          >
-            View Tx <IconArrowUpRight size={16} />
-          </ToastAction>
-        ),
-      });
-
-      (async function () {
-        const PRIVATE_KEY = process.env
-          .NEXT_PUBLIC_GOJO_PRIVATE_KEY as `ed25519:${string}`;
-        const ACCOUNT_ID = "benatwix.testnet";
-
-        const keyPair = KeyPair.fromString(PRIVATE_KEY);
-
-        const keyStore = new keyStores.InMemoryKeyStore();
-        await keyStore.setKey("testnet", ACCOUNT_ID, keyPair);
-        const config = {
-          networkId: "testnet",
-          keyStore,
-          nodeUrl: "https://rpc.testnet.near.org",
-          walletUrl: "https://wallet.testnet.near.org",
-          helperUrl: "https://helper.testnet.near.org",
-          explorerUrl: "https://explorer.testnet.near.org",
-        };
-        const gojoNearConnection = await connect(config);
-        const gojoWallet = await gojoNearConnection.account(ACCOUNT_ID)!;
-        let depositNearTransaction: any = "";
-        try {
-          depositNearTransaction = await gojoWallet.functionCall({
-            contractId: GOJO_CONTRACT,
-            methodName: "deposit_near",
-            args: {},
-            gas: BigInt(TWO_HUNDRED_GAS),
-            attachedDeposit: BigInt(
-              utils.format.parseNearAmount(deposit) || "0"
-            ),
-          });
-          console.log(depositNearTransaction);
-        } catch (e) {
-          console.log(e);
-        }
-
-        toast({
-          title: "Deposit NEAR (3/4)",
-          description:
-            "Transferring " +
-            deposit +
-            " $GOJO tokens to User. Waiting for confirmation...",
-          action: (
-            <ToastAction
-              onClick={() => {
-                window.open(
-                  "https://testnet.nearblocks.io/address/" + GOJO_CONTRACT,
-                  "_blank"
-                );
-              }}
-              altText="View Transaction"
-            >
-              View Tx <IconArrowUpRight size={16} />
-            </ToastAction>
-          ),
-        });
-
-        let gojoTransferTransaction: any;
-        try {
-          gojoTransferTransaction = await gojoWallet.functionCall({
-            contractId: GOJO_TOKEN_CONTRACT,
-            methodName: "ft_transfer",
-            args: {
-              receiverId: signedAccountId,
-              amount: ethers.utils.parseUnits(deposit, 24).toString(),
-              memo: "",
-            },
-            gas: BigInt(TWO_HUNDRED_GAS),
-            attachedDeposit: BigInt("0"),
-          });
-          console.log(gojoTransferTransaction);
-        } catch (e) {
-          console.log(e);
-        }
-
-        toast({
-          title: "Deposit NEAR (4/4)",
-          description:
-            "Transaction Complete! Minted " + deposit + " $GOJO to the user.",
-          action: (
-            <ToastAction
-              onClick={() => {
-                window.open(
-                  "https://testnet.nearblocks.io/address/" +
-                    GOJO_TOKEN_CONTRACT,
-                  "_blank"
-                );
-              }}
-              altText="View Transaction"
-            >
-              View Tx <IconArrowUpRight size={16} />
-            </ToastAction>
-          ),
-        });
-      })();
-    }
+    // const txHash = new URLSearchParams(window.location.search).get(
+    //   "transactionHashes"
+    // );
+    // if (txHash) {
+    //   const deposit = sessionStorage.getItem("deposit") || "0";
+    //   toast({
+    //     title: "Deposit NEAR (2/4)",
+    //     description:
+    //       "Transaction Success! Minting " +
+    //       deposit +
+    //       " $GOJO tokens. Waiting for confirmation...",
+    //     action: (
+    //       <ToastAction
+    //         onClick={() => {
+    //           window.open(
+    //             "https://testnet.nearblocks.io/txns/" + txHash,
+    //             "_blank"
+    //           );
+    //         }}
+    //         altText="View Transaction"
+    //       >
+    //         View Tx <IconArrowUpRight size={16} />
+    //       </ToastAction>
+    //     ),
+    //   });
+    //   (async function () {
+    //     const PRIVATE_KEY = process.env
+    //       .NEXT_PUBLIC_GOJO_PRIVATE_KEY as `ed25519:${string}`;
+    //     const ACCOUNT_ID = "benatwix.testnet";
+    //     const keyPair = KeyPair.fromString(PRIVATE_KEY);
+    //     const keyStore = new keyStores.InMemoryKeyStore();
+    //     await keyStore.setKey("testnet", ACCOUNT_ID, keyPair);
+    //     const config = {
+    //       networkId: "testnet",
+    //       keyStore,
+    //       nodeUrl: "https://rpc.testnet.near.org",
+    //       walletUrl: "https://wallet.testnet.near.org",
+    //       helperUrl: "https://helper.testnet.near.org",
+    //       explorerUrl: "https://explorer.testnet.near.org",
+    //     };
+    //     const gojoNearConnection = await connect(config);
+    //     const gojoWallet = await gojoNearConnection.account(ACCOUNT_ID)!;
+    //     let depositNearTransaction: any = "";
+    //     try {
+    //       depositNearTransaction = await gojoWallet.functionCall({
+    //         contractId: GOJO_CONTRACT,
+    //         methodName: "deposit_near",
+    //         args: {},
+    //         gas: BigInt(TWO_HUNDRED_GAS),
+    //         attachedDeposit: BigInt(
+    //           utils.format.parseNearAmount(deposit) || "0"
+    //         ),
+    //       });
+    //       console.log(depositNearTransaction);
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
+    //     toast({
+    //       title: "Deposit NEAR (3/4)",
+    //       description:
+    //         "Transferring " +
+    //         deposit +
+    //         " $GOJO tokens to User. Waiting for confirmation...",
+    //       action: (
+    //         <ToastAction
+    //           onClick={() => {
+    //             window.open(
+    //               "https://testnet.nearblocks.io/address/" + GOJO_CONTRACT,
+    //               "_blank"
+    //             );
+    //           }}
+    //           altText="View Transaction"
+    //         >
+    //           View Tx <IconArrowUpRight size={16} />
+    //         </ToastAction>
+    //       ),
+    //     });
+    //     let gojoTransferTransaction: any;
+    //     try {
+    //       gojoTransferTransaction = await gojoWallet.functionCall({
+    //         contractId: GOJO_TOKEN_CONTRACT,
+    //         methodName: "ft_transfer",
+    //         args: {
+    //           receiverId: signedAccountId,
+    //           amount: ethers.utils.parseUnits(deposit, 24).toString(),
+    //           memo: "",
+    //         },
+    //         gas: BigInt(TWO_HUNDRED_GAS),
+    //         attachedDeposit: BigInt("0"),
+    //       });
+    //       console.log(gojoTransferTransaction);
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
+    //     toast({
+    //       title: "Deposit NEAR (4/4)",
+    //       description:
+    //         "Transaction Complete! Minted " + deposit + " $GOJO to the user.",
+    //       action: (
+    //         <ToastAction
+    //           onClick={() => {
+    //             window.open(
+    //               "https://testnet.nearblocks.io/address/" +
+    //                 GOJO_TOKEN_CONTRACT,
+    //               "_blank"
+    //             );
+    //           }}
+    //           altText="View Transaction"
+    //         >
+    //           View Tx <IconArrowUpRight size={16} />
+    //         </ToastAction>
+    //       ),
+    //     });
+    //   })();
+    // }
   }, []);
   return (
     <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
@@ -242,9 +236,7 @@ export default function ConvertGojoModal({
 
                 const nearTransferTransaction = await wallet.transfer({
                   receiverId: GOJO_CONTRACT,
-                  deposit: ethers.utils
-                    .parseUnits(amount.toString(), 24)
-                    .toString(),
+                  deposit: ethers.parseUnits(amount.toString(), 24).toString(),
                 });
 
                 console.log(nearTransferTransaction);

@@ -10,8 +10,8 @@ export const deployContract = async (
   wallet: Wallet
 ) => {
   const chain = getChainRpcAndExplorer(chainId);
-  const provider = new ethers.providers.JsonRpcProvider(chain.rpcUrl);
-  const gasPrice = await provider.getGasPrice();
+  const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
+  const { maxFeePerGas, maxPriorityFeePerGas } = await provider.getFeeData();
   const nonce = await provider.getTransactionCount(sender);
   const baseTx = {
     to: null,
@@ -19,7 +19,8 @@ export const deployContract = async (
     data: byteCode,
     value: 0,
     gasLimit: 1_000_000, // 1m
-    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
     chainId,
   };
   await sendNearMpcTx(sender, baseTx, chainId, wallet, chain, provider);
