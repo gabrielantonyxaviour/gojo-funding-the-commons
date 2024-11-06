@@ -1,5 +1,3 @@
-import { createPublicClient, http } from "viem";
-import { Wallet } from "./services/near-wallet";
 import { baseSepolia, polygonAmoy, sepolia } from "viem/chains";
 import { Agent, Chain } from "./type";
 

@@ -14,7 +14,7 @@ import {
 } from "@/lib/services/kdf";
 import {
   formatNearAccount,
-  getChain,
+  getChainRpcAndExplorer,
   getPublicClient,
   shortenAddress,
 } from "@/lib/utils";
@@ -210,11 +210,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         // Broadcast transaction
         try {
-          const chain = getChain(transaction.chainId);
-          const explorer = chain.blockExplorers?.default.url as string;
-          const provider = new ethers.providers.JsonRpcProvider(
-            chain.rpcUrls.default.http[0]
-          );
+          const chain = getChainRpcAndExplorer(transaction.chainId);
+          const explorer = chain.blockExplorer;
+          const provider = new ethers.providers.JsonRpcProvider(chain.rpcUrl);
 
           const signedTx = ethers.utils.serializeTransaction(
             transaction,
@@ -509,75 +507,75 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Button
                       variant={"ghost"}
                       onClick={async () => {
-                        window.open(
-                          "https://sepolia.etherscan.io/address/" +
-                            evmUserAddress,
-                          "_blank"
-                        );
+                        // window.open(
+                        //   "https://sepolia.etherscan.io/address/" +
+                        //     evmUserAddress,
+                        //   "_blank"
+                        // );
 
-                        // // TODO: Port MPC transaction
-                        // try {
-                        //   const res = await fetch(
-                        //     "http://localhost:3001/compile",
-                        //     {
-                        //       method: "POST",
-                        //       headers: {
-                        //         "Content-Type": "application/json",
-                        //       },
-                        //       body: JSON.stringify({
-                        //         contractCode: ` pragma solidity ^0.8.0;
+                        // TODO: Port MPC transaction
+                        try {
+                          const res = await fetch(
+                            "http://localhost:3001/compile",
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify({
+                                contractCode: ` pragma solidity ^0.8.0;
 
-                        // contract Counter {
-                        //     uint256 public count;
+                        contract Counter {
+                            uint256 public count;
 
-                        //     event CountChanged(uint256 newCount);
+                            event CountChanged(uint256 newCount);
 
-                        //     constructor() {
-                        //         count = 0;
-                        //     }
+                            constructor() {
+                                count = 0;
+                            }
 
-                        //     function increment() public {
-                        //         count += 1;
-                        //         emit CountChanged(count);
-                        //     }
+                            function increment() public {
+                                count += 1;
+                                emit CountChanged(count);
+                            }
 
-                        //     function decrement() public {
-                        //         require(count > 0, "Counter: count can't go below zero");
-                        //         count -= 1;
-                        //         emit CountChanged(count);
-                        //     }
+                            function decrement() public {
+                                require(count > 0, "Counter: count can't go below zero");
+                                count -= 1;
+                                emit CountChanged(count);
+                            }
 
-                        //     function getCount() public view returns (uint256) {
-                        //         return count;
-                        //     }
-                        // }`,
-                        //         name: "Gabriel",
-                        //       }),
-                        //     }
-                        //   );
+                            function getCount() public view returns (uint256) {
+                                return count;
+                            }
+                        }`,
+                                name: "Gabriel",
+                              }),
+                            }
+                          );
 
-                        //   const data = await res.json();
+                          const data = await res.json();
 
-                        //   if (res.ok) {
-                        //     console.log("Success");
-                        //     console.log(data);
-                        //     // await sendEvmTransaction(data.bytecode);
+                          if (res.ok) {
+                            console.log("Success");
+                            console.log(data);
+                            // await sendEvmTransaction(data.bytecode);
 
-                        //     await deployContract(
-                        //       evmUserAddress,
-                        //       sepolia.id,
-                        //       "0x" + data.bytecode,
-                        //       wallet
-                        //     );
-                        //   } else {
-                        //     console.log("Unknown error occurred");
-                        //   }
-                        // } catch (err) {
-                        //   console.log(err);
-                        //   console.log([
-                        //     "Network error: " + JSON.stringify(err),
-                        //   ]);
-                        // }
+                            await deployContract(
+                              evmUserAddress,
+                              sepolia.id,
+                              "0x" + data.bytecode,
+                              wallet
+                            );
+                          } else {
+                            console.log("Unknown error occurred");
+                          }
+                        } catch (err) {
+                          console.log(err);
+                          console.log([
+                            "Network error: " + JSON.stringify(err),
+                          ]);
+                        }
                       }}
                       className="flex space-x-2 items-center justify-center mt-0 hover:bg-transparent py-0"
                     >

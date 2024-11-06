@@ -14,11 +14,9 @@ export const sendNearMpcTx = async (
   baseTx: any,
   chainId: any,
   wallet: Wallet,
-  chain: Chain,
+  chain: { rpcUrl: string; blockExplorer: string },
   provider: ethers.providers.JsonRpcProvider
 ) => {
-  const explorer = chain.blockExplorers?.default.url as string;
-
   const unsignedTx = ethers.utils.serializeTransaction(baseTx);
   sessionStorage.setItem("transaction", unsignedTx);
   const hashedTx = ethers.utils.keccak256(unsignedTx);
@@ -29,6 +27,8 @@ export const sendNearMpcTx = async (
     payload,
     path: DERIVATION_PATH,
     key_version: 0,
+    rlp_payload: undefined,
+    request: undefined,
   };
 
   // Requesting signature with timeout handling
@@ -89,7 +89,7 @@ export const sendNearMpcTx = async (
       ethers.utils.serializeTransaction(baseTx, sig),
     ]);
     console.log("tx hash", hash);
-    console.log("explorer link", `${explorer}/tx/${hash}`);
+    console.log("explorer link", `${chain.blockExplorer}/tx/${hash}`);
   } catch (e) {
     if (/nonce too low/gi.test(JSON.stringify(e))) {
       return console.log("tx has been tried");

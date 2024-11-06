@@ -22,18 +22,27 @@ export function shortenAddress(address: string): string {
 export function formatNearAccount(account: string): string {
   return account.split(".").length > 1 ? account : shortenAddress(account);
 }
+const NEXT_PUBLIC_ALCHEMY_API_KEY =
+  process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "";
+
 export const sepoliaPublicClient = createPublicClient({
   chain: sepolia,
-  transport: http(),
+  transport: http(
+    "https://eth-sepolia.g.alchemy.com/v2/" + NEXT_PUBLIC_ALCHEMY_API_KEY
+  ),
 });
 
 export const polygonPublicClient = createPublicClient({
   chain: polygonAmoy,
-  transport: http(),
+  transport: http(
+    "https://polygon-amoy.g.alchemy.com/v2/" + NEXT_PUBLIC_ALCHEMY_API_KEY
+  ),
 });
 export const basePublicClient = createPublicClient({
   chain: baseSepolia,
-  transport: http(),
+  transport: http(
+    "https://base-sepolia.g.alchemy.com/v2/" + NEXT_PUBLIC_ALCHEMY_API_KEY
+  ),
 });
 
 export const getPublicClient = (chainId: number) => {
@@ -49,16 +58,36 @@ export const getPublicClient = (chainId: number) => {
   }
 };
 
-export const getChain = (chainId: number): Chain => {
+export const getChainRpcAndExplorer = (
+  chainId: number
+): { rpcUrl: string; blockExplorer: string } => {
   switch (chainId) {
     case sepolia.id:
-      return sepolia;
+      return {
+        rpcUrl:
+          "https://eth-sepolia.g.alchemy.com/v2/" + NEXT_PUBLIC_ALCHEMY_API_KEY,
+        blockExplorer: sepolia.blockExplorers?.default.url,
+      };
     case polygonAmoy.id:
-      return polygonAmoy;
+      return {
+        rpcUrl:
+          "https://polygon-amoy.g.alchemy.com/v2/" +
+          NEXT_PUBLIC_ALCHEMY_API_KEY,
+        blockExplorer: polygonAmoy.blockExplorers?.default.url,
+      };
     case baseSepolia.id:
-      return baseSepolia;
+      return {
+        rpcUrl:
+          "https://base-sepolia.g.alchemy.com/v2/" +
+          NEXT_PUBLIC_ALCHEMY_API_KEY,
+        blockExplorer: baseSepolia.blockExplorers?.default.url,
+      };
     default:
-      return sepolia;
+      return {
+        rpcUrl:
+          "https://eth-sepolia.g.alchemy.com/v2/" + NEXT_PUBLIC_ALCHEMY_API_KEY,
+        blockExplorer: sepolia.blockExplorers?.default.url,
+      };
   }
 };
 
