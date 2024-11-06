@@ -34,6 +34,7 @@ import { title } from "process";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useToast } from "@/hooks/use-toast";
 import { uploadToWalrus } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 export default function AskGojoSheet({
   id,
   onAddNode,
@@ -51,6 +52,7 @@ export default function AskGojoSheet({
     signedAccountId,
     setCreateProjectInitNodes,
     wallet,
+    projects,
   } = useEnvironmentStore((store) => store);
   // const { wallets } = useWallets();
   const { toast } = useToast();
@@ -58,6 +60,7 @@ export default function AskGojoSheet({
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [walrusBlobId, setWalrusBlobId] = useState("");
+  const pathName = usePathname();
   useEffect(() => {
     if (askGojo.node != null) setSelectedContract(true);
   }, [askGojo]);
@@ -341,6 +344,9 @@ export default function AskGojoSheet({
                           chainId: n.data.chainId,
                           code: n.data.code,
                           label: n.data.label,
+                          thread_id:
+                            projects[parseInt(pathName.split("/")[2]) - 1]
+                              .threadId,
                         };
                       }),
                       selectedContract:
