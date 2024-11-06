@@ -98,7 +98,7 @@ impl Contract {
         assert!(
             caller_parts.len() == token_parts.len() - 1 && 
             caller_parts.iter().zip(token_parts[1..].iter()).all(|(a, b)| a == b),
-            "Only protocol contract can mint"
+            "Only protocol contract can mint"   
         );
 
         // Register account if needed

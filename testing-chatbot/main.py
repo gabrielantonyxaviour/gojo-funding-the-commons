@@ -18,16 +18,19 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.chains import create_retrieval_chain, create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from os import getenv
+import random
+import re 
 
 load_dotenv()
  
-origins = getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+origins = getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://gojo-redacted.vercel.app/,https://gojo-protocol.vercel.app/").split(",")
 
 class AIQueryContract(BaseModel):
     nodeId: str
     chainId: int
     code: str
     label: str
+    thread_id: str
 
 class AIQuery(BaseModel):
     message: str
@@ -35,11 +38,13 @@ class AIQuery(BaseModel):
     contracts: List[AIQueryContract]
     selectedContract: Optional[str]
     selectedConnection: Optional[List[str]]
+    thread_id: str
 
 class AIResponse(BaseModel):
     message: str
     name: str
     contracts: List[AIQueryContract]
+    thread_id: str
 
 CHAIN_INFO = {
     'ethereum': {'id': 11155111, 'keywords': ['ethereum', 'eth', 'sepolia']},
@@ -110,15 +115,90 @@ class State(TypedDict):
     answer: str
     contracts: List[AIQueryContract]
 
+def get_short_name_map() -> dict:
+    """Get mapping of concepts to short names"""
+    return {
+        # DeFi related
+        'liquidity': 'Flux',
+        'pool': 'Pool',
+        'yield': 'Yield',
+        'farm': 'Farm',
+        'stake': 'Stax',
+        'lending': 'Lend',
+        'borrow': 'Loan',
+        'swap': 'Swap',
+        
+        # Governance
+        'dao': 'Dao',
+        'vote': 'Vote',
+        'govern': 'Gov',
+        
+        # NFT
+        'nft': 'NFT',
+        'token': 'Token',
+        'mint': 'Mint',
+        'game': 'Play',
+        
+        # Bridge
+        'bridge': 'Link',
+        'cross': 'Cross',
+        'transfer': 'Port',
+        
+        # Oracle
+        'oracle': 'Eye',
+        'price': 'Price',
+        'feed': 'Feed',
+        
+        # Security
+        'multisig': 'Safe',
+        'vault': 'Vault',
+        'guard': 'Guard',
+        
+        # Distribution
+        'airdrop': 'Drop',
+        'claim': 'Claim',
+        'reward': 'Prize'
+    }
+
+def extract_main_concept(message: str, code: str) -> str:
+    """Extract the main concept from message and code"""
+    # Convert to lowercase and split into words
+    text = (message + " " + code).lower()
+    
+    # Get short name mapping
+    name_map = get_short_name_map()
+    
+    # Find the first matching concept
+    for concept in name_map.keys():
+        if concept in text:
+            return name_map[concept]
+    
+    return "Dapp"
+
 def generate_project_name(message: str, contracts: List[AIQueryContract]) -> str:
-    """Generate a project name based on context if none provided"""
-    if "airdrop" in message.lower():
-        return "AirdropProtocol"
-    if "bridge" in message.lower():
-        return "BridgeProtocol"
-    if "stake" in message.lower():
-        return "StakingProtocol"
-    return "SmartContractProtocol"
+    """Generate a short project name (max 10 letters) based on context"""
+    try:
+        if not message or not contracts:
+            return "Dapp"
+            
+        # Combine all contract code
+        all_code = " ".join(contract.code for contract in contracts)
+        
+        # Get the main concept
+        name = extract_main_concept(message, all_code)
+        
+        # Ensure name is no longer than 10 characters
+        if len(name) > 10:
+            name = name[:10]
+            
+        # Capitalize first letter if not already
+        name = name[0].upper() + name[1:] if name else "Dapp"
+        
+        return name
+        
+    except Exception as e:
+        print(f"Error generating project name: {str(e)}")
+        return "Dapp"
 
 def determine_chain_ids(message: str, code: str) -> list[int]:
     """Determine which chain IDs to use based on the message content"""
@@ -268,13 +348,13 @@ ai_app = workflow.compile(checkpointer=memory)
 # FastAPI setup
 app = FastAPI()
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 class Message(BaseModel):
     input: str
 
@@ -290,12 +370,14 @@ async def chat(query: AIQuery) -> AIResponse:
         "selected_connection": format_connection(query.contracts, query.selectedConnection)
     }
     
-    output = ai_app.invoke(initial_state, config={"configurable": {"thread_id": "123456789823"}})
+    thread_id = query.thread_id if query.thread_id else random.randint(1, 100000000)
+    output = ai_app.invoke(initial_state, config={"configurable": {"thread_id": str(thread_id)}})
 
     project_name = query.name if query.name.strip() else generate_project_name(query.message, output["contracts"])
     
     return AIResponse(
         message=output["answer"],
         contracts=output["contracts"],
-        name=project_name
+        name=project_name,
+        thread_id=thread_id
     )
