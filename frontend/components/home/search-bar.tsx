@@ -95,19 +95,22 @@ export function SearchBar({ conversation }: { conversation: any }) {
                 });
                 let aiResponse;
                 try {
-                  const res = await fetch("http://127.0.0.1:8000/chat", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      message: prompt,
-                      contracts: [],
-                      selectedContract: null,
-                      selectedConnection: null,
-                      name: "",
-                    }),
-                  });
+                  const res = await fetch(
+                    "https://gojo-protocol.onrender.com/chat",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        message: prompt,
+                        contracts: [],
+                        selectedContract: null,
+                        selectedConnection: null,
+                        name: "",
+                      }),
+                    }
+                  );
                   console.log("AI REsponse");
                   aiResponse = await res.json();
                 } catch (err) {

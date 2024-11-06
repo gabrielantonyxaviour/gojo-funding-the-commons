@@ -319,27 +319,32 @@ export default function AskGojoSheet({
               });
               let aiResponse;
               try {
-                const res = await fetch("http://127.0.0.1:8000/chat", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    message: prompt,
-                    contracts: nodes.map((n) => {
-                      return {
-                        nodeId: n.id,
-                        chainId: n.data.chainId,
-                        code: n.data.code,
-                        label: n.data.label,
-                      };
+                const res = await fetch(
+                  "https://gojo-protocol.onrender.com/chat",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      message: prompt,
+                      contracts: nodes.map((n) => {
+                        return {
+                          nodeId: n.id,
+                          chainId: n.data.chainId,
+                          code: n.data.code,
+                          label: n.data.label,
+                        };
+                      }),
+                      selectedContract:
+                        selectedContract && askGojo.node
+                          ? askGojo.node.id
+                          : null,
+                      selectedConnection: null,
+                      name: "",
                     }),
-                    selectedContract:
-                      selectedContract && askGojo.node ? askGojo.node.id : null,
-                    selectedConnection: null,
-                    name: "",
-                  }),
-                });
+                  }
+                );
                 console.log("AI Response");
                 aiResponse = await res.json();
               } catch (e) {
