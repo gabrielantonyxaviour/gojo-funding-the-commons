@@ -30,7 +30,6 @@ class AIQueryContract(BaseModel):
     chainId: int
     code: str
     label: str
-    thread_id: str
 
 class AIQuery(BaseModel):
     message: str
@@ -75,8 +74,16 @@ model = ChatOpenAI(model="gpt-4o-mini")
 # Prompt setup
 contextualize_q_system_prompt = """
 You are an assistant for generating and modifying Solidity smart contracts. 
-Use the following context and existing contracts to generate or modify contracts.
-If you don't know how to implement something, say that you don't know.
+Use the following context and existing contracts to generate FLATTENED contracts.
+This means you should NOT use @import statements, but instead directly include all necessary code from dependencies.
+
+Important Rules for Flattening:
+1. Instead of importing from OpenZeppelin, LayerZero, Chainlink, or other sources, include the necessary code directly in the contract
+2. Maintain proper order of declarations (interfaces before contracts that use them)
+3. Remove duplicate definitions if the same interface/library is needed by multiple components
+4. Keep license identifiers and pragma statements at the top
+5. Include all necessary custom errors, events, and interfaces
+6. Ensure all dependencies are properly ordered to avoid forward reference errors
 
 Context about existing contracts:
 {context}
@@ -87,8 +94,9 @@ Existing Contracts:
 Selected Contract: {selected_contract}
 Selected Connection: {selected_connection}
 
-Generate your response as Solidity code when appropriate, and provide explanations when needed.
+Generate your response as complete, flattened Solidity code when appropriate, and provide explanations when needed.
 """
+
 
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
@@ -289,6 +297,66 @@ def process_input(state: State) -> State:
     }
 
 
+def extract_dependencies_from_imports(code: str) -> List[str]:
+    """Extract dependency names from import statements"""
+    import_pattern = r'@\w+//'
+    matches = re.findall(import_pattern, code)
+    return [m.strip('@').strip('//') for m in matches]
+
+def get_dependency_content(dependency: str, docs: List[Document]) -> str:
+    """Get the content of a dependency from the loaded documents"""
+    dependency_lower = dependency.lower()
+    for doc in docs:
+        if dependency_lower in doc.metadata.get('source', '').lower():
+            return doc.page_content
+    return ""
+
+def flatten_contract(code: str, loaded_docs: List[Document]) -> str:
+    """Flatten a contract by including all dependencies while maintaining single license and pragma"""
+    # Extract license and pragma statements
+    license_pattern = r'// SPDX-License-Identifier: .*?\n'
+    pragma_pattern = r'pragma solidity .*?;'
+    
+    # Get the first license and pragma statements only
+    license = re.findall(license_pattern, code)[0] if re.findall(license_pattern, code) else "// SPDX-License-Identifier: MIT\n"
+    pragma = re.findall(pragma_pattern, code)[0] if re.findall(pragma_pattern, code) else "pragma solidity ^0.8.0;"
+    
+    # Get all dependencies
+    dependencies = extract_dependencies_from_imports(code)
+    
+    # Initialize flattened code with single license and pragma
+    flattened_code = [license, pragma]
+    
+    # Add dependency contents
+    seen_content = set()
+    for dep in dependencies:
+        dep_content = get_dependency_content(dep, loaded_docs)
+        if dep_content and dep_content not in seen_content:
+            # Remove all license and pragma statements from dependencies
+            cleaned_content = re.sub(license_pattern, '', dep_content)
+            cleaned_content = re.sub(pragma_pattern, '', cleaned_content)
+            # Remove empty lines at start of cleaned content
+            cleaned_content = cleaned_content.lstrip('\n')
+            if cleaned_content:
+                flattened_code.append(cleaned_content)
+                seen_content.add(dep_content)
+    
+    # Clean the main contract code
+    main_code = re.sub(license_pattern, '', code)
+    main_code = re.sub(pragma_pattern, '', main_code)
+    main_code = re.sub(r'import .*?;[\n\r]*', '', main_code)
+    main_code = main_code.lstrip('\n')  # Remove empty lines at start
+    
+    # Add the main contract code
+    flattened_code.append(main_code)
+    
+    # Join with double newlines and clean up multiple consecutive newlines
+    combined = '\n\n'.join(flattened_code)
+    # Clean up multiple consecutive newlines
+    cleaned = re.sub(r'\n{3,}', '\n\n', combined)
+    
+    return cleaned
+
 def call_model(state: State) -> State:
     response = rag_chain.invoke({
         "chat_history": state.get("chat_history", []),
@@ -305,16 +373,18 @@ def call_model(state: State) -> State:
     new_contracts = []
     if len(response_parts) > 1:
         code = response_parts[1].split("```")[0].strip()
-        chain_ids = determine_chain_ids(state["input_message"], code)
+        # Flatten the contract code with single license and pragma
+        flattened_code = flatten_contract(code, docs)
+        chain_ids = determine_chain_ids(state["input_message"], flattened_code)
         
         for i, chain_id in enumerate(chain_ids):
-            label = generate_contract_label(code, message)
+            label = generate_contract_label(flattened_code, message)
             if len(chain_ids) > 1:
                 label = f"{label}{CHAIN_NAME_MAP[chain_id]}"
             new_contracts.append(AIQueryContract(
                 nodeId=f"{len(state.get('contracts', [])) + i + 1}",
                 chainId=chain_id,
-                code=code,
+                code=flattened_code,
                 label=label
             ))
     
@@ -379,5 +449,5 @@ async def chat(query: AIQuery) -> AIResponse:
         message=output["answer"],
         contracts=output["contracts"],
         name=project_name,
-        thread_id=thread_id
+        thread_id=str(thread_id)
     )
