@@ -1,46 +1,20 @@
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Separator } from "../ui/separator";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import Image from "next/image";
-import { Textarea } from "../ui/textarea";
-import { Node } from "@/lib/type";
-import { useReactFlow } from "@xyflow/react";
-import {
-  chains,
-  GOJO_CONTRACT,
-  GOJO_TOKEN_CONTRACT,
-  THIRTY_GAS,
-  TWO_HUNDRED_GAS,
-} from "@/lib/constants";
-import { ToastAction } from "@radix-ui/react-toast";
+import { GOJO_CONTRACT } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { useEnvironmentStore } from "../context";
-import { uploadToWalrus } from "@/lib/utils";
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconArrowUpRight,
-} from "@tabler/icons-react";
+import { IconArrowRight } from "@tabler/icons-react";
 import { ethers } from "ethers";
-import { Wallet } from "@/lib/services/near-wallet";
-import { sign } from "viem/accounts";
-import { connect, KeyPair, keyStores, transactions, utils } from "near-api-js";
 
 export default function ConvertGojoModal({
   open,

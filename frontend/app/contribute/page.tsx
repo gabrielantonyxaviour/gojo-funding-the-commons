@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { GOJO_CONTRACT, THIRTY_GAS } from "@/lib/constants";
-import { uploadToWalrus } from "@/lib/utils";
 import { ToastAction } from "@radix-ui/react-toast";
 import { IconArrowUpRight, IconChevronLeft } from "@tabler/icons-react";
 import { Trash } from "lucide-react";
@@ -31,7 +30,8 @@ export default function ContributePage() {
   ];
   const [selectedAgent, setSelectedAgent] = useState(0);
   const [file, setFile] = useState<File | null>(null);
-  const [walrusBlobId, setWalrusBlobId] = useState<string>("");
+  const [ipfsHash, setIpfsHash] = useState<string>("");
+  const [ipfsHashUrl, setIpfsHashUrl] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [txHash, setTxHash] = useState<string>("");
   const { wallet } = useEnvironmentStore((store) => store);
@@ -135,20 +135,20 @@ export default function ContributePage() {
                   className="flex flex-col justify-center items-center w-full h-[100px] border border-dashed border-secondary cursor-pointer rounded-lg transition-opacity duration-300 ease-in-out group-hover:opacity-50"
                   onClick={() => {
                     setFile(null);
-                    setWalrusBlobId("");
+                    setIpfsHash("");
                   }}
                 >
                   <p className="text-sm text-muted-foreground text-center">
-                    {walrusBlobId != "" && "Uploaded "} {file.name}
-                    {walrusBlobId != "" && " to Walrus!"}
+                    {ipfsHash != "" && "Uploaded "} {file.name}
+                    {ipfsHash != "" && " to IPFS!"}
                   </p>
-                  {walrusBlobId != "" && (
+                  {ipfsHash != "" && (
                     <p className="text-sm text-muted-foreground text-center">
                       Blob Id
                     </p>
                   )}
                   <p className="text-sm text-muted-foreground text-center">
-                    {walrusBlobId}
+                    {ipfsHash}
                   </p>
                 </div>
                 <div
@@ -197,18 +197,18 @@ export default function ContributePage() {
             <p>Go Back</p>
           </Button>
           <div className="flex space-x-2">
-            {walrusBlobId != "" && (
+            {ipfsHash != "" && (
               <Button
                 variant={"ghost"}
                 className="text-stone-300"
                 onClick={() => {
                   window.open(
-                    "https://aggregator-devnet.walrus.space/v1/" + walrusBlobId,
+                    "https://aggregator-devnet.walrus.space/v1/" + ipfsHash,
                     "_blank"
                   );
                 }}
               >
-                <p>View in Walrus</p>
+                <p>View in IPFS</p>
                 <IconArrowUpRight className="h-5 w-5" />
               </Button>
             )}
@@ -216,50 +216,35 @@ export default function ContributePage() {
               disabled={file == null || status != "" || txHash.length > 0}
               onClick={async () => {
                 if (file == null) return;
-                setStatus("Uploading to Walrus");
+                setStatus("Uploading to IPFS");
                 try {
                   toast({
                     title: "Create Resource (1/3)",
-                    description: " Uploading " + file.name + " to Walrus...",
+                    description: " Uploading " + file.name + " to IPFS...",
                   });
-                  const tempBlobId = await uploadToWalrus(
-                    file,
-                    (blobId) => {
-                      setWalrusBlobId(blobId);
-                      setStatus("Sending Transaction");
-                    },
-                    (error) => {
-                      console.log("Upload to Walrus failed");
-                      console.log(error);
-                    }
-                  );
-                  console.log("BLob id");
-                  console.log(tempBlobId);
-                  if (!tempBlobId) {
-                    toast({
-                      title: "Walrus Upload Failed",
-                      description:
-                        "Please try again. If issue persists, contact @gabrielaxyy in Telegram",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
+                  const data = new FormData();
+                  data.set("file", file);
+                  const uploadRequest = await fetch("/api/pinata/store", {
+                    method: "POST",
+                    body: data,
+                  });
+                  const { cid, url } = await uploadRequest.json();
+                  setIpfsHash(cid);
+                  setIpfsHashUrl(url);
+                  setStatus("Sending Transaction");
+
                   toast({
                     title: "Create Resource (2/3)",
                     description:
-                      "Uploaded " + file.name + " to Walrus. Sending Tx...",
+                      "Uploaded " + file.name + " to IPFS. Sending Tx...",
                     action: (
                       <ToastAction
                         onClick={() => {
-                          window.open(
-                            "https://aggregator-devnet.walrus.space/v1/" +
-                              tempBlobId,
-                            "_blank"
-                          );
+                          window.open(url, "_blank");
                         }}
-                        altText="View Transaction"
+                        altText="View File"
                       >
-                        View Tx <IconArrowUpRight size={16} />
+                        View <IconArrowUpRight size={16} />
                       </ToastAction>
                     ),
                   });
@@ -269,14 +254,14 @@ export default function ContributePage() {
                     method: "create_resource",
                     args: {
                       agent_id: selectedAgent - 1,
-                      resource_walrus_hash: tempBlobId,
+                      resource_walrus_hash: url,
                     },
                     deposit: "0",
                     gas: THIRTY_GAS,
                   });
                   if (transaction) {
                     toast({
-                      title: "Create Resource (2/3)",
+                      title: "Create Resource (3/3)",
                       description:
                         "Resource Contributed to " +
                         agents[selectedAgent - 1].name,
@@ -297,7 +282,7 @@ export default function ContributePage() {
                     });
                   } else {
                     toast({
-                      title: "Create Resource (2/3)",
+                      title: "Create Resource (3/3)",
                       description:
                         "Resource Contributed to " +
                         agents[selectedAgent - 1].name,
@@ -327,9 +312,9 @@ export default function ContributePage() {
                         "Please try again. If issue persists, contact @gabrielaxyy in Telegram",
                       variant: "destructive",
                     });
-                  } else if (status == "Uploading to Walrus") {
+                  } else if (status == "Uploading to IPFS") {
                     toast({
-                      title: "Walrus Upload Failed",
+                      title: "IPFS Upload Failed",
                       description:
                         "Please try again. If issue persists, contact @gabrielaxyy in Telegram",
                       variant: "destructive",
@@ -343,7 +328,7 @@ export default function ContributePage() {
                     });
                   }
                 } finally {
-                  setWalrusBlobId("");
+                  setIpfsHash("");
                   setStatus("");
                   setFile(null);
                 }
@@ -353,7 +338,7 @@ export default function ContributePage() {
                 ? "Pending Tx ..."
                 : txHash.length > 0
                 ? "Success"
-                : status == "Uploading to Walrus"
+                : status == "Uploading to IPFS"
                 ? "Uploading ..."
                 : "Contribute Code"}
             </Button>

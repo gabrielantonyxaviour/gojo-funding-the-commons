@@ -4,37 +4,23 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconArrowUp, IconArrowUpRight } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "../ui/badge";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import Suggestions from "./suggestions";
-import {
-  setConversationUpdatedAt,
-  useSendMessage,
-  useStartConversation,
-} from "@xmtp/react-sdk";
+
 import { useRouter } from "next/navigation";
 import { useEnvironmentStore } from "../context";
-import { createWalletClient, custom, zeroAddress } from "viem";
-import { skaleEuropaTestnet } from "viem/chains";
-import { useWallets } from "@privy-io/react-auth";
-import { timestamp } from "rxjs";
-import { uploadToWalrus } from "@/lib/utils";
+import { zeroAddress } from "viem";
 import { useToast } from "@/hooks/use-toast";
 import { GOJO_CONTRACT, THIRTY_GAS } from "@/lib/constants";
 import { ToastAction } from "../ui/toast";
 import Image from "next/image";
 
 export function SearchBar({ conversation }: { conversation: any }) {
-  const {
-    prompt,
-    setPrompt,
-    addChat,
-    addProject,
-    projects,
-    setCreateProjectInitNodes,
-  } = useEnvironmentStore((store) => store);
+  const { prompt, setPrompt, addProject, projects, setCreateProjectInitNodes } =
+    useEnvironmentStore((store) => store);
   const { wallet, userAccount } = useEnvironmentStore((store) => store);
-  const [walrusBlobId, setWalrusBlobId] = useState("");
+  const [ipfsHash, setIpfsHash] = useState<string>("");
+  const [ipfsHashUrl, setIpfsHashUrl] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const { toast } = useToast();
@@ -132,14 +118,14 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   return;
                 }
 
-                setStatus("Uploading to Walrus");
+                setStatus("Uploading to IPFS");
 
                 toast({
                   title: "Create Project (2/4)",
-                  description: "Contracts Generated. Uploading to Walrus...",
+                  description: "Contracts Generated. Uploading to IPFS...",
                 });
 
-                // Create a project with simple metadata and upload to Walrus and send Tx
+                // Create a project with simple metadata and upload to IPFS and send Tx
                 const metadata = {
                   name: aiResponse.name,
                   initPrompt: prompt,
@@ -157,33 +143,27 @@ export function SearchBar({ conversation }: { conversation: any }) {
                     type: "application/json",
                   }
                 );
-
-                const tempBlobId = await uploadToWalrus(
-                  file,
-                  (blobId) => {
-                    setWalrusBlobId(blobId);
-                  },
-                  (error) => {
-                    console.log(error);
-                  }
-                );
-
+                const data = new FormData();
+                data.set("file", file);
+                const uploadRequest = await fetch("/api/pinata/store", {
+                  method: "POST",
+                  body: data,
+                });
+                const { cid, url } = await uploadRequest.json();
+                setIpfsHash(cid);
+                setIpfsHashUrl(url);
                 setStatus("Sending Transaction");
                 toast({
                   title: "Create Project (3/4)",
-                  description: "Uploaded to Walrus. Intiating transaction...",
+                  description: "Uploaded to IPFS. Intiating transaction...",
                   action: (
                     <ToastAction
                       onClick={() => {
-                        window.open(
-                          "https://aggregator-devnet.walrus.space/v1/" +
-                            tempBlobId,
-                          "_blank"
-                        );
+                        window.open(url, "_blank");
                       }}
                       altText="View Transaction"
                     >
-                      View in Walrus <IconArrowUpRight size={16} />
+                      View in IPFS <IconArrowUpRight size={16} />
                     </ToastAction>
                   ),
                 });
@@ -193,7 +173,7 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   method: "create_project",
                   args: {
                     name: aiResponse.name,
-                    metadata_walrus_hash: tempBlobId,
+                    metadata_walrus_hash: url,
                   },
                   deposit: "0",
                   gas: THIRTY_GAS,
@@ -240,7 +220,6 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   });
                 }
 
-                // Store in global state and direct to the project page
                 addProject({
                   id: (projects.length + 1).toString(),
                   name: aiResponse.name,

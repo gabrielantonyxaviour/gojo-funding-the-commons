@@ -25,7 +25,6 @@ import { chains, GOJO_CONTRACT, THIRTY_GAS } from "@/lib/constants";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useToast } from "@/hooks/use-toast";
 import { useEnvironmentStore } from "../context";
-import { uploadToWalrus } from "@/lib/utils";
 import { IconArrowUpRight } from "@tabler/icons-react";
 
 export default function CreateNodeModal({
@@ -42,8 +41,8 @@ export default function CreateNodeModal({
   const [label, setLabel] = useState("");
   const [prompt, setPrompt] = useState("");
   const [selectedChainIndex, setSelectedChainIndex] = useState("0");
-  const [walrusBlobId, setWalrusBlobId] = useState<string | null>(null);
-  const [walrusUploading, setWalrusUploading] = useState<boolean>(false);
+  const [ipfsHash, setIpfsHash] = useState<string | null>(null);
+  const [ipfsHashUrl, setIpfsHashUrl] = useState<string | null>(null);
   const [transactionPending, setTransactionPending] = useState<boolean>(false);
   const [txHash, setTxHash] = useState<string>("");
   const { wallet } = useEnvironmentStore((store) => store);
@@ -178,7 +177,6 @@ export default function CreateNodeModal({
                 title: "Make Generation (1/4)",
                 description: "Waiting for Response from the AI Agent...",
               });
-              setWalrusUploading(true);
 
               // TODO: Generate code form prompt
               const solidityCode = `
@@ -212,7 +210,7 @@ export default function CreateNodeModal({
                 name: "generation",
               };
               const projectId = "0";
-              setWalrusUploading(true);
+
               const jsonString = JSON.stringify(aiResponse); // Convert JSON object to string
 
               const file = new File(
@@ -227,34 +225,29 @@ export default function CreateNodeModal({
 
               toast({
                 title: "Make Generation (2/4)",
-                description: "Uploading Generation to Walrus...",
+                description: "Uploading Generation to IPFS...",
               });
-              setWalrusUploading(true);
-              const tempBlobId = await uploadToWalrus(
-                file,
-                (blobId) => {
-                  setWalrusBlobId(blobId);
-                  setWalrusUploading(false);
-                },
-                (error) => {
-                  console.log(error);
-                }
-              );
+
+              const data = new FormData();
+              data.set("file", file);
+              const uploadRequest = await fetch("/api/pinata/store", {
+                method: "POST",
+                body: data,
+              });
+              const { cid, url } = await uploadRequest.json();
+              setIpfsHash(cid);
+              setIpfsHashUrl(url);
               toast({
                 title: "Make Generation (3/4)",
-                description: "Uploaded to Walrus. Initiating Transaction...",
+                description: "Uploaded to IPFS. Initiating Transaction...",
                 action: (
                   <ToastAction
                     onClick={() => {
-                      window.open(
-                        "https://aggregator-devnet.walrus.space/v1/" +
-                          tempBlobId,
-                        "_blank"
-                      );
+                      window.open(url, "_blank");
                     }}
                     altText="View Transaction"
                   >
-                    View Tx <IconArrowUpRight size={16} />
+                    View <IconArrowUpRight size={16} />
                   </ToastAction>
                 ),
               });
@@ -265,7 +258,7 @@ export default function CreateNodeModal({
                 args: {
                   project_id: projectId,
                   agents_used: [1, 2, 3],
-                  generation_walrus_hash: tempBlobId,
+                  generation_walrus_hash: url,
                 },
                 deposit: "0",
                 gas: THIRTY_GAS,

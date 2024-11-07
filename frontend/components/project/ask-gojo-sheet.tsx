@@ -33,7 +33,6 @@ import { polygonAmoy, skaleEuropaTestnet, storyTestnet } from "viem/chains";
 import { title } from "process";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useToast } from "@/hooks/use-toast";
-import { uploadToWalrus } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 export default function AskGojoSheet({
   id,
@@ -59,7 +58,8 @@ export default function AskGojoSheet({
   const [selectedContract, setSelectedContract] = useState<boolean>(false);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [walrusBlobId, setWalrusBlobId] = useState("");
+  const [ipfsHash, setIpfsHash] = useState<string>("");
+  const [ipfsHashUrl, setIpfsHashUrl] = useState<string>("");
   const pathName = usePathname();
   useEffect(() => {
     if (askGojo.node != null) setSelectedContract(true);
@@ -395,7 +395,7 @@ export default function AskGojoSheet({
               );
               toast({
                 title: "Make Generation (2/4)",
-                description: "Code Generated. Uploading to Walrus...",
+                description: "Code Generated. Uploading to IPFS...",
               });
               const metadata = {
                 id:
@@ -420,30 +420,27 @@ export default function AskGojoSheet({
                 }
               );
 
-              const tempBlobId = await uploadToWalrus(
-                file,
-                (blobId) => {
-                  setWalrusBlobId(blobId);
-                },
-                (error) => {
-                  console.log(error);
-                }
-              );
+              const data = new FormData();
+              data.set("file", file);
+              const uploadRequest = await fetch("/api/pinata/store", {
+                method: "POST",
+                body: data,
+              });
+              const { cid, url } = await uploadRequest.json();
+              setIpfsHash(cid);
+              setIpfsHashUrl(url);
+
               toast({
                 title: "Make Generation (3/4)",
-                description: "Uploaded To Walrus. Sending Transaction...",
+                description: "Uploaded To IPFS. Sending Transaction...",
                 action: (
                   <ToastAction
                     onClick={() => {
-                      window.open(
-                        "https://aggregator-devnet.walrus.space/v1/" +
-                          tempBlobId,
-                        "_blank"
-                      );
+                      window.open(url, "_blank");
                     }}
                     altText="View Transaction"
                   >
-                    View in Walrus <IconArrowUpRight size={16} />
+                    View in IPFS <IconArrowUpRight size={16} />
                   </ToastAction>
                 ),
               });
@@ -455,7 +452,7 @@ export default function AskGojoSheet({
                   args: {
                     project_id: id,
                     agents_used: [1, 2],
-                    generation_walrus_hash: tempBlobId,
+                    generation_walrus_hash: url,
                   },
                   deposit: "0",
                   gas: THIRTY_GAS,
