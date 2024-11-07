@@ -254,7 +254,7 @@ export default function ContributePage() {
                     method: "create_resource",
                     args: {
                       agent_id: selectedAgent - 1,
-                      resource_walrus_hash: url,
+                      resource_walrus_hash: cid,
                     },
                     deposit: "0",
                     gas: THIRTY_GAS,

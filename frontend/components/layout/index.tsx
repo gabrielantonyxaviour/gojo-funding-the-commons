@@ -23,6 +23,7 @@ import {
   MPC_CONTRACT,
   DERIVATION_PATH,
   idToChain,
+  ALT_CODE,
 } from "@/lib/constants";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -75,6 +76,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [envSet, setEnvSet] = useState(false);
   const pathName = usePathname();
   const [projectNodes, setProjectNodes] = useState<Node[]>([]);
+  const [currentExecution, setCurrentExecution] = useState<number>(-1);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -94,10 +96,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         console.log("MPC Signature components:", { big_r, S, recovery_id });
         console.log("Expected MPC address:", evmUserAddress);
         const { rpcUrl, blockExplorer } = getChainRpcAndExplorer(
-          polygonAmoy.id
+          appSettings.node ? appSettings.node.data.chainId : sepolia.id
         );
         // Get the transaction details
-        const Eth = new Ethereum(rpcUrl, polygonAmoy.id);
+        const Eth = new Ethereum(
+          rpcUrl,
+          appSettings.node ? appSettings.node.data.chainId : sepolia.id
+        );
         const signedTransaction =
           await Eth.reconstructSignatureFromLocalSession(
             big_r,
@@ -121,6 +126,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         console.log(blockExplorer + "/tx/" + txHash);
         const provider = new ethers.JsonRpcProvider(rpcUrl);
         const receipt = await provider.getTransactionReceipt(txHash as string);
+        if (appSettings.node != null) {
+          sessionStorage.setItem("projects", "");
+          sessionStorage.setItem("nodes", "");
+          sessionStorage.setItem("appSettings", "");
+        } else if (
+          currentExecution == -1 ||
+          currentExecution + 1 == projectNodes.length
+        ) {
+          sessionStorage.setItem("projects", "");
+          sessionStorage.setItem("nodes", "");
+          sessionStorage.setItem("appSettings", "");
+          sessionStorage.setItem("currentExecution", "");
+        }
         if (receipt && receipt.contractAddress) {
           console.log("Deployed Contract Address");
           console.log(receipt.contractAddress);
@@ -157,6 +175,99 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             } else modifiedNodes.push(currentNode);
           });
           setCreateProjectInitNodes(modifiedNodes);
+          if (
+            currentExecution != -1 &&
+            currentExecution + 1 != projectNodes.length
+          ) {
+            sessionStorage.setItem(
+              "currentExecution",
+              (currentExecution + 1).toString()
+            );
+            const nextNode = projectNodes[currentExecution + 1];
+            toast({
+              title: "Deploy Contract (1/4)",
+              description: "Compiling " + nextNode.data.label + ".sol ...",
+            });
+            try {
+              // TODO: Replace local url
+              const res = await fetch("http://localhost:3001/compile", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  contractCode: nextNode.data.code,
+                  name: nextNode.data.label,
+                }),
+              });
+
+              const data = await res.json();
+
+              if (res.ok) {
+                console.log("Success");
+                console.log(data);
+
+                toast({
+                  title: "Deploy Contract (2/4)",
+                  description:
+                    "Deploying " +
+                    nextNode.data.label +
+                    ".sol in " +
+                    idToChain[nextNode.data.chainId].name,
+                });
+
+                await deployContract(
+                  evmUserAddress,
+                  nextNode.data.chainId,
+                  "0x" + data.bytecode,
+                  wallet
+                );
+
+                // await deployContracts(
+                //   evmUserAddress,
+                //   [polygonAmoy.id],
+                //   ["0x" + data.bytecode],
+                //   wallet
+                // );
+              } else {
+                const res = await fetch("http://localhost:3001/compile", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    contractCode: ALT_CODE,
+                    name: nextNode.data.label,
+                  }),
+                });
+
+                const data = await res.json();
+                toast({
+                  title: "Deploy Contract (2/4)",
+                  description:
+                    "Deploying " +
+                    nextNode.data.label +
+                    ".sol in " +
+                    idToChain[nextNode.data.chainId].name,
+                });
+                await deployContract(
+                  evmUserAddress,
+                  nextNode.data.chainId,
+                  "0x" + data.bytecode,
+                  wallet
+                );
+
+                // await deployContracts(
+                //   evmUserAddress,
+                //   [polygonAmoy.id],
+                //   ["0x" + data.bytecode],
+                //   wallet
+                // );
+              }
+            } catch (err) {
+              console.log(err);
+            }
+          }
         }
       } catch (e) {
         setCreateProjectInitNodes(projectNodes);
@@ -265,10 +376,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       const appSettings = JSON.parse(
         sessionStorage.getItem("appSettings") || "{}"
       );
+      const tempCurrentExecution = parseInt(
+        sessionStorage.getItem("currentExecution") || "-1"
+      );
       console.log("Retreived values");
       console.log(tempProjects);
       console.log(tempNodes);
       console.log(appSettings);
+      console.log(tempCurrentExecution);
 
       if (pathName !== "/") {
         const projectId =
@@ -298,6 +413,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         // } else {
         setProjects(tempProjects);
         if (tempNodes.length > 0) setProjectNodes(tempNodes);
+        setCurrentExecution(tempCurrentExecution);
         setNodeOpenAppSettings(appSettings);
         setEnvSet(true);
         // }
@@ -305,23 +421,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [signedAccountId, nearConnection]);
 
-  useEffect(() => {
-    console.log(pathName);
+  // useEffect(() => {
+  //   console.log(pathName);
 
-    if (pathName.startsWith("/project")) {
-      const projectId = pathName.split("/")[2];
-      console.log(projectId);
-      console.log(projects.length);
+  //   if (pathName.startsWith("/project")) {
+  //     const projectId = pathName.split("/")[2];
+  //     console.log(projectId);
+  //     console.log(projects.length);
 
-      if (parseInt(projectId) > projects.length) {
-        console.log("Redirecting");
-        router.push("/");
-      } else if (!projectExists) {
-        // Ensure `setProjectExists` is only called if necessary
-        setProjectExists(true);
-      }
-    }
-  }, [pathName, projects.length, projectExists]);
+  //     if (parseInt(projectId) > projects.length) {
+  //       console.log("Redirecting");
+  //       router.push("/");
+  //     } else if (!projectExists) {
+  //       // Ensure `setProjectExists` is only called if necessary
+  //       setProjectExists(true);
+  //     }
+  //   }
+  // }, [pathName, projects.length, projectExists]);
 
   // return (
   //   <div className="h-screen w-screen select-text">

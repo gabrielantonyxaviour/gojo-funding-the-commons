@@ -327,6 +327,26 @@ export default function AskGojoSheet({
                   : "https://gojo-protocol.onrender.com/chat"
               );
               try {
+                console.log("Body");
+                console.log(
+                  JSON.stringify({
+                    message: prompt,
+                    contracts: nodes.map((n) => {
+                      return {
+                        nodeId: n.id,
+                        chainId: n.data.chainId,
+                        code: n.data.code,
+                        label: n.data.label,
+                      };
+                    }),
+                    selectedContract:
+                      selectedContract && askGojo.node ? askGojo.node.id : null,
+                    selectedConnection: null,
+                    name: projects[parseInt(pathName.split("/")[2]) - 1].name,
+                    thread_id:
+                      projects[parseInt(pathName.split("/")[2]) - 1].threadId,
+                  })
+                );
                 const res = await fetch(
                   Boolean(process.env.NEXT_PUBLIC_IS_LOCAL || "false")
                     ? "http://127.0.0.1:8000/chat"
@@ -344,9 +364,6 @@ export default function AskGojoSheet({
                           chainId: n.data.chainId,
                           code: n.data.code,
                           label: n.data.label,
-                          thread_id:
-                            projects[parseInt(pathName.split("/")[2]) - 1]
-                              .threadId,
                         };
                       }),
                       selectedContract:
@@ -355,133 +372,141 @@ export default function AskGojoSheet({
                           : null,
                       selectedConnection: null,
                       name: "",
+                      thread_id:
+                        projects[parseInt(pathName.split("/")[2]) - 1].threadId,
                     }),
                   }
                 );
                 aiResponse = await res.json();
                 console.log(aiResponse);
-              } catch (e) {
-                console.log(e);
-              }
-              console.log(aiResponse);
-              addChat(id, {
-                id:
-                  conversations[id] == null
-                    ? "2"
-                    : conversations[id].length.toString(),
-                isGojo: true,
-                message: aiResponse.message,
-                reference_node_hash: "",
-                contracts: aiResponse.contracts,
-              });
-              setCreateProjectInitNodes(
-                aiResponse.contracts.map((contract: any) => {
-                  return {
-                    id: contract.nodeId,
-                    type: "custom",
-                    data: {
-                      label: contract.label,
-                      chainId: contract.chainId,
-                      address: zeroAddress,
-                      code: contract.code,
-                      salt: Math.floor(Math.random() * 100000000001),
-                    },
-                    position: {
-                      x: 0,
-                      y: 0,
-                    },
-                  };
-                })
-              );
-              toast({
-                title: "Make Generation (2/4)",
-                description: "Code Generated. Uploading to IPFS...",
-              });
-              const metadata = {
-                id:
-                  conversations[id] == null
-                    ? "2"
-                    : conversations[id].length.toString(),
-                isGojo: true,
-                message: aiResponse.message,
-                reference_node_hash: "",
-                contracts: aiResponse.contracts,
-                timestamp: Date.now(),
-              };
-              const jsonString = JSON.stringify(metadata); // Convert JSON object to string
 
-              const file = new File(
-                [jsonString],
-                (aiResponse.name as string).toLocaleLowerCase() +
-                  Math.floor(Math.random() * 100000000001) +
-                  ".json",
-                {
-                  type: "application/json",
-                }
-              );
-
-              const data = new FormData();
-              data.set("file", file);
-              const uploadRequest = await fetch("/api/pinata/store", {
-                method: "POST",
-                body: data,
-              });
-              const { cid, url } = await uploadRequest.json();
-              setIpfsHash(cid);
-              setIpfsHashUrl(url);
-
-              toast({
-                title: "Make Generation (3/4)",
-                description: "Uploaded To IPFS. Sending Transaction...",
-                action: (
-                  <ToastAction
-                    onClick={() => {
-                      window.open(url, "_blank");
-                    }}
-                    altText="View Transaction"
-                  >
-                    View in IPFS <IconArrowUpRight size={16} />
-                  </ToastAction>
-                ),
-              });
-
-              try {
-                const transaction = await wallet.callMethod({
-                  contractId: GOJO_CONTRACT,
-                  method: "make_generation",
-                  args: {
-                    project_id: id,
-                    agents_used: [1, 2],
-                    generation_walrus_hash: url,
-                  },
-                  deposit: "0",
-                  gas: THIRTY_GAS,
+                console.log(aiResponse);
+                addChat(id, {
+                  id:
+                    conversations[id] == null
+                      ? "2"
+                      : conversations[id].length.toString(),
+                  isGojo: true,
+                  message: aiResponse.message,
+                  reference_node_hash: "",
+                  contracts: aiResponse.contracts,
                 });
-              } catch (e) {
-                console.log(e);
+                setCreateProjectInitNodes(
+                  aiResponse.contracts.map((contract: any) => {
+                    return {
+                      id: contract.nodeId,
+                      type: "custom",
+                      data: {
+                        label: contract.label,
+                        chainId: contract.chainId,
+                        address: zeroAddress,
+                        code: contract.code,
+                        salt: Math.floor(Math.random() * 100000000001),
+                      },
+                      position: {
+                        x: 0,
+                        y: 0,
+                      },
+                    };
+                  })
+                );
+                toast({
+                  title: "Make Generation (2/4)",
+                  description: "Code Generated. Uploading to IPFS...",
+                });
+                const metadata = {
+                  id:
+                    conversations[id] == null
+                      ? "2"
+                      : conversations[id].length.toString(),
+                  isGojo: true,
+                  message: aiResponse.message,
+                  reference_node_hash: "",
+                  contracts: aiResponse.contracts,
+                  timestamp: Date.now(),
+                };
+                const jsonString = JSON.stringify(metadata); // Convert JSON object to string
+
+                const file = new File(
+                  [jsonString],
+                  (aiResponse.name as string).toLocaleLowerCase() +
+                    Math.floor(Math.random() * 100000000001) +
+                    ".json",
+                  {
+                    type: "application/json",
+                  }
+                );
+
+                const data = new FormData();
+                data.set("file", file);
+                const uploadRequest = await fetch("/api/pinata/store", {
+                  method: "POST",
+                  body: data,
+                });
+                const { cid, url } = await uploadRequest.json();
+                setIpfsHash(cid);
+                setIpfsHashUrl(url);
 
                 toast({
-                  title: "Make Generation (4/4)",
-                  description: "Transaction Success",
+                  title: "Make Generation (3/4)",
+                  description: "Uploaded To IPFS. Sending Transaction...",
                   action: (
                     <ToastAction
                       onClick={() => {
-                        window.open(
-                          "https://testnet.nearblocks.io/address/" +
-                            GOJO_CONTRACT,
-                          "_blank"
-                        );
+                        window.open(url, "_blank");
                       }}
                       altText="View Transaction"
                     >
-                      View Tx <IconArrowUpRight size={16} />
+                      View in IPFS <IconArrowUpRight size={16} />
                     </ToastAction>
                   ),
                 });
-              }
 
-              setLoading(false);
-              setPrompt("");
+                try {
+                  const transaction = await wallet.callMethod({
+                    contractId: GOJO_CONTRACT,
+                    method: "make_generation",
+                    args: {
+                      project_id: id,
+                      agents_used: [1, 2],
+                      generation_walrus_hash: url,
+                    },
+                    deposit: "0",
+                    gas: THIRTY_GAS,
+                  });
+                } catch (e) {
+                  console.log(e);
+
+                  toast({
+                    title: "Make Generation (4/4)",
+                    description: "Transaction Success",
+                    action: (
+                      <ToastAction
+                        onClick={() => {
+                          window.open(
+                            "https://testnet.nearblocks.io/address/" +
+                              GOJO_CONTRACT,
+                            "_blank"
+                          );
+                        }}
+                        altText="View Transaction"
+                      >
+                        View Tx <IconArrowUpRight size={16} />
+                      </ToastAction>
+                    ),
+                  });
+                }
+
+                setLoading(false);
+                setPrompt("");
+              } catch (e) {
+                toast({
+                  title: "Make Generation Failed.",
+                  description:
+                    "Something wrong with AI. If issue persist, contact @gabrielaxyy in Telegram",
+                });
+                console.log(e);
+              }
             }}
           >
             {loading ? (

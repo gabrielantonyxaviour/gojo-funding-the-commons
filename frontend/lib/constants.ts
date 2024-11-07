@@ -57,3 +57,29 @@ export const DERIVATION_PATH = "gojo";
 export const MAX_GAS = "300000000000000";
 export const TWO_HUNDRED_GAS = "200000000000000";
 export const THIRTY_GAS = "30000000000000";
+export const ALT_CODE = ` pragma solidity ^0.8.0;
+
+              contract Counter {
+                  uint256 public count;
+
+                  event CountChanged(uint256 newCount);
+
+                  constructor() {
+                      count = 0;
+                  }
+
+                  function increment() public {
+                      count += 1;
+                      emit CountChanged(count);
+                  }
+
+                  function decrement() public {
+                      require(count > 0, "Counter: count can't go below zero");
+                      count -= 1;
+                      emit CountChanged(count);
+                  }
+
+                  function getCount() public view returns (uint256) {
+                      return count;
+                  }
+              }`;
