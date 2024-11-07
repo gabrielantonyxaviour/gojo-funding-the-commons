@@ -16,7 +16,6 @@ interface GlobalState {
   userAccount: Account | null;
   evmUserAddress: string;
   wallet: Wallet;
-  gojoWallet: Wallet;
   signedAccountId: string;
   ethBalance: string;
   baseBalance: string;
@@ -38,6 +37,7 @@ interface GlobalActions {
   setBalances: (eth: string, base: string, pol: string) => void;
   addProject: (project: Project) => void;
   setGojoNearConnection: (val: Near) => void;
+  setProjects: (projects: Project[]) => void;
   setCreateProjectInitNodes: (nodes: Node[]) => void;
 }
 
@@ -53,10 +53,6 @@ export const initialGlobalState: GlobalState = {
   gojoAccount: null,
   userAccount: null,
   wallet: new Wallet({
-    networkId: "testnet",
-    createAccessKeyFor: GOJO_CONTRACT,
-  }),
-  gojoWallet: new Wallet({
     networkId: "testnet",
     createAccessKeyFor: GOJO_CONTRACT,
   }),
@@ -115,4 +111,5 @@ export const createGlobalSlice: StateCreator<
     set((state) => ({ ...state, projects: [...state.projects, proj] })),
   setCreateProjectInitNodes: (nodes) =>
     set((state) => ({ ...state, createProjectInitNodes: nodes })),
+  setProjects: (projects) => set((state) => ({ ...state, projects: projects })),
 });

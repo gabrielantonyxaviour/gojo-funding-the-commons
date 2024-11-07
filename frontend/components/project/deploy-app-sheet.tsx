@@ -31,6 +31,7 @@ import { shortenAddress } from "@/lib/utils";
 import { WineOff } from "lucide-react";
 import { baseSepolia, polygonAmoy, sepolia } from "viem/chains";
 import { deployContract } from "@/lib/alt/deployContract";
+import { toast } from "@/hooks/use-toast";
 export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
   const {
     appSettings,
@@ -443,6 +444,7 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
               const IS_LOCAL = Boolean(
                 process.env.NEXT_PUBLIC_IS_LOCAL || "false"
               );
+
               const altCode = ` pragma solidity ^0.8.0;
 
               contract Counter {
@@ -477,6 +479,10 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
                   contractCode,
                   contractLabel,
                 });
+                toast({
+                  title: "Deploy Contract (1/3)",
+                  description: "Compiling " + contractLabel + ".sol ...",
+                });
                 try {
                   // TODO: Replace local url
                   const res = await fetch("http://localhost:3001/compile", {
@@ -500,8 +506,19 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
                       "projects",
                       JSON.stringify(projects)
                     );
-                    // sessionStorage.setItem("");
-
+                    sessionStorage.setItem("nodes", JSON.stringify(nodes));
+                    sessionStorage.setItem(
+                      "appSettings",
+                      JSON.stringify(appSettings)
+                    );
+                    toast({
+                      title: "Deploy Contract (2/3)",
+                      description:
+                        "Deploying " +
+                        contractLabel +
+                        ".sol on " +
+                        idToChain[appSettings.node.data.chainId].name,
+                    });
                     await deployContract(
                       evmUserAddress,
                       appSettings.node.data.chainId,
@@ -532,8 +549,19 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
                       "projects",
                       JSON.stringify(projects)
                     );
-                    // sessionStorage.setItem("");
-
+                    sessionStorage.setItem("nodes", JSON.stringify(nodes));
+                    sessionStorage.setItem(
+                      "appSettings",
+                      JSON.stringify(appSettings)
+                    );
+                    toast({
+                      title: "Deploy Contract (2/3)",
+                      description:
+                        "Deploying " +
+                        contractLabel +
+                        ".sol on " +
+                        idToChain[appSettings.node.data.chainId].name,
+                    });
                     await deployContract(
                       evmUserAddress,
                       appSettings.node.data.chainId,

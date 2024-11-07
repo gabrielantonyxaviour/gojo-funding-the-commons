@@ -18,7 +18,12 @@ import {
   getPublicClient,
   shortenAddress,
 } from "@/lib/utils";
-import { GOJO_CONTRACT, MPC_CONTRACT, DERIVATION_PATH } from "@/lib/constants";
+import {
+  GOJO_CONTRACT,
+  MPC_CONTRACT,
+  DERIVATION_PATH,
+  idToChain,
+} from "@/lib/constants";
 import { Separator } from "@/components/ui/separator";
 import {
   Popover,
@@ -29,7 +34,6 @@ import { Ethereum } from "@/lib/services/ethereum";
 import { useEnvironmentStore } from "../context";
 import { formatEther, formatUnits } from "viem";
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@radix-ui/react-toast";
 import * as nearAPI from "near-api-js";
 import { baseSepolia, polygonAmoy, sepolia } from "viem/chains";
 import { IconArrowUpRight } from "@tabler/icons-react";
@@ -38,6 +42,8 @@ import { ethers } from "ethers";
 import ConvertGojoModal from "./convert-gojo-modal";
 import { Wallet } from "@/lib/services/near-wallet";
 import { deployContracts } from "@/lib/alt/deployContracts";
+import { Node } from "@/lib/type";
+import { ToastAction } from "../ui/toast";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const {
@@ -54,8 +60,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setEvmUserAddress,
     setBalances,
     setGojoNearConnection,
-    gojoWallet,
     projects,
+    setProjects,
+    setCreateProjectInitNodes,
+    setNodeOpenAppSettings,
+    appSettings,
   } = useEnvironmentStore((state) => state);
   const [openWalletPopover, setOpenWalletPopover] = useState<boolean>(false);
   const [openConvertGojoModal, setOpenConvertGojoModal] = useState(false);
@@ -63,7 +72,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [transactions, setTransactions] = useState<string[]>([]);
   const [projectExists, setProjectExists] = useState<boolean>(false);
   const [reloaded, setReloaded] = useState(false);
+  const [envSet, setEnvSet] = useState(false);
   const pathName = usePathname();
+  const [projectNodes, setProjectNodes] = useState<Node[]>([]);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -72,7 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
   useEffect(() => {
     // special case for web wallet that reload the whole page
-    if (reloaded && evmUserAddress) signTransaction();
+    if (reloaded && evmUserAddress && envSet) signTransaction();
     async function signTransaction() {
       try {
         const {
@@ -97,14 +108,62 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         console.log("Signed Transaction");
         console.log(signedTransaction);
         removeUrlParams();
+        toast({
+          title: "Deploy Contract (3/4)",
+          description:
+            "Relaying Transaction to " +
+            idToChain[
+              appSettings.node ? appSettings.node.data.chainId : sepolia.id
+            ].name,
+        });
         const txHash = await Eth.relayTransaction(signedTransaction);
         console.log("Transaction hash");
         console.log(blockExplorer + "/tx/" + txHash);
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+        const receipt = await provider.getTransactionReceipt(txHash as string);
+        if (receipt && receipt.contractAddress) {
+          console.log("Deployed Contract Address");
+          console.log(receipt.contractAddress);
+          toast({
+            title: "Deploy Contract (4/4)",
+            description:
+              "Deployed " +
+              (appSettings.node
+                ? appSettings.node.data.label +
+                  ".sol in " +
+                  idToChain[appSettings.node.data.chainId].name
+                : "SmartContract.sol in Sepolia"),
+            action: (
+              <ToastAction
+                onClick={() => {
+                  window.open(blockExplorer + "/tx/" + txHash, "_blank");
+                }}
+                altText="View Transaction"
+              >
+                View Tx
+              </ToastAction>
+            ),
+          });
+          const modifiedNodes: Node[] = [];
+          projectNodes.forEach((currentNode) => {
+            if (appSettings.node?.id == currentNode.id) {
+              modifiedNodes.push({
+                ...currentNode,
+                data: {
+                  ...currentNode.data,
+                  address: receipt.contractAddress as string,
+                },
+              });
+            } else modifiedNodes.push(currentNode);
+          });
+          setCreateProjectInitNodes(modifiedNodes);
+        }
       } catch (e) {
+        setCreateProjectInitNodes(projectNodes);
         console.log(e);
       }
     }
-  }, [reloaded, evmUserAddress]);
+  }, [reloaded, evmUserAddress, envSet]);
 
   function removeUrlParams() {
     const url = new URL(window.location.href);
@@ -114,7 +173,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     wallet.startUp(setSignedAccountId);
-    gojoWallet.startUp((val: string) => {});
 
     // gojoW
     const txHash = new URLSearchParams(window.location.search).get(
@@ -200,23 +258,49 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         setBalances(ethBalance, polBalance, baseBalance);
       })();
     } else {
+      const tempProjects = JSON.parse(
+        sessionStorage.getItem("projects") || "[]"
+      );
+      const tempNodes = JSON.parse(sessionStorage.getItem("nodes") || "{}");
+      const appSettings = JSON.parse(
+        sessionStorage.getItem("appSettings") || "{}"
+      );
+      console.log("Retreived values");
+      console.log(tempProjects);
+      console.log(tempNodes);
+      console.log(appSettings);
+
       if (pathName !== "/") {
-        router.push("/");
-        if (!signedAccountId)
-          toast({
-            title: "Wallet disconnected",
-            description: "Please connect your wallet again",
-          });
-        else if (!wallet)
-          toast({
-            title: "Wallet not configured",
-            description: "Reach out to the developer to fix the issue",
-          });
-        else
-          toast({
-            title: "Connection error",
-            description: "Please try again",
-          });
+        const projectId =
+          pathName.split("/").length == 3
+            ? pathName.split("/")[2]
+            : "100000000";
+        console.log("Pathname split");
+        console.log(pathName.split("/"));
+        console.log(projectId);
+        // if (tempProjects.length < parseInt(projectId)) {
+        //   if (!signedAccountId)
+        //     toast({
+        //       title: "Wallet disconnected",
+        //       description: "Please connect your wallet again",
+        //     });
+        //   else if (!wallet)
+        //     toast({
+        //       title: "Wallet not configured",
+        //       description: "Reach out to the developer to fix the issue",
+        //     });
+        //   else
+        //     toast({
+        //       title: "Connection error",
+        //       description: "Please try again",
+        //     });
+        //   router.push("/");
+        // } else {
+        setProjects(tempProjects);
+        if (tempNodes.length > 0) setProjectNodes(tempNodes);
+        setNodeOpenAppSettings(appSettings);
+        setEnvSet(true);
+        // }
       }
     }
   }, [signedAccountId, nearConnection]);

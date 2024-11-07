@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 import {
+  IconArrowUpRight,
+  IconArrowUpSquare,
   IconEye,
   IconPencil,
   IconRobot,
@@ -14,7 +16,7 @@ import {
 import Image from "next/image";
 import { Separator } from "../ui/separator";
 import { idToChain } from "@/lib/constants";
-import { shortenAddress } from "@/lib/utils";
+import { getChainRpcAndExplorer, shortenAddress } from "@/lib/utils";
 import { useEnvironmentStore } from "../context";
 import UpdateNodeModal from "./update-node-modal";
 import { Node } from "@/lib/type";
@@ -167,8 +169,24 @@ function CustomNode(node: any) {
             <Image src="/agents/sign.jpg" width={20} height={20} alt="robot" />
           </div>
           <p className="text-sm pt-6 pb-1">Deployment</p>
-          <p className="text-muted-foreground">
+          <p
+            className={`text-muted-foreground text-xs flex items-center ${
+              data.address != zeroAddress && "hover:text-white hover:scale-105"
+            }`}
+            onClick={() => {
+              if (data.address != zeroAddress) {
+                const chain = getChainRpcAndExplorer(data.chainId);
+                window.open(
+                  chain.blockExplorer + "/address/" + data.address,
+                  "_blank"
+                );
+              }
+            }}
+          >
             {shortenAddress(data.address)}
+            {data.address != zeroAddress && (
+              <IconArrowUpRight className="h-4 w-4" />
+            )}
           </p>
         </div>
         <Handle
