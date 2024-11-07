@@ -148,6 +148,33 @@ export class Wallet {
     return providers.getTransactionLastResult(outcome);
   };
 
+  callBatchMethods = async ({
+    contractId,
+    method,
+    args,
+    gas = THIRTY_TGAS,
+    deposit = NO_DEPOSIT,
+  }) => {
+    // Sign a transaction with the "FunctionCall" action
+    const selectedWallet = await (await this.selector).wallet();
+    const outcome = await selectedWallet.signAndSendTransaction({
+      receiverId: contractId,
+      actions: args.map((arg) => {
+        return {
+          type: "FunctionCall",
+          params: {
+            methodName: method,
+            args: arg,
+            gas,
+            deposit,
+          },
+        };
+      }),
+    });
+
+    return providers.getTransactionLastResult(outcome);
+  };
+
   /**
    * Transfers NEAR to receiverId
    * @param {Object} options - the options for the call

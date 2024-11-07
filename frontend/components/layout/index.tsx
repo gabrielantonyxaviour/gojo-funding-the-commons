@@ -37,6 +37,7 @@ import { deployContract } from "@/lib/alt/deployContract";
 import { ethers } from "ethers";
 import ConvertGojoModal from "./convert-gojo-modal";
 import { Wallet } from "@/lib/services/near-wallet";
+import { deployContracts } from "@/lib/alt/deployContracts";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const {
@@ -81,11 +82,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         } = await wallet.getTransactionResult(transactions[0]);
         console.log("MPC Signature components:", { big_r, S, recovery_id });
         console.log("Expected MPC address:", evmUserAddress);
-        // Get the transaction details
-        const Eth = new Ethereum(
-          getChainRpcAndExplorer(11155111).rpcUrl,
-          11155111
+        const { rpcUrl, blockExplorer } = getChainRpcAndExplorer(
+          polygonAmoy.id
         );
+        // Get the transaction details
+        const Eth = new Ethereum(rpcUrl, polygonAmoy.id);
         const signedTransaction =
           await Eth.reconstructSignatureFromLocalSession(
             big_r,
@@ -95,152 +96,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           );
         console.log("Signed Transaction");
         console.log(signedTransaction);
+        removeUrlParams();
+        const txHash = await Eth.relayTransaction(signedTransaction);
+        console.log("Transaction hash");
+        console.log(blockExplorer + "/tx/" + txHash);
       } catch (e) {
         console.log(e);
       }
-      //   console.log("Serialized Tx");
-      //   console.log(serializedTx);
-      //   if (!serializedTx) {
-      //     throw new Error("No transaction found in session storage");
-      //   }
-      //   const transaction = ethers.utils.parseTransaction(
-      //     ethers.utils.arrayify(serializedTx)
-      //   );
-      //   console.log("Transaction");
-      //   console.log(transaction);
-      //   // Format r and s values directly from MPC output
-      //   const r = "0x" + big_r.affine_point.substring(2);
-      //   const s = "0x" + S.scalar;
-      //   // Get the message hash
-      //   const messageHash = ethers.utils.keccak256(
-      //     ethers.utils.arrayify(serializedTx)
-      //   );
-      //   const messageHashBytes = ethers.utils.arrayify(messageHash);
-      //   console.log("Transaction and hash:", {
-      //     messageHash,
-      //     chainId: transaction.chainId,
-      //     nonce: transaction.nonce,
-      //     data: transaction.data?.slice(0, 64) + "...", // truncate for logging
-      //   });
-      //   let addressRecovered = false;
-      //   let finalSig = null;
-      //   // Try all possible combinations systematically
-      //   const recoveryOptions = [
-      //     { baseV: 27 + recovery_id }, // Standard
-      //     { baseV: 27 + (recovery_id ? 0 : 1) }, // Flipped
-      //     { baseV: 27 + (recovery_id === 0 ? 1 : 0) }, // Inverse
-      //     { baseV: 28 - recovery_id }, // Alternative
-      //   ];
-      //   for (const { baseV } of recoveryOptions) {
-      //     try {
-      //       const recoveryV = baseV;
-      //       const sig = { r, s, v: recoveryV };
-      //       const recoveredAddress = ethers.utils.recoverAddress(
-      //         messageHashBytes,
-      //         sig
-      //       );
-      //       console.log(`Recovery attempt with v=${recoveryV}:`, {
-      //         recoveredAddress,
-      //         matches:
-      //           recoveredAddress.toLowerCase() === evmUserAddress.toLowerCase(),
-      //       });
-      //       if (
-      //         recoveredAddress.toLowerCase() === evmUserAddress.toLowerCase()
-      //       ) {
-      //         // Found the correct v value, now adjust for EIP-155
-      //         const chainV = recoveryV - 27 + (transaction.chainId * 2 + 35);
-      //         finalSig = { r, s, v: chainV };
-      //         addressRecovered = true;
-      //         break;
-      //       }
-      //     } catch (error) {
-      //       console.log(`Recovery attempt failed with baseV=${baseV}:`, error);
-      //     }
-      //   }
-      //   // If standard attempts fail, try direct hash method
-      //   if (!addressRecovered) {
-      //     const unsignedTx = {
-      //       nonce: transaction.nonce,
-      //       gasPrice: transaction.gasPrice,
-      //       gasLimit: transaction.gasLimit,
-      //       to: transaction.to,
-      //       value: transaction.value || ethers.constants.Zero,
-      //       data: transaction.data,
-      //       chainId: transaction.chainId,
-      //     };
-      //     const directHash = ethers.utils.keccak256(
-      //       ethers.utils.serializeTransaction(unsignedTx)
-      //     );
-      //     const directHashBytes = ethers.utils.arrayify(directHash);
-      //     // Try recovery with direct hash
-      //     for (const { baseV } of recoveryOptions) {
-      //       try {
-      //         const sig = { r, s, v: baseV };
-      //         const recoveredAddress = ethers.utils.recoverAddress(
-      //           directHashBytes,
-      //           sig
-      //         );
-      //         console.log(`Direct hash recovery attempt with v=${baseV}:`, {
-      //           recoveredAddress,
-      //           matches:
-      //             recoveredAddress.toLowerCase() ===
-      //             evmUserAddress.toLowerCase(),
-      //         });
-      //         if (
-      //           recoveredAddress.toLowerCase() === evmUserAddress.toLowerCase()
-      //         ) {
-      //           const chainV = baseV - 27 + (transaction.chainId * 2 + 35);
-      //           finalSig = { r, s, v: chainV };
-      //           addressRecovered = true;
-      //           break;
-      //         }
-      //       } catch (error) {
-      //         console.log(
-      //           `Direct hash recovery failed with baseV=${baseV}:`,
-      //           error
-      //         );
-      //       }
-      //     }
-      //   }
-      //   if (!addressRecovered || !finalSig) {
-      //     throw new Error("Failed to recover correct address");
-      //   }
-      //   console.log("✅ Signature verified with:", finalSig);
-      //   setReloaded(false);
-      //   removeUrlParams();
-      //   // Broadcast transaction
-      //   try {
-      //     const chain = getChainRpcAndExplorer(transaction.chainId);
-      //     const explorer = chain.blockExplorer;
-      //     const provider = new ethers.providers.JsonRpcProvider(chain.rpcUrl);
-      //     const signedTx = ethers.utils.serializeTransaction(
-      //       transaction,
-      //       finalSig
-      //     );
-      //     const hash = await provider.send("eth_sendRawTransaction", [
-      //       signedTx,
-      //     ]);
-      //     console.log("Transaction hash:", hash);
-      //     console.log("Explorer link:", `${explorer}/tx/${hash}`);
-      //     return {
-      //       success: true,
-      //       hash,
-      //       explorerUrl: `${explorer}/tx/${hash}`,
-      //     };
-      //   } catch (e: any) {
-      //     const errorStr = JSON.stringify(e);
-      //     if (/nonce too low/gi.test(errorStr)) {
-      //       return { success: false, error: "NONCE_TOO_LOW" };
-      //     }
-      //     if (/gas too low|underpriced/gi.test(errorStr)) {
-      //       return { success: false, error: "GAS_TOO_LOW" };
-      //     }
-      //     return { success: false, error: e.message || "Unknown error" };
-      //   }
-      // } catch (error: any) {
-      //   console.error("Transaction failed:", error);
-      //   return { success: false, error: error || "Unknown error" };
-      // }
     }
   }, [reloaded, evmUserAddress]);
 
@@ -559,10 +421,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
                             await deployContract(
                               evmUserAddress,
-                              sepolia.id,
+                              polygonAmoy.id,
                               "0x" + data.bytecode,
                               wallet
                             );
+
+                            // await deployContracts(
+                            //   evmUserAddress,
+                            //   [polygonAmoy.id],
+                            //   ["0x" + data.bytecode],
+                            //   wallet
+                            // );
                           } else {
                             console.log("Unknown error occurred");
                           }
