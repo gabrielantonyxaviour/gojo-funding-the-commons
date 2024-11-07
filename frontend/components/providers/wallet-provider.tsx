@@ -19,7 +19,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         appearance: {
           theme: theme == "light" ? "light" : "dark",
           accentColor: "#ffffff",
-          logo: "https://gojo-ethglobal.vercel.app/logo-nouns.png",
+          logo: "https://gojo-protocol.vercel.app/logo-nouns.png",
         },
         defaultChain: skaleEuropaTestnet,
         supportedChains: [skaleEuropaTestnet, storyTestnet, polygonAmoy],
