@@ -26,7 +26,13 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "../ui/card";
 import { useEnvironmentStore } from "../context";
 import { zeroAddress } from "viem";
-import { ALT_CODE, chains, idToChain } from "@/lib/constants";
+import {
+  ALT_CODE,
+  chains,
+  COMPILE_HOSTED_URL,
+  COMPILE_LOCAL_URL,
+  idToChain,
+} from "@/lib/constants";
 import { shortenAddress } from "@/lib/utils";
 import { WineOff } from "lucide-react";
 import { baseSepolia, polygonAmoy, sepolia } from "viem/chains";
@@ -457,18 +463,24 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
                   title: "Deploy Contract (1/3)",
                   description: "Compiling " + contractLabel + ".sol ...",
                 });
+                const IS_LOCAL = JSON.parse(
+                  process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+                );
                 try {
-                  // TODO: Replace local url
-                  const res = await fetch("http://localhost:3001/compile", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      contractCode: contractCode,
-                      name: contractLabel,
-                    }),
-                  });
+                  const res = await fetch(
+                    IS_LOCAL ? COMPILE_LOCAL_URL : COMPILE_HOSTED_URL,
+
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        contractCode: contractCode,
+                        name: contractLabel,
+                      }),
+                    }
+                  );
 
                   const data = await res.json();
 
@@ -507,16 +519,23 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
                     //   wallet
                     // );
                   } else {
-                    const res = await fetch("http://localhost:3001/compile", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        contractCode: ALT_CODE,
-                        name: contractLabel,
-                      }),
-                    });
+                    const IS_LOCAL = JSON.parse(
+                      process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+                    );
+                    const res = await fetch(
+                      IS_LOCAL ? COMPILE_LOCAL_URL : COMPILE_HOSTED_URL,
+
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          contractCode: ALT_CODE,
+                          name: contractLabel,
+                        }),
+                      }
+                    );
 
                     const data = await res.json();
                     sessionStorage.setItem(
@@ -565,18 +584,23 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
                 );
                 sessionStorage.setItem("currentExecution", "0");
                 const firstNode = nodes[0];
+                const IS_LOCAL = JSON.parse(
+                  process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+                );
                 try {
-                  // TODO: Replace local url
-                  const res = await fetch("http://localhost:3001/compile", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      contractCode: firstNode.data.code,
-                      name: firstNode.data.label,
-                    }),
-                  });
+                  const res = await fetch(
+                    IS_LOCAL ? COMPILE_LOCAL_URL : COMPILE_HOSTED_URL,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        contractCode: firstNode.data.code,
+                        name: firstNode.data.label,
+                      }),
+                    }
+                  );
 
                   const data = await res.json();
 
@@ -598,16 +622,22 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
                     //   wallet
                     // );
                   } else {
-                    const res = await fetch("http://localhost:3001/compile", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        contractCode: ALT_CODE,
-                        name: firstNode.data.label,
-                      }),
-                    });
+                    const IS_LOCAL = JSON.parse(
+                      process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+                    );
+                    const res = await fetch(
+                      IS_LOCAL ? COMPILE_LOCAL_URL : COMPILE_HOSTED_URL,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          contractCode: ALT_CODE,
+                          name: firstNode.data.label,
+                        }),
+                      }
+                    );
 
                     const data = await res.json();
                     await deployContract(

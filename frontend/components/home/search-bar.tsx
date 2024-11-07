@@ -11,7 +11,12 @@ import { useRouter } from "next/navigation";
 import { useEnvironmentStore } from "../context";
 import { zeroAddress } from "viem";
 import { useToast } from "@/hooks/use-toast";
-import { GOJO_CONTRACT, THIRTY_GAS } from "@/lib/constants";
+import {
+  AI_HOSTED_URL,
+  AI_LOCAL_URL,
+  GOJO_CONTRACT,
+  THIRTY_GAS,
+} from "@/lib/constants";
 import { ToastAction } from "../ui/toast";
 import Image from "next/image";
 
@@ -80,16 +85,13 @@ export function SearchBar({ conversation }: { conversation: any }) {
                   description: "Generating Smart contracts. Please wait...",
                 });
                 let aiResponse;
-                console.log(
-                  Boolean(process.env.NEXT_PUBLIC_IS_LOCAL || "false")
-                    ? "http://127.0.0.1:8000/chat"
-                    : "https://gojo-protocol.onrender.com/chat"
+                const IS_LOCAL = JSON.parse(
+                  process.env.NEXT_PUBLIC_IS_LOCAL || "false"
                 );
+                console.log(IS_LOCAL ? AI_LOCAL_URL : AI_HOSTED_URL);
                 try {
                   const res = await fetch(
-                    Boolean(process.env.NEXT_PUBLIC_IS_LOCAL || "false")
-                      ? "http://127.0.0.1:8000/chat"
-                      : "https://gojo-protocol.onrender.com/chat",
+                    IS_LOCAL ? AI_LOCAL_URL : AI_HOSTED_URL,
                     {
                       method: "POST",
                       headers: {

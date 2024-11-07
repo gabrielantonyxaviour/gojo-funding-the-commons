@@ -24,7 +24,14 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "../ui/card";
 import { useEnvironmentStore } from "../context";
-import { chains, GOJO_CONTRACT, idToChain, THIRTY_GAS } from "@/lib/constants";
+import {
+  AI_HOSTED_URL,
+  AI_LOCAL_URL,
+  chains,
+  GOJO_CONTRACT,
+  idToChain,
+  THIRTY_GAS,
+} from "@/lib/constants";
 import { useWallets } from "@privy-io/react-auth";
 import { useSendMessage, useStreamMessages } from "@xmtp/react-sdk";
 import { privateKeyToAccount } from "viem/accounts";
@@ -321,36 +328,13 @@ export default function AskGojoSheet({
                 }),
               });
               let aiResponse;
-              console.log(
-                Boolean(process.env.NEXT_PUBLIC_IS_LOCAL || "false")
-                  ? "http://127.0.0.1:8000/chat"
-                  : "https://gojo-protocol.onrender.com/chat"
+              const IS_LOCAL = JSON.parse(
+                process.env.NEXT_PUBLIC_IS_LOCAL || "false"
               );
+              console.log(IS_LOCAL ? AI_LOCAL_URL : AI_HOSTED_URL);
               try {
-                console.log("Body");
-                console.log(
-                  JSON.stringify({
-                    message: prompt,
-                    contracts: nodes.map((n) => {
-                      return {
-                        nodeId: n.id,
-                        chainId: n.data.chainId,
-                        code: n.data.code,
-                        label: n.data.label,
-                      };
-                    }),
-                    selectedContract:
-                      selectedContract && askGojo.node ? askGojo.node.id : null,
-                    selectedConnection: null,
-                    name: projects[parseInt(pathName.split("/")[2]) - 1].name,
-                    thread_id:
-                      projects[parseInt(pathName.split("/")[2]) - 1].threadId,
-                  })
-                );
                 const res = await fetch(
-                  Boolean(process.env.NEXT_PUBLIC_IS_LOCAL || "false")
-                    ? "http://127.0.0.1:8000/chat"
-                    : "https://gojo-protocol.onrender.com/chat",
+                  IS_LOCAL ? AI_LOCAL_URL : AI_HOSTED_URL,
                   {
                     method: "POST",
                     headers: {

@@ -83,3 +83,9 @@ export const ALT_CODE = ` pragma solidity ^0.8.0;
                       return count;
                   }
               }`;
+
+export const AI_HOSTED_URL = "https://gojo-protocol.onrender.com/chat";
+export const AI_LOCAL_URL = "http://127.0.0.1:8000/chat";
+export const COMPILE_HOSTED_URL =
+  "https://gojo-compile-server.onrender.com/chat";
+export const COMPILE_LOCAL_URL = "http://localhost:3001/compile";

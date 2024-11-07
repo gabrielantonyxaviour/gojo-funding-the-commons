@@ -24,6 +24,8 @@ import {
   DERIVATION_PATH,
   idToChain,
   ALT_CODE,
+  COMPILE_LOCAL_URL,
+  COMPILE_HOSTED_URL,
 } from "@/lib/constants";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -190,16 +192,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             });
             try {
               // TODO: Replace local url
-              const res = await fetch("http://localhost:3001/compile", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  contractCode: nextNode.data.code,
-                  name: nextNode.data.label,
-                }),
-              });
+              const IS_LOCAL = JSON.parse(
+                process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+              );
+
+              const res = await fetch(
+                IS_LOCAL ? COMPILE_LOCAL_URL : COMPILE_HOSTED_URL,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    contractCode: nextNode.data.code,
+                    name: nextNode.data.label,
+                  }),
+                }
+              );
 
               const data = await res.json();
 
@@ -230,16 +239,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 //   wallet
                 // );
               } else {
-                const res = await fetch("http://localhost:3001/compile", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    contractCode: ALT_CODE,
-                    name: nextNode.data.label,
-                  }),
-                });
+                const IS_LOCAL = JSON.parse(
+                  process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+                );
+
+                const res = await fetch(
+                  IS_LOCAL ? COMPILE_LOCAL_URL : COMPILE_HOSTED_URL,
+
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      contractCode: ALT_CODE,
+                      name: nextNode.data.label,
+                    }),
+                  }
+                );
 
                 const data = await res.json();
                 toast({
@@ -570,10 +587,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             evmUserAddress,
                           "_blank"
                         );
+                        const IS_LOCAL = JSON.parse(
+                          process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+                        );
 
                         try {
                           const res = await fetch(
-                            "http://localhost:3001/compile",
+                            IS_LOCAL ? COMPILE_LOCAL_URL : COMPILE_HOSTED_URL,
                             {
                               method: "POST",
                               headers: {
