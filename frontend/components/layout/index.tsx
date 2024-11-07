@@ -365,13 +365,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Button
                       variant={"ghost"}
                       onClick={async () => {
-                        // window.open(
-                        //   "https://sepolia.etherscan.io/address/" +
-                        //     evmUserAddress,
-                        //   "_blank"
-                        // );
+                        window.open(
+                          "https://sepolia.etherscan.io/address/" +
+                            evmUserAddress,
+                          "_blank"
+                        );
 
-                        // TODO: Port MPC transaction
                         try {
                           const res = await fetch(
                             "http://localhost:3001/compile",

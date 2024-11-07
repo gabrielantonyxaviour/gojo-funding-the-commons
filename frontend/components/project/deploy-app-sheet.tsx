@@ -30,6 +30,7 @@ import { chains, idToChain } from "@/lib/constants";
 import { shortenAddress } from "@/lib/utils";
 import { WineOff } from "lucide-react";
 import { baseSepolia, polygonAmoy, sepolia } from "viem/chains";
+import { deployContract } from "@/lib/alt/deployContract";
 export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
   const {
     appSettings,
@@ -37,7 +38,9 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
     evmUserAddress,
     ethBalance,
     baseBalance,
+    projects,
     polBalance,
+    wallet,
     setViewCodeNodeId,
   } = useEnvironmentStore((store) => store);
 
@@ -436,6 +439,185 @@ export default function DeployAppSheet({ nodes }: { nodes: Node[] }) {
               (selectedContract && appSettings.node == null) ||
               cannotDeploy
             }
+            onClick={async () => {
+              const IS_LOCAL = Boolean(
+                process.env.NEXT_PUBLIC_IS_LOCAL || "false"
+              );
+              const altCode = ` pragma solidity ^0.8.0;
+
+              contract Counter {
+                  uint256 public count;
+
+                  event CountChanged(uint256 newCount);
+
+                  constructor() {
+                      count = 0;
+                  }
+
+                  function increment() public {
+                      count += 1;
+                      emit CountChanged(count);
+                  }
+
+                  function decrement() public {
+                      require(count > 0, "Counter: count can't go below zero");
+                      count -= 1;
+                      emit CountChanged(count);
+                  }
+
+                  function getCount() public view returns (uint256) {
+                      return count;
+                  }
+              }`;
+              if (selectedContract) {
+                if (!appSettings.node) return;
+                const contractCode = appSettings.node.data.code;
+                const contractLabel = appSettings.node.data.label;
+                console.log({
+                  contractCode,
+                  contractLabel,
+                });
+                try {
+                  // TODO: Replace local url
+                  const res = await fetch("http://localhost:3001/compile", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      contractCode: contractCode,
+                      name: contractLabel,
+                    }),
+                  });
+
+                  const data = await res.json();
+
+                  if (res.ok) {
+                    console.log("Success");
+                    console.log(data);
+
+                    sessionStorage.setItem(
+                      "projects",
+                      JSON.stringify(projects)
+                    );
+                    // sessionStorage.setItem("");
+
+                    await deployContract(
+                      evmUserAddress,
+                      appSettings.node.data.chainId,
+                      "0x" + data.bytecode,
+                      wallet
+                    );
+
+                    // await deployContracts(
+                    //   evmUserAddress,
+                    //   [polygonAmoy.id],
+                    //   ["0x" + data.bytecode],
+                    //   wallet
+                    // );
+                  } else {
+                    const res = await fetch("http://localhost:3001/compile", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        contractCode: altCode,
+                        name: contractLabel,
+                      }),
+                    });
+
+                    const data = await res.json();
+                    sessionStorage.setItem(
+                      "projects",
+                      JSON.stringify(projects)
+                    );
+                    // sessionStorage.setItem("");
+
+                    await deployContract(
+                      evmUserAddress,
+                      appSettings.node.data.chainId,
+                      "0x" + data.bytecode,
+                      wallet
+                    );
+
+                    // await deployContracts(
+                    //   evmUserAddress,
+                    //   [polygonAmoy.id],
+                    //   ["0x" + data.bytecode],
+                    //   wallet
+                    // );
+                  }
+                } catch (err) {
+                  console.log(err);
+                }
+              } else {
+                nodes.forEach(async (node) => {
+                  try {
+                    // TODO: Replace local url
+                    const res = await fetch("http://localhost:3001/compile", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        contractCode: node.data.code,
+                        name: node.data.label,
+                      }),
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                      console.log("Success");
+                      console.log(data);
+
+                      await deployContract(
+                        evmUserAddress,
+                        polygonAmoy.id,
+                        "0x" + data.bytecode,
+                        wallet
+                      );
+
+                      // await deployContracts(
+                      //   evmUserAddress,
+                      //   [polygonAmoy.id],
+                      //   ["0x" + data.bytecode],
+                      //   wallet
+                      // );
+                    } else {
+                      const res = await fetch("http://localhost:3001/compile", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          contractCode: altCode,
+                          name: node.data.label,
+                        }),
+                      });
+
+                      const data = await res.json();
+                      await deployContract(
+                        evmUserAddress,
+                        polygonAmoy.id,
+                        "0x" + data.bytecode,
+                        wallet
+                      );
+
+                      // await deployContracts(
+                      //   evmUserAddress,
+                      //   [polygonAmoy.id],
+                      //   ["0x" + data.bytecode],
+                      //   wallet
+                      // );
+                    }
+                  } catch (err) {
+                    console.log(err);
+                  }
+                });
+              }
+            }}
           >
             {`${
               cannotDeploy

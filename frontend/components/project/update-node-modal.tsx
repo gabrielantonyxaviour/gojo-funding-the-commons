@@ -22,6 +22,7 @@ import { Textarea } from "../ui/textarea";
 import { Node } from "@/lib/type";
 import { useReactFlow } from "@xyflow/react";
 import { chains, idToChain } from "@/lib/constants";
+import { useToast } from "@/hooks/use-toast";
 
 export default function UpdateNodeModal({
   nodeId,
@@ -44,7 +45,7 @@ export default function UpdateNodeModal({
 }) {
   const [label, setLabel] = useState("");
   const [selectedChainId, setSelectedChainId] = useState<number>(0);
-
+  const { toast } = useToast();
   useEffect(() => {
     if (open) {
       setLabel(initLabel);
@@ -143,6 +144,15 @@ export default function UpdateNodeModal({
           <Button
             disabled={selectedChainId == 0 || label == ""}
             onClick={() => {
+              const regex = /^[A-Z][a-zA-Z]*$/;
+              if (!regex.test(label)) {
+                toast({
+                  variant: "destructive",
+                  title: "Invalid Label",
+                  description: "Label should be in Upper Camel Case.",
+                });
+                return;
+              }
               onChangeNode({
                 nodeId: nodeId,
                 label: label,

@@ -81,13 +81,13 @@ export function SearchBar({ conversation }: { conversation: any }) {
                 });
                 let aiResponse;
                 console.log(
-                  process.env.NEXT_PUBLIC_IS_LOCAL
+                  Boolean(process.env.NEXT_PUBLIC_IS_LOCAL || "false")
                     ? "http://127.0.0.1:8000/chat"
                     : "https://gojo-protocol.onrender.com/chat"
                 );
                 try {
                   const res = await fetch(
-                    process.env.NEXT_PUBLIC_IS_LOCAL
+                    Boolean(process.env.NEXT_PUBLIC_IS_LOCAL || "false")
                       ? "http://127.0.0.1:8000/chat"
                       : "https://gojo-protocol.onrender.com/chat",
                     {
